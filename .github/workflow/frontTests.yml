@@ -1,0 +1,35 @@
+name: Frontend CI (Jest)
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+    branches: [ '**' ]
+
+jobs:
+  test:
+    name: Run Jest Tests
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [20]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+
+      - name: Install frontend dependencies
+        working-directory: frontend
+        run: npm ci
+
+      - name: Run Jest tests
+        working-directory: frontend
+        run: npm test -- --ci --runInBand

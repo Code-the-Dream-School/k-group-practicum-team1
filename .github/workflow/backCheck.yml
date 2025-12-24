@@ -1,0 +1,38 @@
+name: Rubocop Check
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+    branches: "**"
+
+jobs:
+  backend:
+    name: Check Ruby Code Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.7'
+          bundler-cache: true
+
+      - name: Install dependencies
+        working-directory: backend
+        run: bundle install
+
+      - name: Check syntax
+        working-directory: backend
+        run: bin/bundle exec rubocop
+
+      - name: Run RSpec
+        working-directory: backend
+        run: bundle exec rspec
+
+      - name: report failures, if any
+        if: ${{ failure() }}
+        run: echo "Rubocop found syntax offenses, which must be corrected."
