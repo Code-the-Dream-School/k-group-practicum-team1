@@ -70,6 +70,9 @@ jobs:
           ruby-version: '3.3.7'
           bundler-cache: true
 
+      - name: Install backend dependencies
+        run: bundle install
+
       - name: Setup database
         run: bundle exec rails db:prepare
 
@@ -101,7 +104,7 @@ jobs:
 #        run: npm run prettier
 
       - name: Run ESLint
-        run: npm run lint -- --env node
+        run: npm run lint
 
   frontend_test:
     name: Frontend Tests (Jest)
