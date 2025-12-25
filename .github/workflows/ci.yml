@@ -71,7 +71,7 @@ jobs:
           bundler-cache: true
 
       - name: Setup database
-        run: bin/rails db:prepare
+        run: bin/bundle exec rails db:prepare
 
       - name: Run RSpec
         run: bin/bundle exec rspec --format documentation
@@ -101,7 +101,7 @@ jobs:
 #        run: npm run prettier
 
       - name: Run ESLint
-        run: npm run lint
+        run: npm run lint . --env node
 
   frontend_test:
     name: Frontend Tests (Jest)
