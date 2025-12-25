@@ -74,7 +74,9 @@ jobs:
         run: bundle install
 
       - name: Setup database
-        run: bundle exec rails db:prepare
+        run: |
+          bin/rails db:create
+          bin/rails db:migrate
 
       - name: Run RSpec
         run: bin/bundle exec rspec --format documentation
