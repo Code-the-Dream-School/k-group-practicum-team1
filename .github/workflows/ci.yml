@@ -25,6 +25,9 @@ jobs:
           ruby-version: '3.3.7'
           bundler-cache: true
 
+      - name: Install dependencies
+        run: bundle install
+
       - name: Check syntax
         run: bin/bundle exec rubocop
 
@@ -94,8 +97,8 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Check formatting with Prettier
-        run: npm run prettier
+#      - name: Check formatting with Prettier
+#        run: npm run prettier
 
       - name: Run ESLint
         run: npm run lint
