@@ -1,0 +1,154 @@
+name: Rubocop Check
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+    branches: "**"
+
+jobs:
+  backend_lint:
+    name: Backend Lint (RuboCop)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.7'
+          bundler-cache: true
+
+      - name: Install dependencies
+        run: bundle install
+
+      - name: Check syntax
+        run: bin/bundle exec rubocop
+
+      - name: report failures, if any
+        if: ${{ failure() }}
+        run: echo "Rubocop found syntax offenses, which must be corrected."
+
+  backend_test:
+    name: Backend Tests (RSpec)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: app_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/app_test
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3.7'
+          bundler-cache: true
+
+      - name: Install backend dependencies
+        run: bundle install
+
+      - name: Setup database
+        run: |
+          bin/rails db:create
+          bin/rails db:migrate
+
+      - name: Run RSpec
+        run: bin/bundle exec rspec --format documentation
+
+  frontend_lint:
+    name: Frontend Lint (ESLint)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+#      - name: Check formatting with Prettier
+#        run: npm run prettier
+
+      - name: Run ESLint
+        run: npm run lint
+
+  frontend_test:
+    name: Frontend Tests (Jest)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Run Jest tests
+        run: npm test -- --ci --runInBand
+
+  frontend_build:
+    name: Frontend Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - run: npm ci
+      - run: npm run build
