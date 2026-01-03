@@ -36,7 +36,6 @@ export default [
       prettier,
     },
     rules: {
-      'no-unused-vars': ['error', { varsIgnorePattern: '^[A-Z_]' }],
       ...js.configs.recommended.rules,
       ...react.configs.recommended.rules,
       ...react.configs['jsx-runtime'].rules,
@@ -55,6 +54,12 @@ export default [
       'import/no-unresolved': 'error',
       'import/extensions': ['error', 'always', { js: 'never', jsx: 'never', mjs: 'never' }],
       'import/no-duplicates': 'warn',
+    },
+  },
+  {
+    files: ['**/*.jsx'],
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^React$' }],
     },
   },
   {
