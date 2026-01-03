@@ -102,8 +102,8 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-#      - name: Check formatting with Prettier
-#        run: npm run prettier
+      - name: Check formatting with Prettier
+        run: npm run prettier
 
       - name: Run ESLint
         run: npm run lint
