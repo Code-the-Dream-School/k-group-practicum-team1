@@ -1,5 +1,5 @@
 # /.gitignore
 # Environment files with secrets
-.env
-.env.local
-.env.production.local
+/.env*
+# Allow example files to be committed
+!.env*.example
