@@ -5,7 +5,7 @@ FactoryBot.define do
     email { Faker::Internet.unique.email }
     password { 'Password123!' }
     password_confirmation { 'Password123!' }
-    phone_number { Faker::PhoneNumber.unique.cell_phone }
+    phone_number { Faker::Number.number(digits: 10).to_s }
     role { :customer }
 
     trait :customer do
