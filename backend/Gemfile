@@ -44,6 +44,9 @@ group :development do
   gem "web-console"
   # Process manager for Procfile-based applications (alternative to dotenv-rails)
   gem "foreman"
+  # Swagger
+  gem 'rswag-ui'
+  gem 'rswag-api'
 end
 
 gem "devise"
