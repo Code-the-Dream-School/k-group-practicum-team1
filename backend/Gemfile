@@ -37,6 +37,9 @@ group :development, :test do
   gem "faker"
   gem "shoulda-matchers", "~> 6.0"
   gem "simplecov", require: false
+  # Swagger UI/docs
+  gem "rswag-ui"
+  gem "rswag-api"
 end
 
 group :development do
@@ -44,9 +47,6 @@ group :development do
   gem "web-console"
   # Process manager for Procfile-based applications (alternative to dotenv-rails)
   gem "foreman"
-  # Swagger
-  gem 'rswag-ui'
-  gem 'rswag-api'
 end
 
 gem "devise"
