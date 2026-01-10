@@ -37,6 +37,9 @@ group :development, :test do
   gem "faker"
   gem "shoulda-matchers", "~> 6.0"
   gem "simplecov", require: false
+  # Swagger UI/docs
+  gem "rswag-ui"
+  gem "rswag-api"
 end
 
 group :development do

@@ -85,3 +85,28 @@ Foreman auto-loads `.env.development.local` before starting Rails.
 | `FRONTEND_URL` | Rails CORS | `config/initializers/cors.rb` |
 
 **Note:** Never commit files containing actual secrets. Only `.env*.example` files should be committed.
+
+## API Documentation 
+
+### Quick Start with Authentication
+1. **Register a new user**: `POST /signup`
+2. **Login to get token**: `POST /login`
+3. **Use the token**: Add `Authorization: Bearer <token>` header to all protected requests
+
+### Available Endpoints
+| Method | Endpoint | Description                 |
+|--------|----------|-----------------------------|
+| POST   | `/signup` | User registration           |
+| POST   | `/login` | User login                  |
+| GET    | `/api/v1/users` | List all users              |
+| GET    | `/api/v1/users/:id` | Get specific user           |
+| GET    | `/api/v1/me` | Get current user profile    |
+| PATCH  | `/api/v1/users/:id` | Update specific user profile |
+| DELETE | `/api/v1/users/:id` | Delete specific user |
+| DELETE | `/logout` | User logout                 |
+
+### Testing with Swagger UI
+Visit **[http://localhost:3000/api-docs](http://localhost:3000/api-docs)** to:
+- Browse all available endpoints
+- Try API calls directly from your browser
+- View request/response schemas
