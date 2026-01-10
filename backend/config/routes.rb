@@ -10,6 +10,14 @@ Rails.application.routes.draw do
                sessions: "users/sessions",
                registrations: "users/registrations"
              }
+
+  namespace :api do
+    namespace :v1 do
+      resources :users
+      get '/me', to: 'users#me'
+    end
+  end
+
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
