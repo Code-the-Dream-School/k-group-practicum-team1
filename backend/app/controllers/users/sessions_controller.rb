@@ -3,7 +3,7 @@
 class Users::SessionsController < Devise::SessionsController
   respond_to :json
 
-   before_action :sign_out_existing_user, only: [:create]
+   before_action :sign_out_existing_user, only: [ :create ]
 
   private
 

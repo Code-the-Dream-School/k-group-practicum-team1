@@ -95,7 +95,7 @@ RSpec.describe "API::V1::Users", type: :request do
   describe "DELETE /api/v1/users/:id" do
     it "prevents customer from deleting users" do
       delete "/api/v1/users/#{loan_officer.id}", headers: auth_headers(customer)
-      expect(response).to have_http_status(:unauthorized)
+      expect(response).to have_http_status(:forbidden)
     end
 
     it "allows loan officer to delete customer" do
