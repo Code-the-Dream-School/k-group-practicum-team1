@@ -28,6 +28,14 @@ SimpleCov.start 'rails' do
   add_group 'Helpers', 'app/helpers'
   add_group 'Mailers', 'app/mailers'
   add_group 'Jobs', 'app/jobs'
+
+
+  # Exclude multiple files at once
+  add_filter do |source_file|
+    source_file.filename.include?('application_record.rb') ||
+    source_file.filename.include?('application_mailer.rb') ||
+    source_file.filename.include?('application_job.rb')
+  end
 end
 
 RSpec.configure do |config|
