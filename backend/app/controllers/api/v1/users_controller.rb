@@ -1,6 +1,7 @@
 module Api
   module V1
     class UsersController < ApplicationController
+#       skip_before_action :verify_authenticity_token
       before_action :authenticate_user!
       before_action :set_user, only: [ :show, :update, :destroy ]
 
@@ -41,11 +42,20 @@ module Api
 
       # DELETE /api/v1/users/:id
       def destroy
-        if current_user.customer?
-          render json: { errors: [ "Unauthorized" ] }, status: :unauthorized
-        else
+        unless current_user
+          return render json: { errors: ["Unauthorized"] }, status: :unauthorized
+        end
+      # Only allow loan_officer or underwriter to delete any user
+        unless current_user.loan_officer? || current_user.underwriter?
+          return render json: { errors: ["Forbidden"] }, status: :forbidden
+        end
+
+        # Allow deleting a customer or themselves
+        if current_user == @user || @user.customer?
           @user.destroy
           head :no_content
+        else
+          render json: { errors: ["Permission denied"] }, status: :forbidden
         end
       end
 
