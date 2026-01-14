@@ -3,7 +3,14 @@
 class Users::SessionsController < Devise::SessionsController
   respond_to :json
 
+   before_action :sign_out_existing_user, only: [ :create ]
+
   private
+
+  def sign_out_existing_user
+    sign_out(current_user) if current_user
+    request.reset_session
+  end
 
   def respond_with(resource, _opts = {})
   token = request.env["warden-jwt_auth.token"]
