@@ -3,3 +3,6 @@
 /.env*
 # Allow example files to be committed
 !.env*.example
+
+# IDE config
+.idea/
