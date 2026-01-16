@@ -1,5 +1,6 @@
 class Application < ApplicationRecord
   belongs_to :user
+  has_one :vehicle, dependent: :destroy
 
   enum :status, {
     draft: "draft",
