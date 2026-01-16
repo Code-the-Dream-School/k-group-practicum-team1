@@ -10,9 +10,20 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_13_065853) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_13_212956) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "addresses", force: :cascade do |t|
+    t.string "address_street", null: false
+    t.string "city", null: false
+    t.string "state", null: false
+    t.string "zip", null: false
+    t.bigint "application_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_addresses_on_application_id"
+  end
 
   create_table "applications", force: :cascade do |t|
     t.string "application_number", null: false
@@ -54,5 +65,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_13_065853) do
     t.index ["phone_number"], name: "index_users_on_phone_number", unique: true
   end
 
+  add_foreign_key "addresses", "applications"
   add_foreign_key "applications", "users"
 end
