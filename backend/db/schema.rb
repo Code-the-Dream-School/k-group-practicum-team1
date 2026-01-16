@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_13_212956) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_15_224149) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -65,6 +65,23 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_13_212956) do
     t.index ["phone_number"], name: "index_users_on_phone_number", unique: true
   end
 
+  create_table "vehicles", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.string "vehicle_type", null: false
+    t.integer "year", null: false
+    t.string "make", null: false
+    t.string "model", null: false
+    t.string "trim"
+    t.string "vin", null: false
+    t.integer "mileage"
+    t.decimal "vehicle_value", precision: 12, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_vehicles_on_application_id", unique: true
+    t.index ["vin"], name: "index_vehicles_on_vin", unique: true
+  end
+
   add_foreign_key "addresses", "applications"
   add_foreign_key "applications", "users"
+  add_foreign_key "vehicles", "applications"
 end

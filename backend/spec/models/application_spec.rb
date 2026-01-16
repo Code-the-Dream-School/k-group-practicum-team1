@@ -5,6 +5,7 @@ RSpec.describe Application, type: :model do
 
   describe 'associations' do
     it { should belong_to(:user) }
+    it { should have_one(:vehicle).dependent(:destroy) }
   end
 
   describe 'enums' do
@@ -242,6 +243,29 @@ RSpec.describe Application, type: :model do
         application = build(:application, user: user, term_months: term)
         expect(application).to be_valid
       end
+    end
+  end
+
+  describe 'one-to-one relationship with vehicle' do
+    it 'can have one vehicle' do
+      application = create(:application, user: user)
+      vehicle = create(:vehicle, application: application)
+      expect(application.vehicle).to eq(vehicle)
+    end
+
+    it 'destroys associated vehicle when application is destroyed' do
+      application = create(:application, user: user)
+      vehicle = create(:vehicle, application: application)
+      vehicle_id = vehicle.id
+
+      expect { application.destroy }.to change { Vehicle.count }.by(-1)
+      expect(Vehicle.find_by(id: vehicle_id)).to be_nil
+    end
+
+    it 'allows application without vehicle' do
+      application = create(:application, user: user)
+      expect(application.vehicle).to be_nil
+      expect(application).to be_valid
     end
   end
 end
