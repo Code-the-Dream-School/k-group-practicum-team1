@@ -15,14 +15,14 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_13_212956) do
   enable_extension "pg_catalog.plpgsql"
 
   create_table "addresses", force: :cascade do |t|
-    t.string "street", null: false
+    t.string "address_street", null: false
     t.string "city", null: false
     t.string "state", null: false
     t.string "zip", null: false
     t.bigint "application_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index [ "application_id" ], name: "index_addresses_on_application_id"
+    t.index ["application_id"], name: "index_addresses_on_application_id"
   end
 
   create_table "applications", force: :cascade do |t|
@@ -39,9 +39,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_13_212956) do
     t.date "submitted_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index [ "application_number" ], name: "index_applications_on_application_number", unique: true
-    t.index [ "status" ], name: "index_applications_on_status"
-    t.index [ "user_id" ], name: "index_applications_on_user_id"
+    t.index ["application_number"], name: "index_applications_on_application_number", unique: true
+    t.index ["status"], name: "index_applications_on_status"
+    t.index ["user_id"], name: "index_applications_on_user_id"
   end
 
   create_table "jwt_denylists", force: :cascade do |t|
@@ -49,7 +49,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_13_212956) do
     t.datetime "exp"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index [ "jti" ], name: "index_jwt_denylists_on_jti"
+    t.index ["jti"], name: "index_jwt_denylists_on_jti"
   end
 
   create_table "users", force: :cascade do |t|
@@ -61,8 +61,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_13_212956) do
     t.string "encrypted_password", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index [ "email" ], name: "index_users_on_email", unique: true
-    t.index [ "phone_number" ], name: "index_users_on_phone_number", unique: true
+    t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["phone_number"], name: "index_users_on_phone_number", unique: true
   end
 
   add_foreign_key "addresses", "applications"

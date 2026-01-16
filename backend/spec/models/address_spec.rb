@@ -25,10 +25,10 @@ RSpec.describe Address, type: :model do
       expect(address.application).to be_present
     end
 
-    it 'is not valid without street' do
-      address = build(:address, street: nil)
+    it 'is not valid without address_street' do
+      address = build(:address, address_street: nil)
       expect(address).to_not be_valid
-      expect(address.errors[:street]).to include("can't be blank")
+      expect(address.errors[:address_street]).to include("can't be blank")
     end
 
     it 'is not valid without city' do
