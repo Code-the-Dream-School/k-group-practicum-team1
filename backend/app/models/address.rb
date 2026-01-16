@@ -8,8 +8,8 @@ class Address < ApplicationRecord
 
   validates :address_street, presence: true
   validates :city, presence: true
-  validates :state, 
-            presence: true, 
+  validates :state,
+            presence: true,
             inclusion: { in: VALID_STATES, message: "%{value} is not a valid US state abbreviation" }
   validates :zip,
             presence: true,
