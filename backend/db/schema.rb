@@ -45,9 +45,9 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_15_224149) do
     t.string "first_name", null: false
     t.string "last_name", null: false
     t.string "phone_number", null: false
-    t.integer "role", default: 0, null: false
-    t.string "email", default: "", null: false
-    t.string "encrypted_password", default: "", null: false
+    t.integer "role", null: false
+    t.string "email", null: false
+    t.string "encrypted_password", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
@@ -63,6 +63,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_15_224149) do
     t.string "trim"
     t.string "vin", null: false
     t.integer "mileage"
+    t.decimal "vehicle_value", precision: 12, scale: 2
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["application_id"], name: "index_vehicles_on_application_id", unique: true

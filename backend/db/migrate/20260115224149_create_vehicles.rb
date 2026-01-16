@@ -9,6 +9,7 @@ class CreateVehicles < ActiveRecord::Migration[8.0]
       t.string :trim
       t.string :vin, null: false
       t.integer :mileage
+      t.decimal :vehicle_value, precision: 12, scale: 2
 
       t.timestamps
     end
