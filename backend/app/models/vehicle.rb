@@ -17,6 +17,8 @@ class Vehicle < ApplicationRecord
             format: { with: /\A[A-HJ-NPR-Z0-9]{17}\z/, message: "must be 17 characters (excluding I, O, Q)" }
   validates :mileage, numericality: { only_integer: true, greater_than_or_equal_to: 0 },
             allow_nil: true
+  validates :vehicle_value, numericality: { greater_than: 0 },
+            allow_nil: true
 
   before_validation :normalize_vin
 
