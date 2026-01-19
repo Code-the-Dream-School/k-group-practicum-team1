@@ -1,8 +1,17 @@
+// frontend/jest.config.js
 export default {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   transform: {
-    '^.+\\.(js|jsx)$': ['babel-jest', { presets: ['@babel/preset-env', '@babel/preset-react'] }],
+    '^.+\\.(js|jsx)$': [
+      'babel-jest',
+      {
+        presets: [
+          '@babel/preset-env',
+          ['@babel/preset-react', { runtime: 'automatic' }],
+        ],
+      },
+    ],
   },
   moduleNameMapper: {
     '\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js',

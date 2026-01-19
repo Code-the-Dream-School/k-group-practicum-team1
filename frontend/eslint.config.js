@@ -1,3 +1,4 @@
+// frontend/eslint.config.js
 import js from '@eslint/js';
 import globals from 'globals';
 import react from 'eslint-plugin-react';
@@ -47,7 +48,6 @@ export default [
       'react/display-name': 'off',
       'react/jsx-no-useless-fragment': 'warn',
       'react/self-closing-comp': 'warn',
-
       'comma-dangle': ['error', 'only-multiline'],
       'prettier/prettier': ['error', { endOfLine: 'auto' }],
       eqeqeq: 'error',
@@ -67,6 +67,22 @@ export default [
     languageOptions: {
       globals: {
         ...globals.node,
+      },
+    },
+  },
+  {
+    files: ['**/*.test.{js,jsx}', '**/__tests__/**/*.{js,jsx}'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+        jest: 'readonly',
+        describe: 'readonly',
+        it: 'readonly',
+        expect: 'readonly',
+        beforeEach: 'readonly',
+        afterEach: 'readonly',
+        beforeAll: 'readonly',
+        afterAll: 'readonly',
       },
     },
   },
