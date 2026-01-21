@@ -53,9 +53,7 @@ function HomePage() {
           </div>
           <div className="shadow-lg w-full sm:w-1/4 sm:min-h-35 max-w-xl bg-white rounded-lg p-6">
             <h2 className="text-gray-700 text-xl font-semibold">Competitive Rates</h2>
-            <p className="text-gray-500 mt-2 wrap-break-word">
-              Enjoy some of the lowest interest rates in the market.
-            </p>
+            <p className="text-gray-500 mt-2 wrap-break-word">Enjoy some of the lowest interest rates in the market.</p>
           </div>
           <div className="shadow-lg w-full sm:w-1/4 sm:min-h-35 max-w-xl bg-white rounded-lg p-6">
             <h2 className="text-gray-700 text-xl font-semibold">Flexible Terms</h2>
