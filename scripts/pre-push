@@ -1,0 +1,26 @@
+#!/bin/bash
+# scripts/pre-push
+# Auto-runs CI checks before push - install: cp scripts/pre-push .git/hooks/pre-push
+
+set -e
+ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+[[ "$(basename "$0")" == "pre-push" && -d "$ROOT_DIR/.git" ]] || ROOT_DIR="$(git rev-parse --show-toplevel)"
+
+echo "=== Running CI checks locally ==="
+
+echo ">>> Backend Lint (RuboCop)"
+cd "$ROOT_DIR/backend" && bundle exec rubocop
+
+echo ">>> Backend Tests (RSpec)"
+bundle exec rspec --format documentation
+
+echo ">>> Frontend Lint (Prettier + ESLint)"
+cd "$ROOT_DIR/frontend" && npm run prettier && npm run lint
+
+echo ">>> Frontend Tests (Jest)"
+npm test -- --ci --runInBand --watchAll=false
+
+echo ">>> Frontend Build"
+npm run build
+
+echo "=== All CI checks passed ==="
