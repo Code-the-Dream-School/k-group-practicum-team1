@@ -54,7 +54,6 @@ RSpec.describe "API::V1::Applications", type: :request do
     end
 
     context "validation failures" do
-
       it "returns error for invalid term_months" do
         invalid_params = { application: valid_params[:application].merge(term_months: 24) }
         post '/api/v1/applications', headers: auth_headers(customer), params: invalid_params
