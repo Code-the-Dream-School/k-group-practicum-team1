@@ -1,8 +1,20 @@
 import React from 'react';
 import './App.css';
+import { Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage/HomePage';
+import Navbar from './layouts/Navbar/Navbar';
+import Footer from './layouts/Footer/Footer';
 
 function App() {
-  return <h1>Auto Loan Application System</h1>;
+  return (
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+      </Routes>
+      <Footer />
+    </>
+  );
 }
 
 export default App;
