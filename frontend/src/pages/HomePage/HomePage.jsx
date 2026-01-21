@@ -54,7 +54,7 @@ function HomePage() {
           <div className="shadow-lg w-full sm:w-1/4 sm:min-h-35 max-w-xl bg-white rounded-lg p-6">
             <h2 className="text-gray-700 text-xl font-semibold">Competitive Rates</h2>
             <p className="text-gray-500 mt-2 wrap-break-word">
-              OEnjoy some of the lowest interest rates in the market.
+              Enjoy some of the lowest interest rates in the market.
             </p>
           </div>
           <div className="shadow-lg w-full sm:w-1/4 sm:min-h-35 max-w-xl bg-white rounded-lg p-6">
@@ -79,7 +79,7 @@ function HomePage() {
 
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Loan Amounnt:</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Loan Amount:</label>
                 <input
                   type="range"
                   min="0"
