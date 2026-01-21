@@ -1,8 +1,11 @@
-import React from 'react';
+/* eslint-disable */
+import React, { useState } from 'react';
 import './App.css';
+// import Stepper from './components/Stepper/Stepper';
+import Dashboard from './components/Dashboard/Dashboard';
 
 function App() {
-  return <h1>Auto Loan Application System</h1>;
+  return <Dashboard />;
 }
 
 export default App;
