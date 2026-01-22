@@ -41,15 +41,70 @@ const ApplicationInProgress = ({ applicationId }) => {
         // const data = await response.json();
 
         // Mock data for development - Remove when API is ready
-        const mockData = {
-          id: applicationId,
-          application_number: 'AL-2025-12345',
-          status: 'submitted',
-          submitted_date: '2025-12-01',
-          loan_amount: 25000,
-          term_months: 48,
-          apr: 5.5,
+        const mockScenarios = {
+          1: {
+            id: 1,
+            application_number: 'AL-2024-001',
+            vehicle: '2023 Toyota Camry',
+            status: 'approved',
+            submitted_date: '2024-01-15',
+            loan_amount: 25000,
+            term_months: 48,
+            apr: 5.5,
+          },
+          2: {
+            id: 2,
+            application_number: 'AK-2024-002',
+            vehicle: '2022 Honda Civic',
+            status: 'under_review',
+            submitted_date: '2024-01-10',
+            loan_amount: 18500,
+            term_months: 36,
+            apr: 4.9,
+          },
+          3: {
+            id: 3,
+            application_number: 'FL-2024-003',
+            vehicle: '2024 Ford F-150',
+            status: 'pending',
+            submitted_date: '2024-01-05',
+            loan_amount: 35000,
+            term_months: 60,
+            apr: 6.2,
+          },
+          4: {
+            id: 4,
+            application_number: 'TX-2023-125',
+            vehicle: '2021 Chevrolet Silverado',
+            status: 'approved',
+            submitted_date: '2023-11-20',
+            loan_amount: 28000,
+            term_months: 48,
+            apr: 5.8,
+          },
+          5: {
+            id: 5,
+            application_number: 'CA-2023-089',
+            vehicle: '2022 Nissan Altima',
+            status: 'rejected',
+            submitted_date: '2023-10-15',
+            loan_amount: 21500,
+            term_months: 36,
+            apr: 7.2,
+          },
+          6: {
+            id: 6,
+            application_number: 'NY-2023-067',
+            vehicle: '2023 Mazda CX-5',
+            status: 'approved',
+            submitted_date: '2023-09-05',
+            loan_amount: 32000,
+            term_months: 60,
+            apr: 5.9,
+          },
         };
+
+        const mockData = mockScenarios[applicationId] || mockScenarios[1];
 
         setApplication(mockData);
         // Uncomment below when API is ready
@@ -133,8 +188,8 @@ const ApplicationInProgress = ({ applicationId }) => {
     <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Your Application Status</h2>
-          <p className="text-gray-600">Application #{application.application_number}</p>
+          <h3 className="text-xl font-bold text-gray-900">#{application.application_number}</h3>
+          <p className="text-gray-600 mt-1">{application.vehicle}</p>
         </div>
         <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getStatusBadgeClass(application.status)}`}>
           <HiClock className="inline w-4 h-4 mr-1 -mt-0.5" />

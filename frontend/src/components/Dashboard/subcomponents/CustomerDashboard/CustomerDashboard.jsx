@@ -20,18 +20,10 @@ const CustomerDashboard = () => {
         // }
         // const data = await response.json();
 
-        // Mock data for development
+        // Mock data for development - Remove when API is ready
         const mockData = [
           {
             id: 1,
-            application_number: 'AL-2024-001',
-            vehicle: '2023 Toyota Camry',
-            amount: 25000,
-            created_at: '2024-01-15',
-            status: 'approved',
-          },
-          {
-            id: 2,
             application_number: 'AK-2024-002',
             vehicle: '2022 Honda Civic',
             amount: 18500,
@@ -39,12 +31,20 @@ const CustomerDashboard = () => {
             status: 'under_review',
           },
           {
-            id: 3,
+            id: 2,
             application_number: 'FL-2024-003',
             vehicle: '2024 Ford F-150',
             amount: 35000,
             created_at: '2024-01-05',
             status: 'pending',
+          },
+          {
+            id: 3,
+            application_number: 'TX-2023-125',
+            vehicle: '2021 Chevrolet Silverado',
+            amount: 28000,
+            created_at: '2023-11-20',
+            status: 'approved',
           },
         ];
         setApplications(mockData);
@@ -83,7 +83,15 @@ const CustomerDashboard = () => {
           {filteredApplications.length === 0 ? (
             <NewApplication />
           ) : (
-            filteredApplications.map((app) => <ApplicationInProgress applicationId={app.id} key={app.id} />)
+            <>
+              <div className="mb-4">
+                <h2 className="text-2xl font-bold text-gray-900">Applications in Progress</h2>
+                <p className="text-gray-600">Track the status of your current applications</p>
+              </div>
+              {filteredApplications.map((app) => (
+                <ApplicationInProgress applicationId={app.id} key={app.id} />
+              ))}
+            </>
           )}
           <ApplicationHistory applications={applications} loading={loading} error={error} />
         </div>
