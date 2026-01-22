@@ -28,7 +28,7 @@ export const LoginForm = ({ onSwitchToSignup, onLoginSuccess }) => {
 
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-xl shadow-lg p-8">
-      <h1 className="text-2xl font-bold text-indigo-700 mb-1">Auto Loan</h1>
+      <h1 className="text-2xl font-bold text-indigo-700 mb-1">Turbo Loan</h1>
       <h2 className="text-xl text-gray-700 mb-6">Welcome back</h2>
       {error && (
         <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">

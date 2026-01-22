@@ -30,9 +30,9 @@ describe('LoginForm', () => {
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
 
-  it('renders heading with Auto Loan text', () => {
+  it('renders heading with Turbo Loan text', () => {
     render(<LoginForm />);
-    expect(screen.getByText('Auto Loan')).toBeInTheDocument();
+    expect(screen.getByText('Turbo Loan')).toBeInTheDocument();
     expect(screen.getByText('Welcome back')).toBeInTheDocument();
   });
 
