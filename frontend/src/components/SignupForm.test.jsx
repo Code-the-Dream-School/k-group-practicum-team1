@@ -34,10 +34,16 @@ describe('SignupForm', () => {
     expect(screen.getByRole('button', { name: /sign up/i })).toBeInTheDocument();
   });
 
-  it('renders heading with Auto Loan text', () => {
+  it('renders heading with Turbo Loan text', () => {
     render(<SignupForm />);
-    expect(screen.getByText('Auto Loan')).toBeInTheDocument();
+    expect(screen.getByText('Turbo Loan')).toBeInTheDocument();
     expect(screen.getByText('Create your account')).toBeInTheDocument();
+  });
+
+  it('does not render role selector (security: users cannot self-assign privileged roles)', () => {
+    render(<SignupForm />);
+    expect(screen.queryByLabelText(/role/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('combobox')).not.toBeInTheDocument();
   });
 
   it('shows login link when onSwitchToLogin provided', () => {
@@ -49,12 +55,10 @@ describe('SignupForm', () => {
 
   it('shows error when passwords do not match', async () => {
     render(<SignupForm />);
-    // Fill all required fields to bypass HTML5 validation
     fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'John' } });
     fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Doe' } });
     fireEvent.change(screen.getByLabelText(/phone number/i), { target: { value: '+15551234567' } });
     fireEvent.change(screen.getByLabelText(/email/i), { target: { value: 'test@example.com' } });
-    // Set mismatched passwords
     fireEvent.change(screen.getByLabelText(/^password$/i), {
       target: { value: 'password123' },
     });
@@ -68,7 +72,7 @@ describe('SignupForm', () => {
     expect(signup).not.toHaveBeenCalled();
   });
 
-  it('submits form with all fields', async () => {
+  it('submits form with default customer role (security: prevents privilege escalation)', async () => {
     const mockUser = { id: 1, email: 'new@example.com' };
     signup.mockResolvedValue(mockUser);
     render(<SignupForm />);
