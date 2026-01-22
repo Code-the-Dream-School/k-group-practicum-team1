@@ -1,3 +1,4 @@
+import React from 'react';
 import CustomerDashboard from './subcomponents/CustomerDashboard/CustomerDashboard';
 
 function Dashboard() {
