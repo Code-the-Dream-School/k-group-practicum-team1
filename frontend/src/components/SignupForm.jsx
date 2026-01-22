@@ -43,7 +43,7 @@ export const SignupForm = ({ onSwitchToLogin, onSignupSuccess }) => {
 
   return (
     <div className="w-full max-w-md mx-auto bg-white rounded-xl shadow-lg p-8">
-      <h1 className="text-2xl font-bold text-indigo-700 mb-1">Auto Loan</h1>
+      <h1 className="text-2xl font-bold text-indigo-700 mb-1">Turbo Loan</h1>
       <h2 className="text-xl text-gray-700 mb-6">Create your account</h2>
       {error && (
         <div role="alert" className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-4">
@@ -131,21 +131,6 @@ export const SignupForm = ({ onSwitchToLogin, onSignupSuccess }) => {
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
           />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
-            Role
-          </label>
-          <select
-            id="role"
-            value={formData.role}
-            onChange={handleChange('role')}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white"
-          >
-            <option value="customer">Customer</option>
-            <option value="loan_officer">Loan Officer</option>
-            <option value="underwriter">Underwriter</option>
-          </select>
         </div>
         <button
           type="submit"
