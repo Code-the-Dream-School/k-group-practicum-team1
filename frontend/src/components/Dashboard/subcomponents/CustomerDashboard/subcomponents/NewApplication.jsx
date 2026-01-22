@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { HiPlus, HiInbox } from 'react-icons/hi';
 
-const PendingApplication = () => {
+const NewApplication = () => {
   return (
     <div className="bg-white rounded-lg shadow-sm p-12 text-center">
       <div className="inline-flex items-center justify-center w-24 h-24 bg-gray-100 rounded-full mb-6">
@@ -23,4 +23,4 @@ const PendingApplication = () => {
   );
 };
 
-export default PendingApplication;
+export default NewApplication;

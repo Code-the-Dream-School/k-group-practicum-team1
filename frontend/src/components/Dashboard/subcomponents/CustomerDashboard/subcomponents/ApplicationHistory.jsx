@@ -1,61 +1,8 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable react/prop-types */
+import React from 'react';
 import { HiClock, HiEye } from 'react-icons/hi';
 
-const ApplicationHistory = () => {
-  const [applications, setApplications] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchApplications = async () => {
-      try {
-        setLoading(true);
-        // const response = await fetch('/api/v1/applications');
-        // if (!response.ok) {
-        //   throw new Error('Failed to fetch applications');
-        // }
-        // const data = await response.json();
-
-        // Mock data for development
-        const mockData = [
-          {
-            id: 1,
-            application_number: 'APP-2024-001',
-            vehicle: '2023 Toyota Camry',
-            amount: 25000,
-            created_at: '2024-01-15',
-            status: 'approved',
-          },
-          {
-            id: 2,
-            application_number: 'APP-2024-002',
-            vehicle: '2022 Honda Civic',
-            amount: 18500,
-            created_at: '2024-01-10',
-            status: 'under_review',
-          },
-          {
-            id: 3,
-            application_number: 'APP-2024-003',
-            vehicle: '2024 Ford F-150',
-            amount: 35000,
-            created_at: '2024-01-05',
-            status: 'pending',
-          },
-        ];
-        setApplications(mockData);
-        // Uncomment below when API is ready
-        // setApplications(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchApplications();
-  }, []);
-
+const ApplicationHistory = ({ applications, loading, error }) => {
   const getStatusBadgeClass = (status) => {
     const statusClasses = {
       under_review: 'bg-yellow-100 text-yellow-800',
@@ -119,12 +66,12 @@ const ApplicationHistory = () => {
             <table className="w-full">
               <thead>
                 <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Application ID</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Vehicle</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Amount</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Submitted Date</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Status</th>
-                  <th className="text-left py-3 px-4 font-semibold text-gray-900">Action</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-900">Application ID</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-900">Vehicle</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-900">Amount</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-900">Submitted Date</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-900">Status</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-900">Action</th>
                 </tr>
               </thead>
               <tbody>
