@@ -9,7 +9,7 @@ import Footer from './layouts/Footer/Footer';
 import Dashboard from './components/Dashboard/Dashboard';
 
 function App() {
-   return (
+  return (
     <>
       <Navbar />
       <Routes>
