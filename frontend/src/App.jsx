@@ -1,11 +1,24 @@
 /* eslint-disable */
-import React, { useState } from 'react';
+import React from 'react';
 import './App.css';
-// import Stepper from './components/Stepper/Stepper';
+import { Routes, Route } from 'react-router-dom';
+import HomePage from './pages/HomePage/HomePage';
+import Navbar from './layouts/Navbar/Navbar';
+import Footer from './layouts/Footer/Footer';
+
 import Dashboard from './components/Dashboard/Dashboard';
 
 function App() {
-  return <Dashboard />;
+   return (
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<HomePage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+      <Footer />
+    </>
+  );
 }
 
 export default App;
