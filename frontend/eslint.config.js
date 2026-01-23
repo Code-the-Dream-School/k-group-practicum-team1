@@ -63,6 +63,18 @@ export default [
     },
   },
   {
+    files: ['**/*.test.{js,jsx}', '**/*.spec.{js,jsx}', 'jest.setup.js'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^React$', argsIgnorePattern: '^_' }],
+      'react/prop-types': 'off',
+    },
+  },
+  {
     files: ['**/__mocks__/**/*.js'],
     languageOptions: {
       globals: {
