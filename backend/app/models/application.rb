@@ -2,6 +2,7 @@ class Application < ApplicationRecord
   belongs_to :user
   has_many :addresses, dependent: :destroy
   has_one :vehicle, dependent: :destroy
+  has_one :financial_info, dependent: :destroy
 
   enum :status, {
     draft: "draft",
