@@ -160,28 +160,24 @@ const ApplicationInProgress = ({ applicationId }) => {
     },
   ];
 
-  if (loading) {
+  const renderStatus = (message, textColor = 'text-gray-600') => {
     return (
       <div className="bg-white rounded-lg shadow-sm p-8">
-        <div className="text-center text-gray-600">Loading application details...</div>
+        <div className={`text-center ${textColor}`}>{message}</div>
       </div>
     );
+  };
+
+  if (loading) {
+    return renderStatus('Loading application details');
   }
 
   if (error) {
-    return (
-      <div className="bg-white rounded-lg shadow-sm p-8">
-        <div className="text-center text-red-600">Error: {error}</div>
-      </div>
-    );
+    return renderStatus(`Error: ${error}`, 'text-red-600');
   }
 
   if (!application) {
-    return (
-      <div className="bg-white rounded-lg shadow-sm p-8">
-        <div className="text-center text-gray-600">No application found.</div>
-      </div>
-    );
+    return renderStatus('No application found.');
   }
 
   return (
