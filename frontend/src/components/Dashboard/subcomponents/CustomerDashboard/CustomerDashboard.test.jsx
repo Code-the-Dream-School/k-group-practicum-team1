@@ -45,7 +45,7 @@ describe('CustomerDashboard Component', () => {
       await waitFor(() => {
         const newAppButton = screen.getByRole('link', { name: /new application/i });
         expect(newAppButton).toBeInTheDocument();
-        expect(newAppButton).toHaveAttribute('href', '/applications/new');
+        expect(newAppButton).toHaveAttribute('href', '/application');
       });
     });
 

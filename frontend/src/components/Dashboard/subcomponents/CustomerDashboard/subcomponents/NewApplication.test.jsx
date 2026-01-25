@@ -45,7 +45,7 @@ describe('NewApplication Component', () => {
     test('button links to new application page', () => {
       renderWithRouter(<NewApplication />);
       const button = screen.getByRole('link', { name: /start a new application/i });
-      expect(button).toHaveAttribute('href', '/applications/new');
+      expect(button).toHaveAttribute('href', '/application');
     });
 
     test('button has proper styling', () => {
@@ -133,7 +133,6 @@ describe('NewApplication Component', () => {
       renderWithRouter(<NewApplication />);
       const button = screen.getByRole('link', { name: /start a new application/i });
       expect(button).toBeInTheDocument();
-      // Link elements are naturally keyboard accessible
     });
 
     test('description text is within max-width for readability', () => {
