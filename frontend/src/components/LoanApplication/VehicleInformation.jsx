@@ -288,7 +288,7 @@ const VehicleInformation = () => {
           </div>
         </div>
 
-        <div className="flex justify-between items-center pt-6 border-t">
+        <div className="flex justify-between items-center pt-6 border-t border-gray-200">
           <button
             type="button"
             onClick={handlePrevious}
