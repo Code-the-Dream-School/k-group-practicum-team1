@@ -13,13 +13,14 @@ export default [
     files: ['**/*.{js,jsx}'],
     languageOptions: {
       ecmaVersion: 2020,
-      globals: globals.browser,
+      globals: { ...globals.browser, ...globals.jest },
       parserOptions: {
         ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },
         sourceType: 'module',
       },
     },
+
     settings: {
       react: { version: '19.2.0' },
       'import/resolver': {
@@ -79,6 +80,15 @@ export default [
     languageOptions: {
       globals: {
         ...globals.node,
+      },
+    },
+  },
+  {
+    files: ['jest.setup.js', '**/*.test.js', '**/*.spec.js'],
+    languageOptions: {
+      globals: {
+        require: 'readonly',
+        global: 'readonly',
       },
     },
   },

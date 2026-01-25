@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_15_224149) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_22_222023) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -42,6 +42,21 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_15_224149) do
     t.index ["application_number"], name: "index_applications_on_application_number", unique: true
     t.index ["status"], name: "index_applications_on_status"
     t.index ["user_id"], name: "index_applications_on_user_id"
+  end
+
+  create_table "financial_infos", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.string "employment_status"
+    t.string "employer"
+    t.string "job_title"
+    t.decimal "years_employed", precision: 4, scale: 1
+    t.decimal "annual_income", precision: 12, scale: 2
+    t.decimal "additional_income", precision: 12, scale: 2
+    t.decimal "monthly_expenses", precision: 12, scale: 2
+    t.string "credit_score"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_financial_infos_on_application_id", unique: true
   end
 
   create_table "jwt_denylists", force: :cascade do |t|
@@ -83,5 +98,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_15_224149) do
 
   add_foreign_key "addresses", "applications"
   add_foreign_key "applications", "users"
+  add_foreign_key "financial_infos", "applications"
   add_foreign_key "vehicles", "applications"
 end

@@ -1,17 +1,38 @@
 import React from 'react';
-import { describe, it, expect } from '@jest/globals';
 import { render, screen } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 import App from './App';
+import { MemoryRouter } from 'react-router-dom';
 
 describe('App', () => {
-  it('should render home page with main heading', () => {
+  it('should render main heading section ', () => {
     render(
-      <BrowserRouter>
+      <MemoryRouter>
         <App />
-      </BrowserRouter>
+      </MemoryRouter>
     );
-    const heading = screen.getByRole('heading', { level: 1, name: /get your auto loan in 15 minutes/i });
-    expect(heading).toBeInTheDocument();
+
+    const mainHeading = screen.getByText(/Get Your Auto Loan in/i);
+    expect(mainHeading).toBeInTheDocument();
+  });
+  it('should render benefits section', () => {
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
+
+    const benefitsHeading = screen.getByText(/Why Choose TurboLoan/i);
+    expect(benefitsHeading).toBeInTheDocument();
+  });
+
+  it('should render loan calculator section', () => {
+    render(
+      <MemoryRouter>
+        <App />
+      </MemoryRouter>
+    );
+
+    const calculatorHeading = screen.getByText(/Calculate your loan/i);
+    expect(calculatorHeading).toBeInTheDocument();
   });
 });
