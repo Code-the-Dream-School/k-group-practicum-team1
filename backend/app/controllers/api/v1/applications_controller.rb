@@ -3,9 +3,9 @@ module Api
   module V1
     class ApplicationsController < ApplicationController
       before_action :authenticate_user!
-      before_action :set_application, only: [:update]
-      before_action :authorize_user!, only: [:update]
-      before_action :ensure_draft_status!, only: [:update]
+      before_action :set_application, only: [ :update ]
+      before_action :authorize_user!, only: [ :update ]
+      before_action :ensure_draft_status!, only: [ :update ]
 
       # POST /api/v1/applications
       def create
@@ -31,20 +31,20 @@ module Api
       def set_application
         @application = Application.find(params[:id])
       rescue ActiveRecord::RecordNotFound
-        render json: { errors: ["Application not found"] }, status: :not_found
+        render json: { errors: [ "Application not found" ] }, status: :not_found
       end
 
       def authorize_user!
         return if @application.nil?
         unless current_user == @application.user || current_user.loan_officer? || current_user.underwriter?
-          render json: { errors: ["Unauthorized"] }, status: :unauthorized
+          render json: { errors: [ "Unauthorized" ] }, status: :unauthorized
         end
       end
 
       def ensure_draft_status!
         return if @application.nil?
         unless @application.draft?
-          render json: { errors: ["Only draft applications can be updated"] }, status: :forbidden
+          render json: { errors: [ "Only draft applications can be updated" ] }, status: :forbidden
         end
       end
 
