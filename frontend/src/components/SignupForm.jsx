@@ -3,6 +3,7 @@ import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
 import { signup as signupApi } from '../services/auth';
+import { FormInput } from './FormInput';
 
 export const SignupForm = ({ onSwitchToLogin, onSignupSuccess }) => {
   const { setUser } = useAuth();
@@ -52,86 +53,58 @@ export const SignupForm = ({ onSwitchToLogin, onSignupSuccess }) => {
       )}
       <form onSubmit={handleSubmit}>
         <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label htmlFor="first_name" className="block text-sm font-medium text-gray-700 mb-1">
-              First Name
-            </label>
-            <input
-              id="first_name"
-              type="text"
-              value={formData.first_name}
-              onChange={handleChange('first_name')}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-          <div>
-            <label htmlFor="last_name" className="block text-sm font-medium text-gray-700 mb-1">
-              Last Name
-            </label>
-            <input
-              id="last_name"
-              type="text"
-              value={formData.last_name}
-              onChange={handleChange('last_name')}
-              required
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-            />
-          </div>
-        </div>
-        <div className="mb-4">
-          <label htmlFor="phone_number" className="block text-sm font-medium text-gray-700 mb-1">
-            Phone Number
-          </label>
-          <input
-            id="phone_number"
-            type="tel"
-            value={formData.phone_number}
-            onChange={handleChange('phone_number')}
-            placeholder="+15551234567"
+          <FormInput
+            id="first_name"
+            label="First Name"
+            type="text"
+            value={formData.first_name}
+            onChange={handleChange('first_name')}
             required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            className=""
+          />
+          <FormInput
+            id="last_name"
+            label="Last Name"
+            type="text"
+            value={formData.last_name}
+            onChange={handleChange('last_name')}
+            required
+            className=""
           />
         </div>
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            value={formData.email}
-            onChange={handleChange('email')}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={formData.password}
-            onChange={handleChange('password')}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          />
-        </div>
-        <div className="mb-4">
-          <label htmlFor="password_confirmation" className="block text-sm font-medium text-gray-700 mb-1">
-            Confirm Password
-          </label>
-          <input
-            id="password_confirmation"
-            type="password"
-            value={formData.password_confirmation}
-            onChange={handleChange('password_confirmation')}
-            required
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
-          />
-        </div>
+        <FormInput
+          id="phone_number"
+          label="Phone Number"
+          type="tel"
+          value={formData.phone_number}
+          onChange={handleChange('phone_number')}
+          placeholder="+15551234567"
+          required
+        />
+        <FormInput
+          id="email"
+          label="Email"
+          type="email"
+          value={formData.email}
+          onChange={handleChange('email')}
+          required
+        />
+        <FormInput
+          id="password"
+          label="Password"
+          type="password"
+          value={formData.password}
+          onChange={handleChange('password')}
+          required
+        />
+        <FormInput
+          id="password_confirmation"
+          label="Confirm Password"
+          type="password"
+          value={formData.password_confirmation}
+          onChange={handleChange('password_confirmation')}
+          required
+        />
         <button
           type="submit"
           disabled={isLoading}
