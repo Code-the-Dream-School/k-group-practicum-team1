@@ -3,11 +3,11 @@ class ApplicationReview < ApplicationRecord
   belongs_to :reviewer, class_name: "User", foreign_key: "reviewed_by_id", optional: true
 
   validates :application_id, presence: true, uniqueness: true
-  validates :personal_info_complete, inclusion: { in: [ true, false ] }
-  validates :vehicle_info_complete, inclusion: { in: [ true, false ] }
-  validates :financial_info_complete, inclusion: { in: [ true, false ] }
-  validates :documents_complete, inclusion: { in: [ true, false ] }
-  validates :credit_check_authorized, inclusion: { in: [ true, false ] }
+  validates :personal_info_complete
+  validates :vehicle_info_complete
+  validates :financial_info_complete
+  validates :documents_complete
+  validates :credit_check_authorized
 
   def all_complete?
     personal_info_complete &&
