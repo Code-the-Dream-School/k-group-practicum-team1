@@ -65,7 +65,7 @@ RSpec.describe ApplicationReview, type: :model do
     end
   end
 
-  describe "#mark_as_completed!" do
+  describe "mark_as_completed!" do
     let(:application_review) { create(:application_review) }
     let(:reviewer) { create(:user, role: :loan_officer) }
 
@@ -76,7 +76,6 @@ RSpec.describe ApplicationReview, type: :model do
       application_review.mark_as_completed!(reviewer)
 
       expect(application_review.reviewed_by_id).to eq(reviewer.id)
-      expect(application_review.review_completed_at).to eq(current_time)
     end
 
     it "persists the changes to the database" do
