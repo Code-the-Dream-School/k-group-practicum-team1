@@ -6,7 +6,6 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import prettier from 'eslint-plugin-prettier';
 import importPlugin from 'eslint-plugin-import';
-
 export default [
   { ignores: ['dist', 'vite.config.js'] },
   importPlugin.flatConfigs.recommended,
@@ -75,14 +74,6 @@ export default [
     languageOptions: {
       globals: {
         ...globals.jest,
-        jest: 'readonly',
-        describe: 'readonly',
-        it: 'readonly',
-        expect: 'readonly',
-        beforeEach: 'readonly',
-        afterEach: 'readonly',
-        beforeAll: 'readonly',
-        afterAll: 'readonly',
         require: 'readonly',
       },
     },
