@@ -70,12 +70,17 @@ export default [
     },
   },
   {
-    files: ['**/*.test.{js,jsx}', '**/__tests__/**/*.{js,jsx}'],
+    files: ['**/*.test.{js,jsx}', '**/*.spec.{js,jsx}', '**/__tests__/**/*.{js,jsx}', 'jest.setup.js'],
     languageOptions: {
       globals: {
         ...globals.jest,
         require: 'readonly',
+        global: 'readonly',
       },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^React$', argsIgnorePattern: '^_' }],
+      'react/prop-types': 'off',
     },
   },
 ];
