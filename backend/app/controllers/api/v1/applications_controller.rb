@@ -7,8 +7,6 @@ module Api
       # POST /api/v1/applications
       def create
         @application = current_user.applications.build(application_params)
-        @application.status = "draft"
-        @application.application_progress = "personal"
 
         if @application.save
           render json: @application, status: :created
