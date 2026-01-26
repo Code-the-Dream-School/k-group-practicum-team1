@@ -26,6 +26,7 @@ describe('PersonalInformation Component', () => {
   };
 
   beforeEach(() => {
+    window.alert = jest.fn();
     mockUpdatePersonalInfo = jest.fn();
     mockNextStep = jest.fn();
     mockSaveDraftToServer = jest.fn().mockResolvedValue();
