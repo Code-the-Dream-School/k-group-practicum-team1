@@ -104,7 +104,7 @@ const VehicleInformation = () => {
             <label className="flex items-center cursor-pointer">
               <input
                 type="radio"
-                value="certified-used"
+                value="certified_used"
                 {...register('vehicleType', {
                   required: 'Vehicle type is required',
                 })}
