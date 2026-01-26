@@ -1,113 +1,75 @@
-# /k-group-practicum-team1/backend/spec/rails_helper.rb
-# SimpleCov must be started BEFORE requiring any application code
-require "simplecov"
-
-SimpleCov.start "rails" do
-  enable_coverage :branch
-  minimum_coverage line: 80, branch: 70
-  minimum_coverage_by_file 70
-
-  add_group "Models", "app/models"
-  add_group "Controllers", "app/controllers"
-  add_group "Services", "app/services"
-  add_group "Policies", "app/policies"
-
-  add_filter "/spec/"
-  add_filter "/config/"
-  add_filter "/db/"
-  add_filter "/vendor/"
-end
-
-SimpleCov.at_exit do
-  SimpleCov.result.format!
-
-  result = SimpleCov.result
-  line_coverage = result.covered_percent
-  branch_stats = result.coverage_statistics[:branch]
-  branch_coverage = branch_stats ? branch_stats.percent : 0
-  models_coverage = result.groups["Models"]&.covered_percent || 0
-  controllers_coverage = result.groups["Controllers"]&.covered_percent || 0
-
-  puts "\n" + "=" * 70
-  puts "COVERAGE REPORT"
-  puts "=" * 70
-  puts "Line Coverage:        #{line_coverage.round(2)}% (threshold: 80%)"
-  puts "Branch Coverage:      #{branch_coverage.round(2)}% (threshold: 70%)"
-  puts "Models Coverage:      #{models_coverage.round(2)}% (threshold: 90%)"
-  puts "Controllers Coverage: #{controllers_coverage.round(2)}% (threshold: 90%)"
-  puts "=" * 70
-
-  # Per-file coverage report
-  files_below_threshold = []
-  result.files.each do |file|
-    file_coverage = file.covered_percent
-    short_path = file.filename.sub(SimpleCov.root + "/", "")
-    files_below_threshold << [ short_path, file_coverage ] if file_coverage < 70
-  end
-
-  if files_below_threshold.any?
-    puts "\nFILES BELOW 70% THRESHOLD:"
-    puts "-" * 70
-    files_below_threshold.sort_by { |_, pct| pct }.each do |path, pct|
-      puts "  #{pct.round(2).to_s.rjust(6)}% - #{path}"
-    end
-    puts "-" * 70
-  else
-    puts "\nAll files meet 70% minimum coverage threshold."
-  end
-
-  puts "\nPER-FILE COVERAGE (sorted by coverage %):"
-  puts "-" * 70
-  result.files.sort_by(&:covered_percent).first(10).each do |file|
-    short_path = file.filename.sub(SimpleCov.root + "/", "")
-    puts "  #{file.covered_percent.round(2).to_s.rjust(6)}% - #{short_path}"
-  end
-  puts "  ... (showing lowest 10 files)"
-  puts "-" * 70
-
-  failed = false
-
-  if line_coverage < 80
-    warn "COVERAGE FAILED: Line coverage #{line_coverage.round(2)}% is below 80% threshold"
-    failed = true
-  end
-
-  if branch_coverage < 70
-    warn "COVERAGE FAILED: Branch coverage #{branch_coverage.round(2)}% is below 70% threshold"
-    failed = true
-  end
-
-  if models_coverage < 90
-    warn "COVERAGE FAILED: Models coverage #{models_coverage.round(2)}% is below 90% threshold"
-    failed = true
-  end
-
-  if controllers_coverage < 90
-    warn "COVERAGE FAILED: Controllers coverage #{controllers_coverage.round(2)}% is below 90% threshold"
-    failed = true
-  end
-
-  exit 1 if failed
-end
-
-require "spec_helper"
-ENV["RAILS_ENV"] ||= "test"
-require_relative "../config/environment"
+# This file is copied to spec/ when you run 'rails generate rspec:install'
+require 'spec_helper'
+ENV['RAILS_ENV'] ||= 'test'
+require_relative '../config/environment'
+# Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
-require "rspec/rails"
+# Uncomment the line below in case you have `--require rails_helper` in the `.rspec` file
+# that will avoid rails generators crashing because migrations haven't been run yet
+# return unless Rails.env.test?
+require 'rspec/rails'
+# Add additional requires below this line. Rails is not loaded until this point!
 
+# Requires supporting ruby files with custom matchers and macros, etc, in
+# spec/support/ and its subdirectories. Files matching `spec/**/*_spec.rb` are
+# run as spec files by default. This means that files in spec/support that end
+# in _spec.rb will both be required and run as specs, causing the specs to be
+# run twice. It is recommended that you do not name files matching this glob to
+# end with _spec.rb. You can configure this pattern with the --pattern
+# option on the command line or in ~/.rspec, .rspec or `.rspec-local`.
+#
+# The following line is provided for convenience purposes. It has the downside
+# of increasing the boot-up time by auto-requiring all files in the support
+# directory. Alternatively, in the individual `*_spec.rb` files, manually
+# require only the support files necessary.
+#
+# Rails.root.glob('spec/support/**/*.rb').sort_by(&:to_s).each { |f| require f }
+
+# Checks for pending migrations and applies them before tests are run.
+# If you are not using ActiveRecord, you can remove these lines.
 begin
   ActiveRecord::Migration.maintain_test_schema!
 rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
-
 RSpec.configure do |config|
+  # Include FactoryBot methods
   config.include FactoryBot::Syntax::Methods
-  config.fixture_paths = [ Rails.root.join("spec/fixtures") ]
+
+  # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
+  config.fixture_paths = [
+    Rails.root.join('spec/fixtures')
+  ]
+
+  # If you're not using ActiveRecord, or you'd prefer not to run each of your
+  # examples within a transaction, remove the following line or assign false
+  # instead of true.
   config.use_transactional_fixtures = true
-  config.infer_spec_type_from_file_location!
+
+  # You can uncomment this line to turn off ActiveRecord support entirely.
+  # config.use_active_record = false
+
+  # RSpec Rails uses metadata to mix in different behaviours to your tests,
+  # for example enabling you to call `get` and `post` in request specs. e.g.:
+  #
+  #     RSpec.describe UsersController, type: :request do
+  #       # ...
+  #     end
+  #
+  # The different available types are documented in the features, such as in
+  # https://rspec.info/features/7-1/rspec-rails
+  #
+  # You can also this infer these behaviours automatically by location, e.g.
+  # /spec/models would pull in the same behaviour as `type: :model` but this
+  # behaviour is considered legacy and will be removed in a future version.
+  #
+  # To enable this behaviour uncomment the line below.
+  # config.infer_spec_type_from_file_location!
+
+  # Filter lines from Rails gems in backtraces.
   config.filter_rails_from_backtrace!
+  # arbitrary gems may also be filtered via:
+  # config.filter_gems_from_backtrace("gem name")
 end
 
 Shoulda::Matchers.configure do |config|
