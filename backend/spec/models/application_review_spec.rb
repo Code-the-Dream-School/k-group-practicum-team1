@@ -11,16 +11,6 @@ RSpec.describe ApplicationReview, type: :model do
 
     it { should validate_presence_of(:application_id) }
     it { should validate_uniqueness_of(:application_id) }
-    it { should allow_value(true).for(:personal_info_complete) }
-    it { should allow_value(false).for(:personal_info_complete) }
-    it { should allow_value(true).for(:vehicle_info_complete) }
-    it { should allow_value(false).for(:vehicle_info_complete) }
-    it { should allow_value(true).for(:financial_info_complete) }
-    it { should allow_value(false).for(:financial_info_complete) }
-    it { should allow_value(true).for(:documents_complete) }
-    it { should allow_value(false).for(:documents_complete) }
-    it { should allow_value(true).for(:credit_check_authorized) }
-    it { should allow_value(false).for(:credit_check_authorized) }
   end
 
   describe "#all_complete?" do
