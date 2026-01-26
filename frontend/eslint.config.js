@@ -1,3 +1,4 @@
+// frontend/eslint.config.js
 import js from '@eslint/js';
 import globals from 'globals';
 import react from 'eslint-plugin-react';
@@ -5,7 +6,6 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import prettier from 'eslint-plugin-prettier';
 import importPlugin from 'eslint-plugin-import';
-
 export default [
   { ignores: ['dist', 'vite.config.js'] },
   importPlugin.flatConfigs.recommended,
@@ -47,7 +47,6 @@ export default [
       'react/display-name': 'off',
       'react/jsx-no-useless-fragment': 'warn',
       'react/self-closing-comp': 'warn',
-
       'comma-dangle': ['error', 'only-multiline'],
       'prettier/prettier': ['error', { endOfLine: 'auto' }],
       eqeqeq: 'error',
@@ -68,6 +67,20 @@ export default [
       globals: {
         ...globals.node,
       },
+    },
+  },
+  {
+    files: ['**/*.test.{js,jsx}', '**/*.spec.{js,jsx}', '**/__tests__/**/*.{js,jsx}', 'jest.setup.js'],
+    languageOptions: {
+      globals: {
+        ...globals.jest,
+        require: 'readonly',
+        global: 'readonly',
+      },
+    },
+    rules: {
+      'no-unused-vars': ['error', { varsIgnorePattern: '^React$', argsIgnorePattern: '^_' }],
+      'react/prop-types': 'off',
     },
   },
 ];
