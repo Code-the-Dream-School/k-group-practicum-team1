@@ -1,68 +1,27 @@
 #!/bin/bash
-# /k-group-practicum-team1/script/verify.sh
-# Pre-push verification script - ensures code quality before pushing
+# script/verify.sh
+# Pre-push verification script - mirrors GitHub CI workflow
+# Install as pre-push hook: cp script/verify.sh .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+
 set -e
 
-echo "========================================"
-echo "Running Pre-Push Verification Checks"
-echo "========================================"
+ROOT_DIR="$(git rev-parse --show-toplevel)"
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-NC='\033[0m'
+echo "=== Running CI checks locally ==="
 
-FAILED=0
+echo ">>> Backend Lint (RuboCop)"
+cd "$ROOT_DIR/backend" && bundle exec rubocop
 
-echo ""
-echo "1. Backend: RuboCop Lint"
-echo "----------------------------------------"
-cd backend
-if bundle exec rubocop --parallel; then
-    echo -e "${GREEN}✓ RuboCop passed${NC}"
-else
-    echo -e "${RED}✗ RuboCop failed${NC}"
-    FAILED=1
-fi
+echo ">>> Backend Tests (RSpec)"
+bundle exec rspec --format documentation
 
-echo ""
-echo "2. Backend: RSpec Tests"
-echo "----------------------------------------"
-if bundle exec rspec; then
-    echo -e "${GREEN}✓ RSpec passed${NC}"
-else
-    echo -e "${RED}✗ RSpec failed${NC}"
-    FAILED=1
-fi
-cd ..
+echo ">>> Frontend Lint (Prettier + ESLint)"
+cd "$ROOT_DIR/frontend" && npm run prettier && npm run lint
 
-echo ""
-echo "3. Frontend: ESLint"
-echo "----------------------------------------"
-cd frontend
-if npm run lint; then
-    echo -e "${GREEN}✓ ESLint passed${NC}"
-else
-    echo -e "${RED}✗ ESLint failed${NC}"
-    FAILED=1
-fi
+echo ">>> Frontend Tests (Jest)"
+npm test -- --ci --runInBand --watchAll=false
 
-echo ""
-echo "4. Frontend: Build"
-echo "----------------------------------------"
-if npm run build; then
-    echo -e "${GREEN}✓ Build passed${NC}"
-else
-    echo -e "${RED}✗ Build failed${NC}"
-    FAILED=1
-fi
-cd ..
+echo ">>> Frontend Build"
+npm run build
 
-echo ""
-echo "========================================"
-if [ $FAILED -eq 0 ]; then
-    echo -e "${GREEN}All checks passed! Safe to push.${NC}"
-    exit 0
-else
-    echo -e "${RED}Some checks failed. Please fix before pushing.${NC}"
-    exit 1
-fi
+echo "=== All CI checks passed ==="
