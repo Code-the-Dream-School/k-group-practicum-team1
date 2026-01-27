@@ -21,14 +21,14 @@ const FinancialInformation = () => {
     reset(draft.financialInfo);
   }, [draft.financialInfo, reset]);
 
-  const validatePositiveNumber = (value, fieldName) => {
-    if (!value) return `${fieldName} is required`;
+  const validatePositiveNumber = (value, fieldName, isOptional = false) => {
+    if (!value) return isOptional ? true : `${fieldName} is required`;
     const num = parseFloat(value);
-    return num > 0 || `${fieldName} must be greater than 0`;
+    return num >= 0 || `${fieldName} must be greater than or equal to 0`;
   };
 
   const validateYearsEmployed = (value) => {
-    if (!value) return 'Years employed is required';
+    if (!value) return true; // Optional field
     const years = parseFloat(value);
     if (years < 0) return 'Years employed cannot be negative';
     if (years > 100) return 'Please enter a valid number of years';
@@ -62,7 +62,7 @@ const FinancialInformation = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="employmentStatus" className="block text-left text-sm font-medium text-gray-700 mb-2">
-              Employment Status <span className="text-red-500">*</span>
+              Employment Status
             </label>
             <select
               id="employmentStatus"
@@ -84,7 +84,7 @@ const FinancialInformation = () => {
 
           <div>
             <label htmlFor="employer" className="block text-left text-sm font-medium text-gray-700 mb-2">
-              Employer Name <span className="text-red-500">*</span>
+              Employer Name
             </label>
             <input
               type="text"
@@ -108,7 +108,7 @@ const FinancialInformation = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="jobTitle" className="block text-left text-sm font-medium text-gray-700 mb-2">
-              Job Title <span className="text-red-500">*</span>
+              Job Title
             </label>
             <input
               type="text"
@@ -130,7 +130,7 @@ const FinancialInformation = () => {
 
           <div>
             <label htmlFor="yearsEmployed" className="block text-left text-sm font-medium text-gray-700 mb-2">
-              Years Employed <span className="text-red-500">*</span>
+              Years Employed
             </label>
             <input
               type="number"
@@ -149,7 +149,7 @@ const FinancialInformation = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="annualIncome" className="block text-left text-sm font-medium text-gray-700 mb-2">
-              Annual Income <span className="text-red-500">*</span>
+              Annual Income
             </label>
             <div className="relative">
               <span className="absolute left-3 top-2 text-gray-500">$</span>
@@ -158,7 +158,7 @@ const FinancialInformation = () => {
                 id="annualIncome"
                 step="0.01"
                 {...register('annualIncome', {
-                  validate: (value) => validatePositiveNumber(value, 'Annual income'),
+                  validate: (value) => validatePositiveNumber(value, 'Annual income', true),
                 })}
                 className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                   errors.annualIncome ? 'border-red-500' : 'border-gray-300'
@@ -198,7 +198,7 @@ const FinancialInformation = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="monthlyExpenses" className="block text-left text-sm font-medium text-gray-700 mb-2">
-              Monthly Expenses <span className="text-red-500">*</span>
+              Monthly Expenses
             </label>
             <div className="relative">
               <span className="absolute left-3 top-2 text-gray-500">$</span>
@@ -207,7 +207,7 @@ const FinancialInformation = () => {
                 id="monthlyExpenses"
                 step="0.01"
                 {...register('monthlyExpenses', {
-                  validate: (value) => validatePositiveNumber(value, 'Monthly expenses'),
+                  validate: (value) => validatePositiveNumber(value, 'Monthly expenses', true),
                 })}
                 className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                   errors.monthlyExpenses ? 'border-red-500' : 'border-gray-300'
@@ -220,11 +220,11 @@ const FinancialInformation = () => {
 
           <div>
             <label htmlFor="creditScore" className="block text-left text-sm font-medium text-gray-700 mb-2">
-              Credit Score Estimate <span className="text-red-500">*</span>
+              Credit Score Estimate
             </label>
             <select
               id="creditScore"
-              {...register('creditScore', { required: 'Credit score is required' })}
+              {...register('creditScore')}
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                 errors.creditScore ? 'border-red-500' : 'border-gray-300'
               }`}
