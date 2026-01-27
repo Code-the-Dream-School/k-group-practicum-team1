@@ -98,24 +98,37 @@ components:
     LoginRequest:
       type: object
       properties:
-        email:
-          type: string
-          format: email
-          example: john.doe@example.com
-        password:
-          type: string
-          example: Password123!
+        user:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+              example: john.doe@example.com
+            password:
+              type: string
+              example: Password123!
+          required:
+            - email
+            - password
       required:
-        - email
-        - password
+        - user
 
     AuthResponse:
       type: object
       properties:
-        token:
-          type: string
-        user:
-          $ref: '#/components/schemas/User'
+        status:
+          type: object
+          properties:
+            code:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: "Logged in successfully."
+            token:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiJ9..."
 
     Address:
       type: object
