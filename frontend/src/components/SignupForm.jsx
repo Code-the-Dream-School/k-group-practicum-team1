@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
-import { signup as signupApi, getCurrentUser } from '../services/auth';
+import { signup as signupApi, login as loginApi } from '../services/auth';
 import { FormInput } from './FormInput';
 
 export const SignupForm = ({ onSwitchToLogin, onSignupSuccess, onLoginSuccess }) => {
@@ -33,7 +33,11 @@ export const SignupForm = ({ onSwitchToLogin, onSignupSuccess, onLoginSuccess })
     setIsLoading(true);
     try {
       await signupApi(formData);
-      const user = await getCurrentUser();
+      const user = await loginApi({
+        email: formData.email,
+        password: formData.password,
+      });
+
       setUser(user);
       const callback = onSignupSuccess || onLoginSuccess;
       if (callback) {
