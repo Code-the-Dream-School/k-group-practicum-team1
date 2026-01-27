@@ -4,6 +4,13 @@ import { BrowserRouter } from 'react-router-dom';
 import '@testing-library/jest-dom';
 import CustomerDashboard from './CustomerDashboard';
 
+jest.mock('../../../../services/api', () => ({
+  API_BASE: process.env.VITE_API_URL ,
+  apiFetch: jest.fn(),
+  getAuthToken: jest.fn(),
+  setAuthToken: jest.fn(),
+}));
+
 jest.mock('./subcomponents/ApplicationHistory', () => {
   return function MockApplicationHistory({ applications, loading, error }) {
     if (loading) return <div>Loading history...</div>;
