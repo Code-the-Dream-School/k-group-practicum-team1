@@ -15,6 +15,8 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :users
       get "/me", to: "users#me"
+
+      resources :applications, only: [ :show ]
     end
   end
 
