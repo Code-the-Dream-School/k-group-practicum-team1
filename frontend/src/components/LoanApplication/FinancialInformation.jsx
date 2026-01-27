@@ -16,6 +16,22 @@ const FinancialInformation = () => {
     mode: 'onBlur',
   });
 
+  const employmentStatusOptions = [
+    { value: 'full-time', label: 'Full-Time' },
+    { value: 'part-time', label: 'Part-Time' },
+    { value: 'self-employed', label: 'Self-Employed' },
+    { value: 'contract', label: 'Contract' },
+    { value: 'unemployed', label: 'Unemployed' },
+    { value: 'retired', label: 'Retired' },
+  ];
+
+  const creditScoreOptions = [
+    { value: 'excellent', label: 'Excellent (750+)' },
+    { value: 'good', label: 'Good (700-749)' },
+    { value: 'fair', label: 'Fair (650-699)' },
+    { value: 'poor', label: 'Poor (Below 650)' },
+  ];
+
   // Update form when draft changes
   useEffect(() => {
     reset(draft.financialInfo);
@@ -72,12 +88,11 @@ const FinancialInformation = () => {
               }`}
             >
               <option value="">Select status</option>
-              <option value="full-time">Full-Time</option>
-              <option value="part-time">Part-Time</option>
-              <option value="self-employed">Self-Employed</option>
-              <option value="contract">Contract</option>
-              <option value="unemployed">Unemployed</option>
-              <option value="retired">Retired</option>
+              {employmentStatusOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
             {errors.employmentStatus && <p className="mt-1 text-sm text-red-500">{errors.employmentStatus.message}</p>}
           </div>
@@ -230,10 +245,11 @@ const FinancialInformation = () => {
               }`}
             >
               <option value="">Select credit score range</option>
-              <option value="excellent">Excellent (750+)</option>
-              <option value="good">Good (700-749)</option>
-              <option value="fair">Fair (650-699)</option>
-              <option value="poor">Poor (Below 650)</option>
+              {creditScoreOptions.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
             {errors.creditScore && <p className="mt-1 text-sm text-red-500">{errors.creditScore.message}</p>}
           </div>
