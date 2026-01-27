@@ -5,6 +5,7 @@ class User < ApplicationRecord
            :jwt_authenticatable, jwt_revocation_strategy: JwtDenylist
 
   has_many :applications, dependent: :destroy
+  has_many :reviewed_applications, class_name: "ApplicationReview", foreign_key: "reviewed_by_id", dependent: :nullify
 
   enum :role, { customer: 0, loan_officer: 1, underwriter: 2 }
 
