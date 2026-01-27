@@ -41,7 +41,6 @@ export const SignupForm = ({ onSwitchToLogin, onSignupSuccess, onLoginSuccess })
       setUser(user);
       const callback = onSignupSuccess || onLoginSuccess;
       if (callback) {
-        console.log('Calling success callback with user:', user);
         callback(user);
       }
     } catch (err) {
