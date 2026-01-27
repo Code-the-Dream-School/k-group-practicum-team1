@@ -5,7 +5,7 @@ import '@testing-library/jest-dom';
 import CustomerDashboard from './CustomerDashboard';
 
 jest.mock('../../../../services/api', () => ({
-  API_BASE: process.env.VITE_API_URL ,
+  API_BASE: 'http://localhost:3000',
   apiFetch: jest.fn(),
   getAuthToken: jest.fn(),
   setAuthToken: jest.fn(),

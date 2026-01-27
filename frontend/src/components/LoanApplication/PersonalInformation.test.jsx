@@ -5,7 +5,7 @@ import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 
 jest.mock('../../stores/loanApplicationStore');
 jest.mock('../../services/api', () => ({
-  API_BASE: process.env.VITE_API_URL ,
+  API_BASE: process.env.VITE_API_URL || 'http://localhost:3000',
   apiFetch: jest.fn(),
   getAuthToken: jest.fn(),
   setAuthToken: jest.fn(),
