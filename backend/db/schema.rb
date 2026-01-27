@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_22_222023) do
+ActiveRecord::Schema[8.0].define(version: 2026_01_26_072719) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -23,6 +23,22 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_22_222023) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["application_id"], name: "index_addresses_on_application_id"
+  end
+
+  create_table "application_reviews", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.boolean "personal_info_complete", default: false
+    t.boolean "vehicle_info_complete", default: false
+    t.boolean "financial_info_complete", default: false
+    t.boolean "documents_complete", default: false
+    t.boolean "credit_check_authorized", default: false
+    t.bigint "reviewed_by_id"
+    t.datetime "review_completed_at"
+    t.text "review_notes"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_application_reviews_on_application_id", unique: true
+    t.index ["reviewed_by_id"], name: "index_application_reviews_on_reviewed_by_id"
   end
 
   create_table "applications", force: :cascade do |t|
@@ -97,6 +113,8 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_22_222023) do
   end
 
   add_foreign_key "addresses", "applications"
+  add_foreign_key "application_reviews", "applications"
+  add_foreign_key "application_reviews", "users", column: "reviewed_by_id"
   add_foreign_key "applications", "users"
   add_foreign_key "financial_infos", "applications"
   add_foreign_key "vehicles", "applications"
