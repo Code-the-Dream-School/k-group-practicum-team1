@@ -65,4 +65,3 @@ RSpec.describe "API::V1::Applications", type: :request do
     end
   end
 end
-
