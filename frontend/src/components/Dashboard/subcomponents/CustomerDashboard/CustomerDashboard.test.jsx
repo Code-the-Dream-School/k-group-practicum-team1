@@ -11,6 +11,12 @@ jest.mock('../../../../services/api', () => ({
   setAuthToken: jest.fn(),
 }));
 
+jest.mock('../../../../context/AuthContext', () => ({
+  useAuth: jest.fn(),
+}));
+
+import { useAuth } from '../../../../context/AuthContext';
+
 jest.mock('./subcomponents/ApplicationHistory', () => {
   return function MockApplicationHistory({ applications, loading, error }) {
     if (loading) return <div>Loading history...</div>;
@@ -36,6 +42,20 @@ const renderWithRouter = (component) => {
 };
 
 describe('CustomerDashboard Component', () => {
+  beforeEach(() => {
+    useAuth.mockReturnValue({
+      user: { firstName: 'John' },
+      isAuthenticated: true,
+    });
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
+    jest.clearAllMocks();
+  });
+
   describe('Rendering', () => {
     test('renders dashboard with header', async () => {
       renderWithRouter(<CustomerDashboard />);

@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 
 jest.mock('./services/api', () => ({
-  API_BASE: process.env.VITE_API_URL || 'http://localhost:3000',
+  API_BASE: 'http://localhost:3000',
   apiFetch: jest.fn(),
   getAuthToken: jest.fn(),
   setAuthToken: jest.fn(),
