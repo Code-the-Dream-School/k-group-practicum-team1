@@ -44,7 +44,7 @@ const renderWithRouter = (component) => {
 describe('CustomerDashboard Component', () => {
   beforeEach(() => {
     useAuth.mockReturnValue({
-      user: { firstName: 'John' },
+      user: { first_name: 'John' },
       isAuthenticated: true,
     });
     jest.spyOn(console, 'error').mockImplementation(() => {});
