@@ -2,7 +2,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { getAuthToken, setAuthToken } from '../services/api';
-import { getCurrentUser } from '../services/auth';
+import { getCurrentUser, logout as logoutApi } from '../services/auth';
 
 const AuthContext = createContext(undefined);
 
@@ -29,9 +29,13 @@ export const AuthProvider = ({ children }) => {
     restoreSession();
   }, []);
 
-  const logout = () => {
-    setUser(null);
-    setAuthToken(null);
+  const logout = async () => {
+    try {
+      await logoutApi();
+    } finally {
+      setUser(null);
+      setAuthToken(null);
+    }
   };
 
   return (

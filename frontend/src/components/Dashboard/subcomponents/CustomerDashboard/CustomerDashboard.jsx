@@ -4,8 +4,10 @@ import { HiPencilAlt } from 'react-icons/hi';
 import ApplicationHistory from './subcomponents/ApplicationHistory';
 import ApplicationInProgress from './subcomponents/ApplicationInProgress';
 import NewApplication from './subcomponents/NewApplication';
+import { useAuth } from '../../../../context/AuthContext';
 
 const CustomerDashboard = () => {
+  const { user } = useAuth();
   const [applications, setApplications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -67,7 +69,7 @@ const CustomerDashboard = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-start mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2 text-left">Welcome, John!</h1>
+            <h1 className="text-4xl font-bold text-gray-900 mb-2 text-left">Welcome, {user?.first_name || 'User'}!</h1>
             <p className="text-gray-600">Here&apos;s an overview of your loan application</p>
           </div>
           <Link

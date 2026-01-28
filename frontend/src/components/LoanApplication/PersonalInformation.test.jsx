@@ -4,8 +4,24 @@ import PersonalInformation from './PersonalInformation';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 
 jest.mock('../../stores/loanApplicationStore');
+jest.mock('../../services/api', () => ({
+  API_BASE: 'http://localhost:3000',
+  apiFetch: jest.fn(),
+  getAuthToken: jest.fn(),
+  setAuthToken: jest.fn(),
+}));
 
 describe('PersonalInformation Component', () => {
+  beforeEach(() => {
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    jest.spyOn(console, 'warn').mockImplementation(() => {});
+    jest.resetAllMocks(); // reset mocks before each test
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks(); // restore spies
+  });
+
   let mockUpdatePersonalInfo;
   let mockNextStep;
   let mockSaveDraftToServer;

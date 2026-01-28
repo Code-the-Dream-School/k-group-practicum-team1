@@ -10,10 +10,11 @@ jest.mock('../context/AuthContext', () => ({
 
 jest.mock('../services/auth', () => ({
   signup: jest.fn(),
+  login: jest.fn(),
 }));
 
 const { useAuth } = require('../context/AuthContext');
-const { signup } = require('../services/auth');
+const { signup, login } = require('../services/auth');
 
 describe('SignupForm', () => {
   const mockSetUser = jest.fn();
@@ -75,6 +76,8 @@ describe('SignupForm', () => {
   it('submits form with default customer role (security: prevents privilege escalation)', async () => {
     const mockUser = { id: 1, email: 'new@example.com' };
     signup.mockResolvedValue(mockUser);
+    login.mockResolvedValue(mockUser);
+
     render(<SignupForm />);
     fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'John' } });
     fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Doe' } });
@@ -101,6 +104,7 @@ describe('SignupForm', () => {
     const mockUser = { id: 1, email: 'new@example.com' };
     const mockOnSignupSuccess = jest.fn();
     signup.mockResolvedValue(mockUser);
+    login.mockResolvedValue(mockUser);
 
     render(<SignupForm onSignupSuccess={mockOnSignupSuccess} />);
 
