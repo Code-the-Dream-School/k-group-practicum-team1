@@ -26,6 +26,8 @@ describe('PersonalInformation Component', () => {
   };
 
   beforeEach(() => {
+    window.alert = jest.fn();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     mockUpdatePersonalInfo = jest.fn();
     mockNextStep = jest.fn();
     mockSaveDraftToServer = jest.fn().mockResolvedValue();
