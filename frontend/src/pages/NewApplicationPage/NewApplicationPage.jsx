@@ -3,6 +3,7 @@ import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 import Stepper from '../../components/Stepper/Stepper';
 import PersonalInformation from '../../components/LoanApplication/PersonalInformation';
 import VehicleInformation from '../../components/LoanApplication/VehicleInformation';
+import FinancialInformation from '../../components/LoanApplication/FinancialInformation';
 
 const NewApplicationPage = () => {
   const { currentStep, goToStep, clearDraft } = useLoanApplicationStore();
@@ -28,12 +29,7 @@ const NewApplicationPage = () => {
       case 2:
         return <VehicleInformation />;
       case 3:
-        return (
-          <div className="bg-white rounded-lg shadow-md p-8 mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Financial Information</h2>
-            <p className="text-gray-600">Financial information form coming soon...</p>
-          </div>
-        );
+        return <FinancialInformation />;
       case 4:
         return (
           <div className="bg-white rounded-lg shadow-md p-8 mx-auto">
