@@ -15,6 +15,26 @@ module Api
         end
       end
 
+      # PATCH /api/v1/applications/:id/review
+      def update_review
+        if current_user.loan_officer? || current_user.underwriter?
+          application = Application.find_by(id: params[:id])
+          unless application
+            return render json: { error: "Application not found." }, status: :not_found
+          end
+
+          application_review = ApplicationReview.find_or_initialize_by(application_id: params[:id])
+
+          if application_review.update(application_review_params)
+            render json: application_review, status: :ok
+          else
+            render json: { errors: application_review.errors.full_messages }, status: :unprocessable_entity
+          end
+        else
+          render json: { error: "Unauthorized" }, status: :forbidden
+        end
+      end
+
       private
 
       def application_params
@@ -25,6 +45,24 @@ module Api
           :term_months,
           :apr
         )
+      end
+
+      def application_review_params
+        permitted_params = params.require(:application_review).permit(
+          :personal_info_complete,
+          :vehicle_info_complete,
+          :financial_info_complete,
+          :documents_complete,
+          :credit_check_authorized,
+          :review_notes
+        )
+
+        if permitted_params.values_at(:personal_info_complete, :vehicle_info_complete, :financial_info_complete, :documents_complete).all? { |v| v == true }
+          permitted_params[:reviewed_by] = current_user.id
+          permitted_params[:review_completed_at] = Time.current
+        end
+
+        permitted_params
       end
     end
   end

@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       resources :users
       resources :applications, only: [ :create ]
       get "/me", to: "users#me"
+      patch "/applications/:id/review", to: "applications#update_review"
     end
   end
 
