@@ -26,6 +26,17 @@ module Api
           application_review = ApplicationReview.find_or_initialize_by(application_id: params[:id])
 
           if application_review.update(application_review_params)
+            # Set reviewed_by_id and review_completed_at if all checks are complete
+            if application_review.personal_info_complete &&
+               application_review.vehicle_info_complete &&
+               application_review.financial_info_complete &&
+               application_review.documents_complete
+              application_review.update_columns(
+                reviewed_by_id: current_user.id,
+                review_completed_at: Time.current
+              )
+            end
+
             render json: application_review, status: :ok
           else
             render json: { errors: application_review.errors.full_messages }, status: :unprocessable_entity
@@ -48,7 +59,7 @@ module Api
       end
 
       def application_review_params
-        permitted_params = params.require(:application_review).permit(
+        params.require(:application_review).permit(
           :personal_info_complete,
           :vehicle_info_complete,
           :financial_info_complete,
@@ -56,13 +67,6 @@ module Api
           :credit_check_authorized,
           :review_notes
         )
-
-        if permitted_params.values_at(:personal_info_complete, :vehicle_info_complete, :financial_info_complete, :documents_complete).all? { |v| v == true }
-          permitted_params[:reviewed_by] = current_user.id
-          permitted_params[:review_completed_at] = Time.current
-        end
-
-        permitted_params
       end
     end
   end
