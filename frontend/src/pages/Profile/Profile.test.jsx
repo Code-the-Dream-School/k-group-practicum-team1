@@ -1,12 +1,3 @@
-// frontend/src/pages/Profile/Profile.test.jsx
-import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import Profile from './Profile';
-import { useAuth } from '../../context/AuthContext';
-import { apiFetch } from '../../services/api';
-
-// Mock dependencies
 jest.mock('../../context/AuthContext', () => ({
   useAuth: jest.fn(),
 }));
@@ -15,7 +6,13 @@ jest.mock('../../services/api', () => ({
   apiFetch: jest.fn(),
 }));
 
-// Mock localStorage for the api module
+import React from 'react';
+import { render, screen, waitFor } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import Profile from './Profile';
+import { useAuth } from '../../context/AuthContext';
+import { apiFetch } from '../../services/api';
+
 const mockLocalStorage = {
   getItem: jest.fn(),
   setItem: jest.fn(),
@@ -35,16 +32,19 @@ describe('Profile Component', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    // Default mock
+    jest.spyOn(console, 'error').mockImplementation(() => {});
     useAuth.mockReturnValue({
       user: null,
       setUser: mockSetUser,
     });
   });
 
+  afterEach(() => {
+    console.error.mockRestore();
+  });
+
   describe('Loading State', () => {
     it('shows loading state when fetching user data', () => {
-      // Create a promise that never resolves to simulate loading
       apiFetch.mockReturnValue(new Promise(() => {}));
 
       render(<Profile />);
