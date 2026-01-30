@@ -316,17 +316,32 @@ function LoanOfficerDashboard() {
           <select
             value={1}
             className="w-full bg-white border border-gray-300 text-gray-600  rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
-            placeholder="Search by applicant name or ID"
-          />
+          >
+            <option value="" selected hidden>
+              Filter by Status
+            </option>
+            <option value="submitted">Submitted</option>
+            <option value="pending documents">Pending documents</option>
+            <option value="pending" selected>
+              Pending
+            </option>
+          </select>
           <select
             value={1}
             className="w-full bg-white border border-gray-300 text-gray-600  rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
-          />
+          >
+            <option value="" selected hidden>
+              Sort by
+            </option>
+            <option value="name">Name</option>
+            <option value="loan amount">Loan Amount</option>
+            <option value="term">Term</option>
+          </select>
           <button className="w-1/3 bg-blue-600 hover:bg-blue-700 text-white  py-2 rounded-lg transition shadow-lg cursor-pointer">
             Apply
           </button>
         </section>
-        <section className="min-h-[450px]">
+        <section className="min-h-[460px]">
           <h1 className="text-gray-600 font-semibold text-xl my-5 ml-1">Applications Under Review</h1>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 border border-gray-200">
@@ -380,7 +395,7 @@ function LoanOfficerDashboard() {
           </div>
         </section>
         <div>
-          <div className="flex justify-center sm:px-2 ">
+          <div className="flex justify-center sm:px-2 sm:pt-4 ">
             <Paginator totalPages={totalPages} page={page} setCurrentPage={setCurrentPage} />
           </div>
         </div>
