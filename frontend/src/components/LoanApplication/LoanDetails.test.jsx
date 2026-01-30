@@ -291,15 +291,12 @@ describe('LoanDetails Component', () => {
     it('should submit form and proceed to next step', async () => {
       render(<LoanDetails />);
 
-      // Fill down payment
       const downPaymentInput = screen.getByLabelText(/down payment/i);
       fireEvent.change(downPaymentInput, { target: { value: '6000' } });
 
-      // Select loan term
       const term48Button = screen.getByText('48 Months').closest('button');
       fireEvent.click(term48Button);
 
-      // Submit form
       const nextButton = screen.getByRole('button', { name: /next/i });
       fireEvent.click(nextButton);
 
@@ -372,6 +369,7 @@ describe('LoanDetails Component', () => {
           loanTerm: '36',
           downPayment: 8000,
           loanAmount: 22000,
+          interestRate: expect.any(Number),
         });
       });
     });
