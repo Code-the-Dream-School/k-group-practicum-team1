@@ -2,10 +2,10 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useAuth } from '../context/AuthContext';
-import { signup as signupApi } from '../services/auth';
+import { signup as signupApi, login as loginApi } from '../services/auth';
 import { FormInput } from './FormInput';
 
-export const SignupForm = ({ onSwitchToLogin, onSignupSuccess }) => {
+export const SignupForm = ({ onSwitchToLogin, onSignupSuccess, onLoginSuccess }) => {
   const { setUser } = useAuth();
   const [formData, setFormData] = useState({
     first_name: '',
@@ -32,9 +32,17 @@ export const SignupForm = ({ onSwitchToLogin, onSignupSuccess }) => {
     }
     setIsLoading(true);
     try {
-      const user = await signupApi(formData);
+      await signupApi(formData);
+      const user = await loginApi({
+        email: formData.email,
+        password: formData.password,
+      });
+
       setUser(user);
-      if (onSignupSuccess) onSignupSuccess(user);
+      const callback = onSignupSuccess || onLoginSuccess;
+      if (callback) {
+        callback(user);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Signup failed');
     } finally {
@@ -130,6 +138,7 @@ export const SignupForm = ({ onSwitchToLogin, onSignupSuccess }) => {
 SignupForm.propTypes = {
   onSwitchToLogin: PropTypes.func,
   onSignupSuccess: PropTypes.func,
+  onLoginSuccess: PropTypes.func,
 };
 
 export default SignupForm;

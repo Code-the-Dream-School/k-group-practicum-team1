@@ -1,11 +1,17 @@
+// frontend/src/layout/Navbar/Navbar.jsx
 import React, { useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { user, logout } = useAuth();
+  const isLoggedIn = !!user;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const handleLogout = () => {
-    setIsLoggedIn(false);
+  const navigate = useNavigate();
+  const handleLogout = async () => {
+    await logout();
     setIsDropdownOpen(false);
+    navigate('/login');
   };
 
   return (
@@ -14,15 +20,27 @@ const Navbar = () => {
       <div className="flex align-center">
         {isLoggedIn ? (
           <div className="flex items-center justify-center cursor-pointer text-sm text-white">
-            <div className="mx-2 text-lg font-semibold" onClick={() => alert('DashBoard')}>
+            <div
+              className="mx-2 text-lg font-semibold"
+              onClick={() => {
+                navigate('/dashboard');
+                setIsDropdownOpen(false);
+              }}
+            >
               Dashboard
             </div>
             <div className="mx-2 text-lg  font-semibold" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-              Test User ▼
+              {user.first_name || 'User'} ▼
             </div>
             {isDropdownOpen && (
               <div className="absolute w-24 mr-5 right-0 top-full z-10 bg-white rounded text-md mt-1 shadow-md text-gray-900">
-                <div className="p-2 pointer text-sm border-b border-gray-300" onClick={() => alert('Profile')}>
+                <div
+                  className="p-2 pointer text-sm border-b border-gray-300"
+                  onClick={() => {
+                    navigate('/profile');
+                    setIsDropdownOpen(false);
+                  }}
+                >
                   Profile
                 </div>
                 <div className="p-2 pointer text-sm" onClick={handleLogout}>
@@ -32,12 +50,36 @@ const Navbar = () => {
             )}
           </div>
         ) : (
-          <button
-            className="border border-white text-white px-4 py-2 rounded-md hover:bg-white/10 transition cursor-pointer"
-            onClick={() => setIsLoggedIn(true)}
-          >
-            Sign In
-          </button>
+          <>
+            <button
+              className="border border-white text-white px-4 py-2 rounded-md hover:bg-white/10 transition cursor-pointer"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              Sign In
+            </button>
+            {isDropdownOpen && (
+              <div className="absolute right-0 top-full mt-1 w-28 bg-white rounded shadow-md text-gray-900">
+                <div
+                  className="block p-2 text-sm border-b cursor-pointer hover:bg-gray-100"
+                  onClick={() => {
+                    navigate('/login');
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  Login
+                </div>
+                <div
+                  className="block p-2 text-sm cursor-pointer hover:bg-gray-100"
+                  onClick={() => {
+                    navigate('/signup');
+                    setIsDropdownOpen(false);
+                  }}
+                >
+                  Signup
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </nav>

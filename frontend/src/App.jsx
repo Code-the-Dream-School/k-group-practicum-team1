@@ -7,16 +7,36 @@ import Footer from './layouts/Footer/Footer';
 import Dashboard from './components/Dashboard/Dashboard';
 import NewApplicationPage from './pages/NewApplicationPage/NewApplicationPage';
 import LoanOfficerDashboard from './pages/LoanOfficerDashboard/LoanOfficerDashboard';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import Auth from './components/auth/Auth';
+import Profile from './pages/Profile/Profile';
 
 function App() {
   return (
     <>
       <Navbar />
       <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/dashboard" element={<Dashboard />} />
-        <Route path="/application" element={<NewApplicationPage />} />
+        <Route path="/" element={<HomePage />} />     
         <Route path="/officer-dashboard" element={<LoanOfficerDashboard />} />
+        <Route path="/login" element={<Auth />} />
+        <Route path="/signup" element={<Auth />} />
+        <Route path="/applications" element={<NewApplicationPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
       <Footer />
     </>

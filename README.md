@@ -86,6 +86,37 @@ Foreman auto-loads `.env.development.local` before starting Rails.
 
 **Note:** Never commit files containing actual secrets. Only `.env*.example` files should be committed.
 
+## Database Setup & Seeds
+
+1. **Create and migrate the database**
+```bash 
+cd backend
+rails db:create
+rails db:migrate 
+```
+
+2. **Seed default users**
+```bash
+rails db:seed
+```
+
+Or using Bundler:
+```bash
+bundle exec rails db:seed
+```
+
+3. **Verify seeded data**
+```bash
+bundle exec rails console
+User.where(role: [:loan_officer, :underwriter]).pluck(:email, :role)
+```
+Note: Seeds are safe to re-run — `find_or_initialize_by` is used, so duplicates are avoided.
+
+4. **Reset and reseed database (if needed)**
+```bash
+bundle exec rails db:drop db:create db:migrate db:seed
+```
+
 ## API Documentation 
 
 ### Quick Start with Authentication

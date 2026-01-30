@@ -3,6 +3,7 @@ class Application < ApplicationRecord
   has_many :addresses, dependent: :destroy
   has_one :vehicle, dependent: :destroy
   has_one :financial_info, dependent: :destroy
+  has_one :application_review, dependent: :destroy
 
   enum :status, {
     draft: "draft",

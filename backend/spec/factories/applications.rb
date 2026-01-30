@@ -2,7 +2,7 @@ FactoryBot.define do
   factory :application do
     association :user
 
-    sequence(:application_number) { |n| "#AL-#{Time.current.year}-#{n.to_s.rjust(5, '0')}" }
+    sequence(:application_number) { |n| "#AL-#{Time.current.year}-#{(10000 + n + rand(1000)).to_s.rjust(5, '0')}" }
 
     status { 'draft' }
     application_progress { 'personal' }
