@@ -263,7 +263,7 @@ function LoanOfficerDashboard() {
           <div className="">
             <div className="flex justify-between items-start mb-8">
               <div>
-                <h1 className="text-4xl font-bold text-gray-900 mb-2 text-left">Loan Officer Dashboard</h1>
+                <h1 className="text-4xl font-bold text-gray-700 mb-2 text-left">Loan Officer Dashboard</h1>
                 <p className="text-gray-600">Review and manage loan applications</p>
               </div>
             </div>
@@ -327,7 +327,7 @@ function LoanOfficerDashboard() {
           </button>
         </section>
         <section className="min-h-[450px]">
-          <h1>Applications Under Review</h1>
+          <h1 className="text-gray-600 font-semibold text-xl my-5 ml-1">Applications Under Review</h1>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 border border-gray-200">
               <thead className="bg-gray-50">
