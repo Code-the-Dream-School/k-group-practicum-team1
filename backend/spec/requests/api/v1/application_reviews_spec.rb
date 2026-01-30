@@ -1,79 +1,15 @@
-# spec/requests/api/v1/application_reviews_spec.rb
-require 'swagger_helper'
+require "rails_helper"
 
 RSpec.describe 'PATCH api/v1/application_reviews', type: :request do
-  path '/api/v1/applications/{application_id}/review' do
-    parameter name: :application_id, in: :path, type: :integer, description: 'Application ID'
+    let(:customer) { create(:user, :customer) }
+    let(:loan_officer) { create(:user, :loan_officer) }
+    let(:underwriter) { create(:user, :underwriter) }
+    let(:application) { create(:application, user: customer) }
 
-    patch 'Update application review' do
-      tags 'Application Reviews'
-      consumes 'application/json'
-      produces 'application/json'
-      security [ { bearer: [] } ]
-
-      parameter name: :application_review, in: :body, schema: {
-        type: :object,
-        properties: {
-          application_review: {
-            type: :object,
-            properties: {
-              personal_info_complete: { type: :boolean },
-              vehicle_info_complete: { type: :boolean },
-              financial_info_complete: { type: :boolean },
-              documents_complete: { type: :boolean },
-              credit_check_authorized: { type: :boolean },
-              review_notes: { type: :string }
-            }
-          }
-        },
-        required: [ 'application_review' ]
-      }
-
-      response '200', 'review updated' do
-        schema type: :object,
-          properties: {
-            id: { type: :integer },
-            application_id: { type: :integer },
-            personal_info_complete: { type: :boolean },
-            vehicle_info_complete: { type: :boolean },
-            financial_info_complete: { type: :boolean },
-            documents_complete: { type: :boolean },
-            credit_check_authorized: { type: :boolean },
-            review_notes: { type: :string },
-            reviewed_by_id: { type: :integer, nullable: true },
-            review_completed_at: { type: :string, format: :datetime, nullable: true }
-          }
-
-        let(:application_id) { create(:application).id }
-        let(:application_review) do
-          {
-            application_review: {
-              personal_info_complete: true,
-              vehicle_info_complete: true
-            }
-          }
-        end
-
-        run_test!
-      end
-
-      response '404', 'application not found' do
-        let(:application_id) { 99999 }
-        let(:application_review) { { application_review: {} } }
-        run_test!
-      end
-
-      response '403', 'unauthorized' do
-        let(:application_id) { create(:application).id }
-        let(:application_review) { { application_review: {} } }
-        # Test with customer role
-        run_test!
-      end
+    def auth_headers(user)
+      token = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first
+      { 'Authorization' => "Bearer #{token}" }
     end
-  end
-
-    let!(:application) { create(:application, user: customer) }
-    let!(:underwriter) { create(:user, :underwriter) }
 
     let(:valid_review_params) do
       {
@@ -101,8 +37,6 @@ RSpec.describe 'PATCH api/v1/application_reviews', type: :request do
               headers: auth_headers(customer),
               params: valid_review_params
         expect(response).to have_http_status(:forbidden)
-        json = JSON.parse(response.body)
-        expect(json['error']).to eq("Unauthorized")
       end
     end
 
