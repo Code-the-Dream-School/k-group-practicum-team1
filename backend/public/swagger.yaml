@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: CTD AutoLoan API V1
-  description: API for AutoLoan app
+  title: TurboLoan API V1
+  description: API for TurboLoan app
   version: "1.0.0"
 
 servers:
@@ -306,3 +306,128 @@ paths:
           description: Unauthorized
         '404':
           description: User not found
+  # ------------------------
+  # Application Reviews
+  # ------------------------
+  /api/v1/applications/{application_id}/review:
+    patch:
+      summary: Update application review
+      description: Update review status for an application (loan officers and underwriters only)
+      tags:
+        - Application Reviews
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: application_id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: ID of the application to review
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                application_review:
+                  type: object
+                  properties:
+                    personal_info_complete:
+                      type: boolean
+                      example: true
+                    vehicle_info_complete:
+                      type: boolean
+                      example: true
+                    financial_info_complete:
+                      type: boolean
+                      example: true
+                    documents_complete:
+                      type: boolean
+                      example: true
+                    credit_check_authorized:
+                      type: boolean
+                      example: true
+                    review_notes:
+                      type: string
+                      example: "All documents verified and approved"
+      responses:
+        '200':
+          description: Review updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: integer
+                    example: 1
+                  application_id:
+                    type: integer
+                    example: 5
+                  personal_info_complete:
+                    type: boolean
+                    example: true
+                  vehicle_info_complete:
+                    type: boolean
+                    example: true
+                  financial_info_complete:
+                    type: boolean
+                    example: true
+                  documents_complete:
+                    type: boolean
+                    example: true
+                  credit_check_authorized:
+                    type: boolean
+                    example: true
+                  review_notes:
+                    type: string
+                    example: "All documents verified and approved"
+                  reviewed_by_id:
+                    type: integer
+                    nullable: true
+                    example: 2
+                  review_completed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                    example: "2026-01-29T10:30:00.000Z"
+                  created_at:
+                    type: string
+                    format: date-time
+                    example: "2026-01-28T09:15:00.000Z"
+                  updated_at:
+                    type: string
+                    format: date-time
+                    example: "2026-01-29T10:30:00.000Z"
+        '401':
+          description: Unauthorized - User not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "You need to sign in or sign up before continuing."
+        '403':
+          description: Forbidden - User is not a loan officer or underwriter
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Unauthorized. Only loan officers and underwriters can review applications."
+        '404':
+          description: Application not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Application not found."

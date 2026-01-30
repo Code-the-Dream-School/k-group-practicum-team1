@@ -14,11 +14,13 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :users
-      resources :applications, only: [ :create ]
+      resources :applications, only: [ :create, :update ] do
+        resource :review, only: [ :update ], controller: "application_review"
+      end
       get "/me", to: "users#me"
-      resources :applications, only: [ :update ]
     end
   end
+
   # Serve Swagger UI at /api-docs
   mount Rswag::Ui::Engine => "/api-docs"
   mount Rswag::Api::Engine => "/api-docs"
