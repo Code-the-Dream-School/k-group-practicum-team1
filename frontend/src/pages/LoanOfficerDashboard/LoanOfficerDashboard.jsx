@@ -256,6 +256,9 @@ function LoanOfficerDashboard() {
   const start = page * itemsPerPage;
   const currentData = loanData.slice(start, start + itemsPerPage);
 
+  const [status, setStatus] = useState('');
+  const [sorting, setSorting] = useState('');
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
@@ -314,7 +317,8 @@ function LoanOfficerDashboard() {
             placeholder="Search by applicant name or ID"
           />
           <select
-            value={1}
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
             className="w-full bg-white border border-gray-300 text-gray-600  rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
           >
             <option value="" selected hidden>
@@ -327,7 +331,8 @@ function LoanOfficerDashboard() {
             </option>
           </select>
           <select
-            value={1}
+            value={sorting}
+            onChange={(e) => setSorting(e.target.value)}
             className="w-full bg-white border border-gray-300 text-gray-600  rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
           >
             <option value="" selected hidden>
