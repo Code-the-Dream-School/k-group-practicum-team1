@@ -12,7 +12,6 @@ const LoanDetails = () => {
     formState: { errors, isSubmitting },
     reset,
     getValues,
-    // setValue,
   } = useForm({
     defaultValues: {
       loanTerm: draft.loanDetails?.loanTerm || '',
@@ -34,22 +33,35 @@ const LoanDetails = () => {
 
   const selectedLoanTerm = watch('loanTerm');
 
-  const loanTermOptions = [
-    { value: '24', months: 24, apr: 4.3, popular: false },
-    { value: '36', months: 36, apr: 4.9, popular: false },
-    { value: '48', months: 48, apr: 5.5, popular: true },
-    { value: '60', months: 60, apr: 6.2, popular: false },
-    { value: '72', months: 72, apr: 6.9, popular: false },
-    { value: '84', months: 84, apr: 7.5, popular: false },
-  ];
+  const loanTermOptions = React.useMemo(
+    () => [
+      { value: '24', months: 24, apr: 4.3, popular: false },
+      { value: '36', months: 36, apr: 4.9, popular: false },
+      { value: '48', months: 48, apr: 5.5, popular: true },
+      { value: '60', months: 60, apr: 6.2, popular: false },
+      { value: '72', months: 72, apr: 6.9, popular: false },
+      { value: '84', months: 84, apr: 7.5, popular: false },
+    ],
+    []
+  );
 
-  const calculatePaymentForTerm = (termMonths, apr) => {
-    if (loanAmount <= 0) return 0;
-    const monthlyRate = apr / 100 / 12;
-    return (
-      (loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, termMonths))) / (Math.pow(1 + monthlyRate, termMonths) - 1)
-    );
-  };
+  const calculatePaymentForTerm = React.useCallback(
+    (termMonths, apr) => {
+      if (loanAmount <= 0) return 0;
+      const monthlyRate = apr / 100 / 12;
+      return (
+        (loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, termMonths))) /
+        (Math.pow(1 + monthlyRate, termMonths) - 1)
+      );
+    },
+    [loanAmount]
+  );
+
+  const calculateInsurance = React.useCallback((vehiclePrice) => {
+    if (vehiclePrice > 30000) return 250;
+    if (vehiclePrice > 20000) return 200;
+    return 150;
+  }, []);
 
   useEffect(() => {
     if (selectedLoanTerm && loanAmount > 0) {
@@ -57,7 +69,7 @@ const LoanDetails = () => {
       if (selectedOption) {
         const principalAndInterest = calculatePaymentForTerm(selectedOption.months, selectedOption.apr);
 
-        const estimatedInsurance = vehiclePrice > 30000 ? 250 : vehiclePrice > 20000 ? 200 : 150;
+        const estimatedInsurance = calculateInsurance(vehiclePrice);
 
         setMonthlyPayment({
           principalAndInterest: principalAndInterest,
@@ -72,7 +84,7 @@ const LoanDetails = () => {
         totalMonthly: 0,
       });
     }
-  }, [selectedLoanTerm, loanAmount, vehiclePrice]);
+  }, [selectedLoanTerm, loanAmount, vehiclePrice, loanTermOptions, calculatePaymentForTerm, calculateInsurance]);
 
   useEffect(() => {
     reset({
@@ -87,6 +99,7 @@ const LoanDetails = () => {
       ...formData,
       downPayment: parseFloat(formData.downPayment),
       loanAmount: loanAmount,
+      interestRate: loanTermOptions.find((opt) => opt.value === formData.loanTerm)?.apr,
     });
     try {
       await saveDraftToServer();
@@ -102,6 +115,7 @@ const LoanDetails = () => {
       ...data,
       downPayment: parseFloat(data.downPayment),
       loanAmount: loanAmount,
+      interestRate: loanTermOptions.find((opt) => opt.value === data.loanTerm)?.apr,
     });
     nextStep();
   };
@@ -136,6 +150,7 @@ const LoanDetails = () => {
                   type="number"
                   id="downPayment"
                   step="0.01"
+                  min={0}
                   {...register('downPayment', {
                     required: 'Down payment is required',
                     min: {
