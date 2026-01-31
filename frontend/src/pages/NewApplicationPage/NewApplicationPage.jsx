@@ -4,6 +4,7 @@ import Stepper from '../../components/Stepper/Stepper';
 import PersonalInformation from '../../components/LoanApplication/PersonalInformation';
 import VehicleInformation from '../../components/LoanApplication/VehicleInformation';
 import FinancialInformation from '../../components/LoanApplication/FinancialInformation';
+import LoanDetails from '../../components/LoanApplication/LoanDetails';
 
 const NewApplicationPage = () => {
   const { currentStep, goToStep, clearDraft } = useLoanApplicationStore();
@@ -31,12 +32,7 @@ const NewApplicationPage = () => {
       case 3:
         return <FinancialInformation />;
       case 4:
-        return (
-          <div className="bg-white rounded-lg shadow-md p-8 mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Loan Details</h2>
-            <p className="text-gray-600">Loan details form coming soon...</p>
-          </div>
-        );
+        return <LoanDetails />;
       case 5:
         return (
           <div className="bg-white rounded-lg shadow-md p-8 mx-auto">

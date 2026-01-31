@@ -18,7 +18,14 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<Auth />} />
-        <Route path="/applications" element={<NewApplicationPage />} />
+        <Route
+          path="/application"
+          element={
+            <ProtectedRoute>
+              <NewApplicationPage />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/dashboard"
           element={

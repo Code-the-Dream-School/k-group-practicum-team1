@@ -11,7 +11,7 @@ export default function AuthPage() {
   const handleAuthSuccess = (user) => {
     console.log('Auth success callback called with user:', user);
     if (user.role === 'customer') {
-      navigate('/applications');
+      navigate('/dashboard');
     } else if (user.role === 'loan_officer') {
       navigate('/officer/dashboard');
     } else if (user.role === 'underwriter') {
