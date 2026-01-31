@@ -78,9 +78,17 @@ export const useLoanApplicationStore = create(
           },
         })),
 
+      updateDocuments: (documents) =>
+        set((state) => ({
+          draft: {
+            ...state.draft,
+            documents: documents,
+          },
+        })),
+
       nextStep: () =>
         set((state) => ({
-          currentStep: Math.min(state.currentStep + 1, 5),
+          currentStep: Math.min(state.currentStep + 1, 6),
         })),
 
       previousStep: () =>
@@ -120,7 +128,16 @@ export const useLoanApplicationStore = create(
               state: '',
               zipCode: '',
             },
-            vehicleDetails: {},
+            vehicleDetails: {
+              vehicleType: '',
+              year: '',
+              make: '',
+              model: '',
+              trim: '',
+              vin: '',
+              mileage: '',
+              purchasePrice: '',
+            },
             financialInfo: {
               employmentStatus: '',
               employer: '',
@@ -131,7 +148,12 @@ export const useLoanApplicationStore = create(
               monthlyExpenses: '',
               creditScore: '',
             },
-            loanDetails: {},
+            loanDetails: {
+              downPayment: '',
+              loanTerm: '',
+              loanAmount: '',
+              interestRate: '',
+            },
             documents: [],
           },
         }),
