@@ -184,6 +184,47 @@ components:
           nullable: true
           example: 25000.00
 
+    FinancialInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        employment_status:
+          type: string
+          nullable: true
+        employer:
+          type: string
+          nullable: true
+        job_title:
+          type: string
+          nullable: true
+        years_employed:
+          type: number
+          format: double
+          nullable: true
+          example: 5.5
+        annual_income:
+          type: number
+          format: double
+          nullable: true
+          example: 75000.00
+        additional_income:
+          type: number
+          format: double
+          nullable: true
+          example: 5000.00
+        monthly_expenses:
+          type: number
+          format: double
+          nullable: true
+          example: 3000.00
+        credit_score:
+          type: string
+          enum: [excellent, good, fair, poor]
+          nullable: true
+          example: "good"
+
     Application:
       type: object
       properties:
@@ -242,6 +283,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Address'
+        financial_info:
+          nullable: true
+          $ref: '#/components/schemas/FinancialInfo'
 
 paths:
   # ------------------------
