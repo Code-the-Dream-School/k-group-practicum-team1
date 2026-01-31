@@ -17,7 +17,6 @@ function App() {
       <Navbar />
       <Routes>
         <Route path="/" element={<HomePage />} />
-        <Route path="/officer-dashboard" element={<LoanOfficerDashboard />} />
         <Route path="/login" element={<Auth />} />
         <Route path="/signup" element={<Auth />} />
         <Route path="/applications" element={<NewApplicationPage />} />
@@ -34,6 +33,14 @@ function App() {
           element={
             <ProtectedRoute>
               <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/officer-dashboard"
+          element={
+            <ProtectedRoute>
+              <LoanOfficerDashboard />{' '}
             </ProtectedRoute>
           }
         />
