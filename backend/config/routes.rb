@@ -18,6 +18,8 @@ Rails.application.routes.draw do
         resource :review, only: [ :update ], controller: "application_review"
       end
       get "/me", to: "users#me"
+
+      resources :applications, only: [ :show ]
     end
   end
 
