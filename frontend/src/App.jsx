@@ -47,9 +47,9 @@ function App() {
           <Route
             path="/officer-dashboard"
             element={
-             <ProtectedRoute>
+              <ProtectedRoute>
                 <LoanOfficerDashboard />{' '}
-             </ProtectedRoute>
+              </ProtectedRoute>
             }
           />
         </Routes>
