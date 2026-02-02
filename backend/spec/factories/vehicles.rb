@@ -7,7 +7,7 @@ FactoryBot.define do
     make { 'Toyota' }
     model { 'Camry' }
     trim { 'LE' }
-    sequence(:vin) { |n| "1HGBH41JXMN10#{n.to_s.rjust(4, '0')}" }
+    sequence(:vin) { |n| "1HGBH41JXMN1#{n.to_s.rjust(5, '0')}" }
     mileage { 0 }
     vehicle_value { 25000.00 }
 

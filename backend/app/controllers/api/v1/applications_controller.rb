@@ -1,26 +1,30 @@
-# backend/app/controllers/api/v1/applications_controller.rb
 module Api
   module V1
     class ApplicationsController < ApplicationController
       before_action :authenticate_user!
-      before_action :set_application, only: [ :update ]
-      before_action :authorize_user!, only: [ :update ]
+      before_action :set_application, only: [ :show, :update ]
+      before_action :authorize_user!, only: [ :show, :update ]
       before_action :ensure_draft_status!, only: [ :update ]
 
       # POST /api/v1/applications
       def create
         @application = current_user.applications.build(application_params)
         if @application.save
-          render json: @application, status: :created
+          render json: ApplicationSerializer.new(@application).as_json, status: :created
         else
           render json: { errors: @application.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
+      # GET /api/v1/applications/:id
+      def show
+        render json: ApplicationSerializer.new(@application).as_json, status: :ok
+      end
+
       # PATCH /api/v1/applications/:id
       def update
         if @application.update(application_params)
-          render json: @application, status: :ok
+          render json: ApplicationSerializer.new(@application).as_json, status: :ok
         else
           render json: { errors: @application.errors.full_messages }, status: :unprocessable_entity
         end
@@ -29,7 +33,7 @@ module Api
       private
 
       def set_application
-        @application = Application.find(params[:id])
+        @application = Application.includes(:vehicle, :addresses, :financial_info).find(params[:id])
       rescue ActiveRecord::RecordNotFound
         render json: { errors: [ "Application not found" ] }, status: :not_found
       end
