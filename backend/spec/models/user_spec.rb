@@ -12,8 +12,9 @@ RSpec.describe User, type: :model do
     it { should validate_uniqueness_of(:email).case_insensitive }
 
     it 'validates uniqueness of phone_number' do
-      create(:user, phone_number: '1234567890')
-      duplicate_user = build(:user, phone_number: '1234567890')
+      phone = "1#{format('%09d', rand(1_000_000_000))}"
+      create(:user, phone_number: phone)
+      duplicate_user = build(:user, phone_number: phone)
       expect(duplicate_user).not_to be_valid
       expect(duplicate_user.errors[:phone_number]).to include('has already been taken')
     end
