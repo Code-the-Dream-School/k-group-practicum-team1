@@ -8,6 +8,18 @@ servers:
   - url: http://localhost:3000
     description: Local server
 
+tags:
+  - name: Users, Registration
+    description: User registration endpoints
+  - name: Sessions
+    description: Authentication endpoints (login/logout)
+  - name: Users
+    description: User management endpoints
+  - name: Applications
+    description: Loan application list and details
+  - name: Application Reviews
+    description: Application review endpoints
+
 components:
   securitySchemes:
     bearerAuth:
@@ -287,6 +299,92 @@ components:
           nullable: true
           $ref: '#/components/schemas/FinancialInfo'
 
+    ApplicationListItem:
+      type: object
+      description: Application summary for list responses (GET /api/v1/applications)
+      properties:
+        id:
+          type: integer
+          example: 1
+        application_number:
+          type: string
+          example: "#CA-2026-00001"
+        user_id:
+          type: integer
+          example: 5
+        applicant_name:
+          type: string
+          example: "John Doe"
+        status:
+          type: string
+          enum: [draft, submitted, pending, under_review, pending_documents, approved, rejected]
+          example: "submitted"
+        application_progress:
+          type: string
+          enum: [personal, vehicle, financial, terms]
+          example: "financial"
+        purchase_price:
+          type: number
+          format: double
+          example: 25000.00
+        down_payment:
+          type: number
+          format: double
+          example: 5000.00
+        loan_amount:
+          type: number
+          format: double
+          example: 20000.00
+        term_months:
+          type: integer
+          example: 60
+        apr:
+          type: number
+          format: double
+          nullable: true
+          example: 5.90
+        monthly_payment:
+          type: number
+          format: double
+          nullable: true
+          example: 386.66
+        submitted_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2026-01-10"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-01-08T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-01-10T14:20:00Z"
+
+    ApplicationsListResponse:
+      type: object
+      properties:
+        applications:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationListItem'
+        meta:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 45
+            count:
+              type: integer
+              example: 20
+            current_page:
+              type: integer
+              example: 1
+            total_pages:
+              type: integer
+              example: 3
+
 paths:
   # ------------------------
   # Registration
@@ -477,10 +575,76 @@ paths:
         '404':
           description: User not found
   # ------------------------
-  # Applications
+  # Applications (list first so both show in UI)
   # ------------------------
-  /api/v1/applications/{id}:
+  /api/v1/applications:
     get:
+      operationId: getApplicationsList
+      summary: List applications
+      description: |
+        List applications with role-based access. Requires JWT.
+        - **Customer:** returns only their own applications, sorted by created_at desc. Filter/sort params are ignored.
+        - **Loan officer / Underwriter:** returns all applications. Optional query params: application_number (partial), status (exact), applicant_name (partial), sort_by (application_number|status|submitted_date|created_at), sort_order (asc|desc), page (default 1). Pagination 20 per page.
+      tags:
+        - Applications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Page number (20 per page)
+        - name: application_number
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by application number (partial, case-insensitive). LO/underwriter only.
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [draft, submitted, pending, under_review, pending_documents, approved, rejected]
+          description: Filter by status. LO/underwriter only.
+        - name: applicant_name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search first_name or last_name (partial, case-insensitive). LO/underwriter only.
+        - name: sort_by
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [application_number, status, submitted_date, created_at]
+            default: created_at
+          description: Sort field. LO/underwriter only.
+        - name: sort_order
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order. LO/underwriter only.
+      responses:
+        '200':
+          description: List of applications with pagination meta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationsListResponse'
+        '401':
+          description: Unauthorized
+
+  "/api/v1/applications/{id}":
+    get:
+      operationId: getApplicationById
       summary: Get application by ID
       description: Get a single loan application by ID. Customers can only access their own applications. Loan officers and underwriters can access any application.
       tags:
