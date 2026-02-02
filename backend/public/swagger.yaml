@@ -385,6 +385,52 @@ components:
               type: integer
               example: 3
 
+    CreateApplicationRequest:
+      type: object
+      description: Request body for creating a new loan application
+      properties:
+        application:
+          type: object
+          properties:
+            purchase_price:
+              type: number
+              format: double
+              example: 25000.00
+              description: Purchase price of the vehicle (must be > 0)
+            loan_amount:
+              type: number
+              format: double
+              example: 20000.00
+              description: Amount to borrow (must be > 0 and <= purchase_price)
+            down_payment:
+              type: number
+              format: double
+              example: 5000.00
+              description: Down payment amount (must be >= 0, and down_payment + loan_amount = purchase_price)
+            term_months:
+              type: integer
+              enum: [36, 48, 60, 72]
+              example: 60
+              description: Loan term in months
+            apr:
+              type: number
+              format: double
+              nullable: true
+              example: 5.9
+              description: Annual percentage rate (optional, 0-100)
+            application_progress:
+              type: string
+              enum: [personal, vehicle, financial, terms]
+              example: "personal"
+              description: Current progress stage (defaults to 'personal' if not provided)
+          required:
+            - purchase_price
+            - loan_amount
+            - down_payment
+            - term_months
+      required:
+        - application
+
 paths:
   # ------------------------
   # Registration
@@ -641,6 +687,58 @@ paths:
                 $ref: '#/components/schemas/ApplicationsListResponse'
         '401':
           description: Unauthorized
+
+    post:
+      operationId: createApplication
+      summary: Create a new application
+      description: |
+        Create a new loan application. Requires JWT authentication.
+        - Application is automatically associated with the authenticated user
+        - `application_number` is auto-generated
+        - `status` defaults to "draft"
+        - `application_progress` defaults to "personal" if not provided
+        - `monthly_payment` is calculated automatically if APR is provided
+      tags:
+        - Applications
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApplicationRequest'
+      responses:
+        '201':
+          description: Application created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '401':
+          description: Unauthorized - Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: ["You need to sign in or sign up before continuing."]
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: ["Purchase price must be greater than 0", "Loan amount must be less than or equal to purchase price"]
 
   "/api/v1/applications/{id}":
     get:
