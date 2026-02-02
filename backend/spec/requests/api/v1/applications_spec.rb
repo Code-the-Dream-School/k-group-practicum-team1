@@ -93,6 +93,95 @@ RSpec.describe "API::V1::Applications", type: :request do
     end
   end
 
+  describe "GET /api/v1/applications" do
+    context "when authenticated" do
+      it "returns only customer's own applications for customer" do
+        get "/api/v1/applications", headers: auth_headers(customer)
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json["applications"].size).to eq(1)
+        expect(json["applications"].first["user_id"]).to eq(customer.id)
+        expect(json["meta"]["total"]).to eq(1)
+      end
+
+      it "returns all applications for loan officer" do
+        get "/api/v1/applications", headers: auth_headers(loan_officer)
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json["applications"].size).to be >= 2
+        expect(json["meta"]["total"]).to be >= 2
+      end
+
+      it "returns all applications for underwriter" do
+        get "/api/v1/applications", headers: auth_headers(underwriter)
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json["applications"].size).to be >= 2
+      end
+
+      it "includes applicant_name in each application" do
+        get "/api/v1/applications", headers: auth_headers(loan_officer)
+        json = JSON.parse(response.body)
+        expect(json["applications"].first).to have_key("applicant_name")
+        expect(json["applications"].first["applicant_name"]).to match(/\S+/)
+      end
+
+      it "includes meta with total, count, current_page, total_pages" do
+        get "/api/v1/applications", headers: auth_headers(customer)
+        json = JSON.parse(response.body)
+        expect(json["meta"]).to include("total", "count", "current_page", "total_pages")
+      end
+
+      it "paginates with 20 per page for loan officer" do
+        25.times { create(:application, user: other_customer) }
+        get "/api/v1/applications", headers: auth_headers(loan_officer), params: { page: 1 }
+        json = JSON.parse(response.body)
+        expect(json["applications"].size).to eq(20)
+        expect(json["meta"]["count"]).to eq(20)
+        expect(json["meta"]["current_page"]).to eq(1)
+        expect(json["meta"]["total_pages"]).to be >= 2
+      end
+
+      it "filters by application_number for loan officer" do
+        get "/api/v1/applications", headers: auth_headers(loan_officer),
+            params: { application_number: application.application_number[0..5] }
+        json = JSON.parse(response.body)
+        json["applications"].each do |app|
+          expect(app["application_number"].downcase).to include(application.application_number[0..5].downcase)
+        end
+      end
+
+      it "filters by status for loan officer" do
+        get "/api/v1/applications", headers: auth_headers(loan_officer), params: { status: "draft" }
+        json = JSON.parse(response.body)
+        json["applications"].each { |app| expect(app["status"]).to eq("draft") }
+      end
+
+      it "sorts by created_at desc by default for loan officer" do
+        get "/api/v1/applications", headers: auth_headers(loan_officer)
+        json = JSON.parse(response.body)
+        created_ats = json["applications"].map { |a| a["created_at"] }
+        expect(created_ats).to eq(created_ats.sort.reverse)
+      end
+
+      it "returns empty applications and total 0 when customer has no applications" do
+        customer_without_apps = create(:user, :customer)
+        get "/api/v1/applications", headers: auth_headers(customer_without_apps)
+        json = JSON.parse(response.body)
+        expect(json["applications"]).to eq([])
+        expect(json["meta"]["total"]).to eq(0)
+        expect(json["meta"]["count"]).to eq(0)
+      end
+    end
+
+    context "when not authenticated" do
+      it "returns 401" do
+        get "/api/v1/applications"
+        expect(response).to have_http_status(:unauthorized)
+      end
+    end
+  end
+
   describe "GET /api/v1/applications/:id" do
     context "when authenticated" do
       it "allows customer to see their own application" do
