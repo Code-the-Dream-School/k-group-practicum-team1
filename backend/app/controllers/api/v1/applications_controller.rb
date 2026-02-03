@@ -60,6 +60,9 @@ module Api
             personal_info_attributes: [
               :first_name, :last_name, :email,
               :phone_number, :dob, :ssn
+            ],
+            vehicle_attributes: [
+              :vehicle_type, :make, :model, :year, :vin, :trim, :mileage
             ]
           )
         else
