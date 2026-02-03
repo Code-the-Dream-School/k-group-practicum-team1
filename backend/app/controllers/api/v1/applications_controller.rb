@@ -61,6 +61,9 @@ module Api
               :first_name, :last_name, :email,
               :phone_number, :dob, :ssn
             ],
+            addresses_attributes: [
+              :address_type, :address_street, :city, :state, :zip
+            ],
             vehicle_attributes: [
               :vehicle_type, :make, :model, :year, :vin, :trim, :mileage
             ],
