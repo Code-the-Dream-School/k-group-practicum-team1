@@ -53,10 +53,18 @@ module Api
       end
 
       def application_params
-        params.require(:application).permit(
-          :purchase_price, :loan_amount, :down_payment,
-          :term_months, :apr, :application_progress
-        )
+        if params[:application].present?
+          params.require(:application).permit(
+            :purchase_price, :loan_amount, :down_payment,
+            :term_months, :apr, :application_progress,
+            personal_info_attributes: [
+              :first_name, :last_name, :email,
+              :phone_number, :dob, :ssn
+            ]
+          )
+        else
+          raise ActionController::ParameterMissing.new(:application), "Request must include 'application' key in JSON body"
+        end
       end
     end
   end

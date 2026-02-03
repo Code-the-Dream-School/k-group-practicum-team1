@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_01_26_072719) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_03_015153) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -83,6 +83,19 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_26_072719) do
     t.index ["jti"], name: "index_jwt_denylists_on_jti"
   end
 
+  create_table "personal_infos", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.string "email"
+    t.string "phone_number"
+    t.string "dob"
+    t.string "ssn"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_personal_infos_on_application_id", unique: true
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "first_name", null: false
     t.string "last_name", null: false
@@ -117,5 +130,6 @@ ActiveRecord::Schema[8.0].define(version: 2026_01_26_072719) do
   add_foreign_key "application_reviews", "users", column: "reviewed_by_id"
   add_foreign_key "applications", "users"
   add_foreign_key "financial_infos", "applications"
+  add_foreign_key "personal_infos", "applications"
   add_foreign_key "vehicles", "applications"
 end

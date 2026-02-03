@@ -4,6 +4,9 @@ class Application < ApplicationRecord
   has_one :vehicle, dependent: :destroy
   has_one :financial_info, dependent: :destroy
   has_one :application_review, dependent: :destroy
+  has_one :personal_info, dependent: :destroy
+
+  accepts_nested_attributes_for :personal_info, :financial_info, :vehicle, :addresses, allow_destroy: true
 
   enum :status, {
     draft: "draft",
@@ -29,17 +32,13 @@ class Application < ApplicationRecord
 
   validates :status, presence: true
 
-  validates :purchase_price, presence: true,
-            numericality: { greater_than: 0 }
+  validates :purchase_price, numericality: { greater_than: 0 }, allow_nil: true
 
-  validates :loan_amount, presence: true,
-            numericality: { greater_than: 0, less_than_or_equal_to: :purchase_price }
+  validates :loan_amount, numericality: { greater_than: 0, less_than_or_equal_to: :purchase_price }, allow_nil: true
 
-  validates :down_payment, presence: true,
-            numericality: { greater_than_or_equal_to: 0 }
+  validates :down_payment, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
-  validates :term_months, presence: true,
-            inclusion: { in: [ 36, 48, 60, 72 ], message: "must be 36, 48, 60, or 72 months" }
+  validates :term_months, inclusion: { in: [ 36, 48, 60, 72 ], message: "must be 36, 48, 60, or 72 months" }, allow_nil: true
 
   validates :apr, numericality: { greater_than_or_equal_to: 0, less_than: 100 },
             allow_nil: true
