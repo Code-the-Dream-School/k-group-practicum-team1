@@ -22,7 +22,8 @@ class Application < ApplicationRecord
     personal: "personal",
     vehicle: "vehicle",
     financial: "financial",
-    terms: "terms"
+    terms: "terms",
+    review: "review"
   }
 
   validates :application_number, presence: true, uniqueness: true,
@@ -52,8 +53,16 @@ class Application < ApplicationRecord
 
   before_validation :generate_application_number, on: :create
   before_validation :calculate_monthly_payment, if: :can_calculate_payment?
+  before_save :set_status_to_submitted_on_review
 
   private
+
+  def set_status_to_submitted_on_review
+    if application_progress == "review" && (status == "draft" or status.nil?)
+      self.status = "submitted"
+      self.submitted_date = Time.current
+    end
+  end
 
   def generate_application_number
     return if application_number.present?

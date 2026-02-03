@@ -56,7 +56,7 @@ module Api
         if params[:application].present?
           params.require(:application).permit(
             :purchase_price, :loan_amount, :down_payment,
-            :term_months, :apr, :application_progress,
+            :term_months, :apr, :monthly_payment, :application_progress,
             personal_info_attributes: [
               :first_name, :last_name, :email,
               :phone_number, :dob, :ssn
@@ -68,7 +68,7 @@ module Api
               :vehicle_type, :make, :model, :year, :vin, :trim, :mileage
             ],
             financial_info_attributes: [
-              :employment_status, :employer_name, :job_title, :years_employed,
+              :employment_status, :employer, :job_title, :years_employed,
                :annual_income, :additional_income, :monthly_expenses,
                :credit_score
             ],
