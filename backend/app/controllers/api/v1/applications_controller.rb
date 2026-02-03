@@ -63,7 +63,12 @@ module Api
             ],
             vehicle_attributes: [
               :vehicle_type, :make, :model, :year, :vin, :trim, :mileage
-            ]
+            ],
+            financial_info_attributes: [
+              :employment_status, :employer_name, :job_title, :years_employed,
+               :annual_income, :additional_income, :monthly_expenses,
+               :credit_score
+            ],
           )
         else
           raise ActionController::ParameterMissing.new(:application), "Request must include 'application' key in JSON body"
