@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
+import {
+  REQUIRED_DOCUMENTS,
+  OPTIONAL_DOCUMENTS,
+  MAX_FILE_SIZE_BYTES,
+  MAX_FILE_SIZE_MB,
+} from '../../constants/documentConstant';
 
 const DocumentsUpload = () => {
   const { draft, updateDocuments, nextStep, previousStep, saveDraftToServer } = useLoanApplicationStore();
@@ -26,54 +32,15 @@ const DocumentsUpload = () => {
     };
   }, [uploadedDocuments]);
 
-  const requiredDocuments = [
-    {
-      id: 'idProof',
-      name: 'ID Proof',
-      description: "Driver's License, Passport, or State ID",
-      accept: '.pdf,.jpg,.jpeg,.png',
-      required: true,
-    },
-    {
-      id: 'incomeProof',
-      name: 'Income Proof',
-      description: 'W-2, Tax Returns, or Employment Letter',
-      accept: '.pdf,.jpg,.jpeg,.png',
-      required: true,
-    },
-    {
-      id: 'recentPayStubs',
-      name: 'Recent Pay Stubs',
-      description: 'Last 2 months of pay stubs',
-      accept: '.pdf,.jpg,.jpeg,.png',
-      required: true,
-    },
-    {
-      id: 'bankStatements',
-      name: 'Bank Statements',
-      description: "Last month's bank statements",
-      accept: '.pdf,.jpg,.jpeg,.png',
-      required: true,
-    },
-  ];
-
-  const optionalDocuments = [
-    {
-      id: 'additionalDocuments',
-      name: 'Additional Documents',
-      description: 'Any additional supporting documents',
-      accept: '.pdf,.jpg,.jpeg,.png',
-      required: false,
-    },
-  ];
+  const requiredDocuments = REQUIRED_DOCUMENTS;
+  const optionalDocuments = OPTIONAL_DOCUMENTS;
 
   const handleFileChange = async (documentId, event) => {
     const file = event.target.files[0];
     if (!file) return;
 
-    const maxSize = 5 * 1024 * 1024;
-    if (file.size > maxSize) {
-      alert('File size must be less than 5MB');
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      alert(`File size must be less than ${MAX_FILE_SIZE_MB}MB`);
       event.target.value = '';
       return;
     }
@@ -89,7 +56,7 @@ const DocumentsUpload = () => {
     // Response should include: id, document_name, description, file_url, created_at, updated_at
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    const docType = [...requiredDocuments, ...optionalDocuments].find((doc) => doc.id === documentId);
+    const docType = [...REQUIRED_DOCUMENTS, ...OPTIONAL_DOCUMENTS].find((doc) => doc.id === documentId);
 
     const existingDoc = uploadedDocuments.find((doc) => doc.id === documentId);
     if (existingDoc?.file_url && existingDoc.file_url.startsWith('blob:')) {
