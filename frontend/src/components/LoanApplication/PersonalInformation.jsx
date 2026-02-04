@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 import US_STATES from '../../utils/UsStates';
+import { formatDateToUS } from '../../utils/dateHelpers';
 
 const PersonalInformation = () => {
   const { draft, updatePersonalInfoAttributes, updateAddressesAttributes, nextStep, saveDraftToServer } =
@@ -53,7 +54,7 @@ const PersonalInformation = () => {
       lastName: formData.lastName,
       email: formData.email,
       phoneNumber: formData.phoneNumber,
-      dob: new Date(formData.dateOfBirth).toLocaleDateString('en-US'),
+      dob: formatDateToUS(formData.dateOfBirth),
       ssn: formData.ssn,
     });
     updateAddressesAttributes([
@@ -79,7 +80,7 @@ const PersonalInformation = () => {
       lastName: data.lastName,
       email: data.email,
       phoneNumber: data.phoneNumber,
-      dob: new Date(data.dateOfBirth).toLocaleDateString('en-US'),
+      dob: formatDateToUS(data.dateOfBirth),
       ssn: data.ssn,
     });
     updateAddressesAttributes([

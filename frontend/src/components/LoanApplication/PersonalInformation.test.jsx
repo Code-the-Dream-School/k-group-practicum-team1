@@ -347,31 +347,31 @@ describe('PersonalInformation Component', () => {
       // Fill in all required fields
       fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'John' } });
       fireEvent.blur(screen.getByLabelText(/first name/i));
-      
+
       fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Doe' } });
       fireEvent.blur(screen.getByLabelText(/last name/i));
-      
+
       fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'john@example.com' } });
       fireEvent.blur(screen.getByLabelText(/email address/i));
-      
+
       fireEvent.change(screen.getByLabelText(/phone number/i), { target: { value: '5551234567' } });
       fireEvent.blur(screen.getByLabelText(/phone number/i));
-      
+
       fireEvent.change(screen.getByLabelText(/date of birth/i), { target: { value: '1990-01-01' } });
       fireEvent.blur(screen.getByLabelText(/date of birth/i));
-      
+
       fireEvent.change(screen.getByLabelText(/ssn/i), { target: { value: '123456789' } });
       fireEvent.blur(screen.getByLabelText(/ssn/i));
-      
+
       fireEvent.change(screen.getByLabelText(/street address/i), { target: { value: '123 Main St' } });
       fireEvent.blur(screen.getByLabelText(/street address/i));
-      
+
       fireEvent.change(screen.getByLabelText(/city/i), { target: { value: 'New York' } });
       fireEvent.blur(screen.getByLabelText(/city/i));
-      
+
       fireEvent.change(screen.getByLabelText(/state/i), { target: { value: 'NY' } });
       fireEvent.blur(screen.getByLabelText(/state/i));
-      
+
       fireEvent.change(screen.getByLabelText(/zip code/i), { target: { value: '10001' } });
       fireEvent.blur(screen.getByLabelText(/zip code/i));
 
@@ -467,7 +467,7 @@ describe('PersonalInformation Component', () => {
           lastName: 'Doe',
           email: 'john@example.com',
           phoneNumber: '5551234567',
-          dob: '1990-01-01',
+          dob: '01/01/1990',
           ssn: '123456789',
         });
         expect(mockUpdateAddresses).toHaveBeenCalledWith([
