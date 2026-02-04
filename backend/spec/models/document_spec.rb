@@ -79,7 +79,7 @@ RSpec.describe Document, type: :model do
       application = create(:application)
       document1 = create(:document, application: application)
       document2 = create(:document, application: application)
-      
+
       expect(application.documents.count).to eq(2)
       expect(application.documents).to include(document1, document2)
     end
@@ -88,7 +88,7 @@ RSpec.describe Document, type: :model do
       application = create(:application)
       document1 = create(:document, application: application)
       document2 = create(:document, application: application)
-      document_ids = [document1.id, document2.id]
+      document_ids = [ document1.id, document2.id ]
 
       expect { application.destroy }.to change { Document.count }.by(-2)
       document_ids.each do |id|

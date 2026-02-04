@@ -3,7 +3,7 @@ FactoryBot.define do
     association :application
 
     document_name { Faker::File.file_name }
-    description { ['ID', 'income proof', 'paystubs', 'bank statements', 'additional documents'].sample }
+    description { [ 'ID', 'income proof', 'paystubs', 'bank statements', 'additional documents' ].sample }
     file_url { Faker::Internet.url }
 
     trait :id_document do
