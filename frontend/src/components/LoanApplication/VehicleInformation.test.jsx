@@ -335,22 +335,22 @@ describe('VehicleInformation Component', () => {
       // Fill in required fields to pass validation
       const newRadio = screen.getByLabelText('New');
       fireEvent.click(newRadio);
-      
+
       const yearInput = screen.getByLabelText(/year/i);
       fireEvent.change(yearInput, { target: { value: '2023' } });
-      
+
       const makeInput = screen.getByLabelText(/make/i);
       fireEvent.change(makeInput, { target: { value: 'Toyota' } });
-      
+
       const modelInput = screen.getByLabelText(/model/i);
       fireEvent.change(modelInput, { target: { value: 'Camry' } });
-      
+
       const vinInput = screen.getByLabelText(/vin/i);
       fireEvent.change(vinInput, { target: { value: '1HGBH41JXMN109186' } });
-      
+
       const mileageInput = screen.getByLabelText(/mileage/i);
       fireEvent.change(mileageInput, { target: { value: '10000' } });
-      
+
       const purchasePriceInput = screen.getByLabelText(/purchase price/i);
       fireEvent.change(purchasePriceInput, { target: { value: '30000' } });
 
