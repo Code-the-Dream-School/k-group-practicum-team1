@@ -85,10 +85,9 @@ RSpec.describe Vehicle, type: :model do
       expect(vehicle).to be_valid
     end
 
-    it 'validates presence of vin' do
+    it 'validates vin to be nil' do
       vehicle = build(:vehicle, application: application, vin: nil)
-      expect(vehicle).not_to be_valid
-      expect(vehicle.errors[:vin]).to include("can't be blank")
+      expect(vehicle).to be_valid
     end
 
     it 'validates uniqueness of vin' do

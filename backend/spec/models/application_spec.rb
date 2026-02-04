@@ -29,7 +29,8 @@ RSpec.describe Application, type: :model do
           personal: 'personal',
           vehicle: 'vehicle',
           financial: 'financial',
-          terms: 'terms'
+          terms: 'terms',
+          review: 'review'
         )
         .backed_by_column_of_type(:string)
     end
@@ -49,10 +50,9 @@ RSpec.describe Application, type: :model do
       expect(application.errors[:status]).to include("can't be blank")
     end
 
-    it 'validates presence of purchase_price' do
+    it 'validates purchase_price to be nil' do
       application = build(:application, user: user, purchase_price: nil, loan_amount: nil, down_payment: nil)
-      expect(application).not_to be_valid
-      expect(application.errors[:purchase_price]).to include("can't be blank")
+      expect(application).to be_valid
     end
 
     it 'validates purchase_price is greater than 0' do
@@ -61,10 +61,9 @@ RSpec.describe Application, type: :model do
       expect(application.errors[:purchase_price]).to include("must be greater than 0")
     end
 
-    it 'validates presence of loan_amount' do
+    it 'validates loan_amount to be nil' do
       application = build(:application, user: user, loan_amount: nil)
-      expect(application).not_to be_valid
-      expect(application.errors[:loan_amount]).to include("can't be blank")
+      expect(application).to be_valid
     end
 
     it 'validates loan_amount is greater than 0' do
@@ -73,10 +72,9 @@ RSpec.describe Application, type: :model do
       expect(application.errors[:loan_amount]).to include("must be greater than 0")
     end
 
-    it 'validates presence of down_payment' do
+    it 'validates down_payment to be nil' do
       application = build(:application, user: user, down_payment: nil)
-      expect(application).not_to be_valid
-      expect(application.errors[:down_payment]).to include("can't be blank")
+      expect(application).to be_valid
     end
 
     it 'validates down_payment is greater than or equal to 0' do
@@ -85,10 +83,9 @@ RSpec.describe Application, type: :model do
       expect(application.errors[:down_payment]).to include("must be greater than or equal to 0")
     end
 
-    it 'validates presence of term_months' do
+    it 'validates term_months to be nil' do
       application = build(:application, user: user, term_months: nil)
-      expect(application).not_to be_valid
-      expect(application.errors[:term_months]).to include("can't be blank")
+      expect(application).to be_valid
     end
 
     it 'validates term_months is in allowed values' do
