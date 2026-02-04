@@ -3,7 +3,11 @@ FactoryBot.define do
     association :application
 
     document_name { Faker::File.file_name }
+<<<<<<< HEAD
     description { [ 'ID', 'income proof', 'paystubs', 'bank statements', 'additional documents' ].sample }
+=======
+    description { ['ID', 'income proof', 'paystubs', 'bank statements', 'additional documents'].sample }
+>>>>>>> dcd2a5c (Add FactoryBot factory for Document model)
     file_url { Faker::Internet.url }
 
     trait :id_document do
