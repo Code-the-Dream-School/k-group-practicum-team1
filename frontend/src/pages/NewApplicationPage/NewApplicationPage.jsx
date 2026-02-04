@@ -5,8 +5,6 @@ import PersonalInformation from '../../components/LoanApplication/PersonalInform
 import VehicleInformation from '../../components/LoanApplication/VehicleInformation';
 import FinancialInformation from '../../components/LoanApplication/FinancialInformation';
 import LoanDetails from '../../components/LoanApplication/LoanDetails';
-import DocumentsUpload from '../../components/LoanApplication/DocumentsUpload';
-import ReviewAndSubmit from '../../components/LoanApplication/ReviewAndSubmit';
 
 const NewApplicationPage = () => {
   const { currentStep, goToStep, clearDraft } = useLoanApplicationStore();
@@ -36,9 +34,19 @@ const NewApplicationPage = () => {
       case 4:
         return <LoanDetails />;
       case 5:
-        return <DocumentsUpload />;
+        return (
+          <div className="bg-white rounded-lg shadow-md p-8 mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Documents Upload</h2>
+            <p className="text-gray-600">Documents upload form coming soon...</p>
+          </div>
+        );
       case 6:
-        return <ReviewAndSubmit />;
+        return (
+          <div className="bg-white rounded-lg shadow-md p-8 mx-auto">
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Review & Submit</h2>
+            <p className="text-gray-600">Review form coming soon...</p>
+          </div>
+        );
       default:
         return <PersonalInformation />;
     }

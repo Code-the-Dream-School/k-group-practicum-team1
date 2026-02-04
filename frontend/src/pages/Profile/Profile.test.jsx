@@ -206,7 +206,7 @@ describe('Profile Component', () => {
         setUser: mockSetUser,
       });
       const { container } = render(<Profile />);
-      const mainDiv = container.querySelector('div.w-full.max-w-md.mx-auto.bg-white.rounded-xl.shadow-lg.p-8');
+      const mainDiv = container.querySelector('.w-full.max-w-md.mx-auto.bg-white.rounded-xl.shadow-lg.p-8');
       expect(mainDiv).toBeInTheDocument();
     });
 
@@ -218,7 +218,7 @@ describe('Profile Component', () => {
 
       render(<Profile />);
       const heading = screen.getByText('Your Profile');
-      expect(heading).toHaveClass('text-2xl', 'font-bold', 'text-indigo-700', 'mb-4');
+      expect(heading).toHaveClass('text-2xl', 'font-bold', 'text-indigo-700', 'mb-1');
     });
   });
 

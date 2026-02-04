@@ -21,13 +21,9 @@ export default function AuthPage() {
     }
   };
 
-  return (
-    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center bg-gray-50 p-4">
-      {isLogin ? (
-        <Login onSwitchToSignup={() => navigate('/signup')} onLoginSuccess={handleAuthSuccess} />
-      ) : (
-        <Signup onSwitchToLogin={() => navigate('/login')} onLoginSuccess={handleAuthSuccess} />
-      )}
-    </div>
+  return isLogin ? (
+    <Login onSwitchToSignup={() => navigate('/signup')} onLoginSuccess={handleAuthSuccess} />
+  ) : (
+    <Signup onSwitchToLogin={() => navigate('/login')} onLoginSuccess={handleAuthSuccess} />
   );
 }

@@ -1,26 +1,4 @@
 class ApplicationSerializer
-  def self.list_item(application)
-    user = application.user
-    applicant_name = user ? "#{user.first_name} #{user.last_name}".strip : ""
-    {
-      id: application.id,
-      application_number: application.application_number,
-      user_id: application.user_id,
-      applicant_name: applicant_name,
-      status: application.status,
-      application_progress: application.application_progress,
-      purchase_price: application.purchase_price,
-      down_payment: application.down_payment,
-      loan_amount: application.loan_amount,
-      term_months: application.term_months,
-      apr: application.apr,
-      monthly_payment: application.monthly_payment,
-      submitted_date: application.submitted_date,
-      created_at: application.created_at,
-      updated_at: application.updated_at
-    }
-  end
-
   def initialize(application)
     @app = application
   end
