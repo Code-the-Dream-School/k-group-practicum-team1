@@ -23,34 +23,41 @@ describe('PersonalInformation Component', () => {
   });
 
   let mockUpdatePersonalInfo;
+  let mockUpdateAddresses;
   let mockNextStep;
   let mockSaveDraftToServer;
 
   const defaultDraft = {
-    personalInfo: {
+    personalInfoAttributes: {
       firstName: '',
       lastName: '',
       email: '',
-      phone: '',
+      phoneNumber: '',
       dateOfBirth: '',
       ssn: '',
-      streetAddress: '',
-      city: '',
-      state: '',
-      zipCode: '',
     },
+    addressesAttributes: [
+      {
+        addressStreet: '',
+        city: '',
+        state: '',
+        zip: '',
+      },
+    ],
   };
 
   beforeEach(() => {
     window.alert = jest.fn();
     jest.spyOn(console, 'error').mockImplementation(() => {});
     mockUpdatePersonalInfo = jest.fn();
+    mockUpdateAddresses = jest.fn();
     mockNextStep = jest.fn();
     mockSaveDraftToServer = jest.fn().mockResolvedValue();
 
     useLoanApplicationStore.mockReturnValue({
       draft: defaultDraft,
-      updatePersonalInfo: mockUpdatePersonalInfo,
+      updatePersonalInfoAttributes: mockUpdatePersonalInfo,
+      updateAddressesAttributes: mockUpdateAddresses,
       nextStep: mockNextStep,
       saveDraftToServer: mockSaveDraftToServer,
     });
@@ -103,23 +110,28 @@ describe('PersonalInformation Component', () => {
   describe('Form Population from Store', () => {
     it('should populate form fields with data from store', () => {
       const mockData = {
-        personalInfo: {
+        personalInfoAttributes: {
           firstName: 'John',
           lastName: 'Doe',
           email: 'john.doe@example.com',
-          phone: '5551234567',
+          phoneNumber: '5551234567',
           dateOfBirth: '1990-01-01',
           ssn: '123456789',
-          streetAddress: '123 Main St',
-          city: 'New York',
-          state: 'NY',
-          zipCode: '10001',
         },
+        addressesAttributes: [
+          {
+            addressStreet: '123 Main St',
+            city: 'New York',
+            state: 'NY',
+            zip: '10001',
+          },
+        ],
       };
 
       useLoanApplicationStore.mockReturnValue({
         draft: mockData,
-        updatePersonalInfo: mockUpdatePersonalInfo,
+        updatePersonalInfoAttributes: mockUpdatePersonalInfo,
+        updateAddressesAttributes: mockUpdateAddresses,
         nextStep: mockNextStep,
         saveDraftToServer: mockSaveDraftToServer,
       });
@@ -332,14 +344,48 @@ describe('PersonalInformation Component', () => {
     it('should call saveDraftToServer when Save Draft button is clicked', async () => {
       render(<PersonalInformation />);
 
-      const firstNameInput = screen.getByLabelText(/first name/i);
-      fireEvent.change(firstNameInput, { target: { value: 'John' } });
+      // Fill in all required fields
+      fireEvent.change(screen.getByLabelText(/first name/i), { target: { value: 'John' } });
+      fireEvent.blur(screen.getByLabelText(/first name/i));
+      
+      fireEvent.change(screen.getByLabelText(/last name/i), { target: { value: 'Doe' } });
+      fireEvent.blur(screen.getByLabelText(/last name/i));
+      
+      fireEvent.change(screen.getByLabelText(/email address/i), { target: { value: 'john@example.com' } });
+      fireEvent.blur(screen.getByLabelText(/email address/i));
+      
+      fireEvent.change(screen.getByLabelText(/phone number/i), { target: { value: '5551234567' } });
+      fireEvent.blur(screen.getByLabelText(/phone number/i));
+      
+      fireEvent.change(screen.getByLabelText(/date of birth/i), { target: { value: '1990-01-01' } });
+      fireEvent.blur(screen.getByLabelText(/date of birth/i));
+      
+      fireEvent.change(screen.getByLabelText(/ssn/i), { target: { value: '123456789' } });
+      fireEvent.blur(screen.getByLabelText(/ssn/i));
+      
+      fireEvent.change(screen.getByLabelText(/street address/i), { target: { value: '123 Main St' } });
+      fireEvent.blur(screen.getByLabelText(/street address/i));
+      
+      fireEvent.change(screen.getByLabelText(/city/i), { target: { value: 'New York' } });
+      fireEvent.blur(screen.getByLabelText(/city/i));
+      
+      fireEvent.change(screen.getByLabelText(/state/i), { target: { value: 'NY' } });
+      fireEvent.blur(screen.getByLabelText(/state/i));
+      
+      fireEvent.change(screen.getByLabelText(/zip code/i), { target: { value: '10001' } });
+      fireEvent.blur(screen.getByLabelText(/zip code/i));
+
+      // Wait for validation
+      await waitFor(() => {
+        expect(screen.queryByText(/is required|Please enter/i)).not.toBeInTheDocument();
+      });
 
       const saveDraftButton = screen.getByRole('button', { name: /save draft/i });
       fireEvent.click(saveDraftButton);
 
       await waitFor(() => {
         expect(mockUpdatePersonalInfo).toHaveBeenCalled();
+        expect(mockUpdateAddresses).toHaveBeenCalled();
         expect(mockSaveDraftToServer).toHaveBeenCalled();
       });
     });
@@ -409,19 +455,29 @@ describe('PersonalInformation Component', () => {
       const nextButton = screen.getByRole('button', { name: /next/i });
       fireEvent.click(nextButton);
 
+      // Wait a bit for form state to settle
+      await waitFor(() => {
+        const nextButton = screen.getByRole('button', { name: /next/i });
+        expect(nextButton).toBeEnabled();
+      });
+
       await waitFor(() => {
         expect(mockUpdatePersonalInfo).toHaveBeenCalledWith({
           firstName: 'John',
           lastName: 'Doe',
           email: 'john@example.com',
-          phone: '5551234567',
-          dateOfBirth: '1990-01-01',
+          phoneNumber: '5551234567',
+          dob: '1990-01-01',
           ssn: '123456789',
-          streetAddress: '123 Main St',
-          city: 'New York',
-          state: 'NY',
-          zipCode: '10001',
         });
+        expect(mockUpdateAddresses).toHaveBeenCalledWith([
+          {
+            addressStreet: '123 Main St',
+            city: 'New York',
+            state: 'NY',
+            zip: '10001',
+          },
+        ]);
         expect(mockNextStep).toHaveBeenCalled();
       });
     });

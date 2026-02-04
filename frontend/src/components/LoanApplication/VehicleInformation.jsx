@@ -4,20 +4,20 @@ import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 import { carMakes, carModels, commonTrims } from '../../utils/vehicleData';
 
 const VehicleInformation = () => {
-  const { draft, updateVehicleDetails, nextStep, previousStep, saveDraftToServer } = useLoanApplicationStore();
+  const { draft, updateVehicleAttributes, nextStep, previousStep, saveDraftToServer } = useLoanApplicationStore();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    trigger,
     getValues,
   } = useForm({
-    defaultValues: draft.vehicleDetails || {},
+    defaultValues: draft.vehicleAttributes || {},
     mode: 'onBlur',
   });
 
-  const [selectedMake, setSelectedMake] = useState(draft.vehicleDetails?.make || '');
-
+  const [selectedMake, setSelectedMake] = useState(draft.vehicleAttributes?.make || '');
   const currentYear = new Date().getFullYear();
   const years = Array.from({ length: 30 }, (_, i) => currentYear + 1 - i);
 
@@ -58,13 +58,35 @@ const VehicleInformation = () => {
   };
 
   const onSubmit = (data) => {
-    updateVehicleDetails(data);
+    updateVehicleAttributes({
+      vehicleType: data.vehicleType,
+      year: data.year,
+      make: data.make,
+      model: data.model,
+      trim: data.trim ? data.trim : null,
+      vin: data.vin ? data.vin.replace(/\s/g, '').toUpperCase() : null,
+      mileage: data.mileage,
+      purchasePrice: data.purchasePrice,
+    });
     nextStep();
   };
 
   const handleSaveDraft = async () => {
+    const isValid = await trigger();
+    if (!isValid) {
+      return;
+    }
     const formData = getValues();
-    updateVehicleDetails(formData);
+    updateVehicleAttributes({
+      vehicleType: formData.vehicleType,
+      year: formData.year,
+      make: formData.make,
+      model: formData.model,
+      trim: formData.trim ? formData.trim : null,
+      vin: formData.vin ? formData.vin.replace(/\s/g, '').toUpperCase() : null,
+      mileage: formData.mileage,
+      purchasePrice: formData.purchasePrice,
+    });
 
     try {
       await saveDraftToServer();
@@ -76,7 +98,7 @@ const VehicleInformation = () => {
 
   const handlePrevious = () => {
     const formData = getValues();
-    updateVehicleDetails(formData);
+    updateVehicleAttributes(formData);
     previousStep();
   };
 

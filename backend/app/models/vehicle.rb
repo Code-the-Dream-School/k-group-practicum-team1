@@ -13,9 +13,9 @@ class Vehicle < ApplicationRecord
             numericality: { only_integer: true, greater_than_or_equal_to: 1900, less_than_or_equal_to: ->(_) { Date.current.year + 1 } }
   validates :make, presence: true
   validates :model, presence: true
-  validates :trim, presence: false
-  validates :vin, presence: true, uniqueness: true,
-            format: { with: /\A[A-HJ-NPR-Z0-9]{17}\z/, message: "must be 17 characters (excluding I, O, Q)" }
+  validates :vin, uniqueness: true,
+            format: { with: /\A[A-HJ-NPR-Z0-9]{17}\z/, message: "must be 17 characters (excluding I, O, Q)" },
+            allow_nil: true
   validates :mileage, numericality: { only_integer: true, greater_than_or_equal_to: 0 },
             allow_nil: true
   validates :vehicle_value, numericality: { greater_than: 0 },

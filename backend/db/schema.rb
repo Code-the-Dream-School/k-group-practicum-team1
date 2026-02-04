@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2026_02_03_015153) do
+ActiveRecord::Schema[8.0].define(version: 2026_02_04_021510) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -116,7 +116,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_03_015153) do
     t.string "make", null: false
     t.string "model", null: false
     t.string "trim"
-    t.string "vin", null: false
+    t.string "vin"
     t.integer "mileage"
     t.decimal "vehicle_value", precision: 12, scale: 2
     t.datetime "created_at", null: false

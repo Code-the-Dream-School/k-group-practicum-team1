@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/incompatible-library */
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
@@ -10,12 +11,13 @@ const LoanDetails = () => {
     handleSubmit,
     watch,
     formState: { errors, isSubmitting },
+    trigger,
     reset,
     getValues,
   } = useForm({
     defaultValues: {
-      loanTerm: draft.loanDetails?.loanTerm || '',
-      downPayment: draft.vehicleDetails?.downPayment || '',
+      termMonths: draft.loanDetails?.termMonths || '',
+      downPayment: draft.vehicleAttributes?.downPayment || '',
     },
     mode: 'onChange',
   });
@@ -26,12 +28,12 @@ const LoanDetails = () => {
     totalMonthly: 0,
   });
 
-  const vehiclePrice = parseFloat(draft.vehicleDetails?.purchasePrice || 0);
+  const vehiclePrice = parseFloat(draft.vehicleAttributes?.purchasePrice || 0);
   const downPaymentInput = watch('downPayment');
   const downPayment = parseFloat(downPaymentInput || 0);
   const loanAmount = vehiclePrice - downPayment;
 
-  const selectedLoanTerm = watch('loanTerm');
+  const selectedLoanTerm = watch('termMonths');
 
   const loanTermOptions = React.useMemo(
     () => [
@@ -88,18 +90,24 @@ const LoanDetails = () => {
 
   useEffect(() => {
     reset({
-      loanTerm: draft.loanDetails?.loanTerm || '',
-      downPayment: draft.vehicleDetails?.downPayment || '',
+      termMonths: draft.loanDetails?.termMonths || '',
+      downPayment: draft.vehicleAttributes?.downPayment || '',
     });
-  }, [draft.loanDetails, draft.vehicleDetails, reset]);
+  }, [draft.loanDetails, draft.vehicleAttributes, reset]);
 
   const handleSaveDraft = async () => {
+    const isValid = await trigger();
+    if (!isValid) {
+      return;
+    }
     const formData = getValues();
     updateLoanDetails({
       ...formData,
       downPayment: parseFloat(formData.downPayment),
       loanAmount: loanAmount,
-      interestRate: loanTermOptions.find((opt) => opt.value === formData.loanTerm)?.apr,
+      purchasePrice: vehiclePrice,
+      apr: loanTermOptions.find((opt) => opt.value === formData.termMonths)?.apr,
+      monthlyPayment: monthlyPayment.totalMonthly,
     });
     try {
       await saveDraftToServer();
@@ -115,7 +123,9 @@ const LoanDetails = () => {
       ...data,
       downPayment: parseFloat(data.downPayment),
       loanAmount: loanAmount,
-      interestRate: loanTermOptions.find((opt) => opt.value === data.loanTerm)?.apr,
+      purchasePrice: vehiclePrice,
+      apr: loanTermOptions.find((opt) => opt.value === data.termMonths)?.apr,
+      monthlyPayment: monthlyPayment.totalMonthly,
     });
     nextStep();
   };
@@ -183,7 +193,7 @@ const LoanDetails = () => {
         </div>
         <div>
           <h3 className="text-xl font-semibold text-gray-800 mb-4">Select Loan Term:</h3>
-          <input type="hidden" {...register('loanTerm', { required: 'Please select a loan term' })} />
+          <input type="hidden" {...register('termMonths', { required: 'Please select a loan term' })} />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {loanTermOptions.map((option) => {
@@ -196,7 +206,7 @@ const LoanDetails = () => {
                   key={option.value}
                   type="button"
                   onClick={() => {
-                    reset({ loanTerm: option.value });
+                    reset({ termMonths: option.value, downPayment: downPaymentInput });
                   }}
                   className={`relative p-6 rounded-lg border-2 transition-all ${
                     isSelected
@@ -227,7 +237,7 @@ const LoanDetails = () => {
               );
             })}
           </div>
-          {errors.loanTerm && <p className="mt-2 text-sm text-red-500">{errors.loanTerm.message}</p>}
+          {errors.termMonths && <p className="mt-2 text-sm text-red-500">{errors.termMonths.message}</p>}
         </div>
 
         {selectedLoanTerm && loanAmount > 0 && (
