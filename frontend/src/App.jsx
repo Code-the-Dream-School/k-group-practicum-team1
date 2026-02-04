@@ -6,6 +6,7 @@ import Navbar from './layouts/Navbar/Navbar';
 import Footer from './layouts/Footer/Footer';
 import Dashboard from './components/Dashboard/Dashboard';
 import NewApplicationPage from './pages/NewApplicationPage/NewApplicationPage';
+import LoanOfficerDashboard from './pages/LoanOfficerDashboard/LoanOfficerDashboard';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Auth from './components/auth/Auth';
 import Profile from './pages/Profile/Profile';
@@ -14,35 +15,45 @@ function App() {
   return (
     <>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<Auth />} />
-        <Route path="/signup" element={<Auth />} />
-        <Route
-          path="/application"
-          element={
-            <ProtectedRoute>
-              <NewApplicationPage />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-      </Routes>
+      <main>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Auth />} />
+          <Route path="/signup" element={<Auth />} />
+          <Route
+            path="/application"
+            element={
+              <ProtectedRoute>
+                <NewApplicationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/officer-dashboard"
+            element={
+              <ProtectedRoute>
+                <LoanOfficerDashboard />{' '}
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </main>
       <Footer />
     </>
   );
