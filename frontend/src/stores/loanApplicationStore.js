@@ -1,67 +1,59 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import humps from 'humps';
+import { STEPS } from '../constants/stepperConstant';
+import { apiFetch } from '../services/api';
 
 export const useLoanApplicationStore = create(
   persist(
     (set, get) => ({
       currentStep: 1,
-
+      applicationId: null,
       draft: {
-        personalInfo: {
-          firstName: '',
-          lastName: '',
-          email: '',
-          phone: '',
-          dateOfBirth: '',
-          ssn: '',
-          streetAddress: '',
-          city: '',
-          state: '',
-          zipCode: '',
-        },
-        vehicleDetails: {},
-        financialInfo: {
-          employmentStatus: '',
-          employer: '',
-          jobTitle: '',
-          yearsEmployed: '',
-          annualIncome: '',
-          additionalIncome: '',
-          monthlyExpenses: '',
-          creditScore: '',
-        },
-        loanDetails: {},
-        documents: [],
+        personalInfoAttributes: null,
+        addressesAttributes: null,
+        vehicleAttributes: null,
+        financialInfoAttributes: null,
+        applicationProgress: 'personal',
+        // documentsAttributes: null,
       },
 
-      updatePersonalInfo: (data) =>
+      updatePersonalInfoAttributes: (data) =>
         set((state) => ({
           draft: {
             ...state.draft,
-            personalInfo: {
-              ...state.draft.personalInfo,
+            personalInfoAttributes: {
+              ...state.draft.personalInfoAttributes,
               ...data,
             },
           },
         })),
 
-      updateVehicleDetails: (data) =>
+      updateAddressesAttributes: (data) =>
         set((state) => ({
           draft: {
             ...state.draft,
-            vehicleDetails: {
-              ...state.draft.vehicleDetails,
+            addressesAttributes: data,
+          },
+        })),
+
+      updateVehicleAttributes: (data) =>
+        set((state) => ({
+          draft: {
+            ...state.draft,
+            vehicleAttributes: {
+              ...state.draft.vehicleAttributes,
               ...data,
             },
           },
         })),
 
-      updateFinancialInfo: (data) =>
+      updateFinancialInfoAttributes: (data) =>
         set((state) => ({
           draft: {
             ...state.draft,
-            financialInfo: {
-              ...state.draft.financialInfo,
+            financialInfoAttributes: {
+              ...state.draft.financialInfoAttributes,
               ...data,
             },
           },
@@ -71,10 +63,7 @@ export const useLoanApplicationStore = create(
         set((state) => ({
           draft: {
             ...state.draft,
-            loanDetails: {
-              ...state.draft.loanDetails,
-              ...data,
-            },
+            ...data,
           },
         })),
 
@@ -82,7 +71,7 @@ export const useLoanApplicationStore = create(
         set((state) => ({
           draft: {
             ...state.draft,
-            documents: documents,
+            documentsAttributes: documents,
           },
         })),
 
@@ -102,13 +91,31 @@ export const useLoanApplicationStore = create(
         })),
 
       saveDraftToServer: async () => {
-        const { draft } = get();
-        console.log('Saving draft to server:', draft);
-        // const response = await fetch('/api/applications/draft', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify(draft),
-        // });
+        const { draft, currentStep, applicationId } = get();
+
+        const applicationProgress = STEPS[currentStep - 1]?.key || 'personal';
+        console.log('Current application progress key:', applicationProgress);
+        const snakeCaseDraft = humps.decamelizeKeys({ ...draft, applicationProgress: applicationProgress });
+        console.log('Saving draft to server (snake_case):', snakeCaseDraft);
+
+        let response = null;
+        if (!applicationId) {
+          response = await apiFetch(`/api/v1/applications`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ application: snakeCaseDraft }),
+          });
+        } else {
+          response = await apiFetch(`/api/v1/applications/${applicationId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ application: snakeCaseDraft }),
+          });
+        }
+
+        const { data } = response;
+        console.log('Draft saved successfully:', data);
+        set({ applicationId: data.id });
         return Promise.resolve();
       },
 
@@ -116,51 +123,20 @@ export const useLoanApplicationStore = create(
         set({
           currentStep: 1,
           draft: {
-            personalInfo: {
-              firstName: '',
-              lastName: '',
-              email: '',
-              phone: '',
-              dateOfBirth: '',
-              ssn: '',
-              streetAddress: '',
-              city: '',
-              state: '',
-              zipCode: '',
-            },
-            vehicleDetails: {
-              vehicleType: '',
-              year: '',
-              make: '',
-              model: '',
-              trim: '',
-              vin: '',
-              mileage: '',
-              purchasePrice: '',
-            },
-            financialInfo: {
-              employmentStatus: '',
-              employer: '',
-              jobTitle: '',
-              yearsEmployed: '',
-              annualIncome: '',
-              additionalIncome: '',
-              monthlyExpenses: '',
-              creditScore: '',
-            },
-            loanDetails: {
-              downPayment: '',
-              loanTerm: '',
-              loanAmount: '',
-              interestRate: '',
-            },
-            documents: [],
+            personalInfoAttributes: null,
+            addressesAttributes: null,
+            vehicleAttributes: null,
+            financialInfoAttributes: null,
+            applicationProgress: 'personal',
+            // documents: [],
           },
+          applicationId: null,
         }),
 
       loadDraftFromServer: async (applicationId) => {
         // TODO: Implement API call to load draft
         console.log('Loading draft from server:', applicationId);
+        console.log('draft:', this.draft);
         // const response = await fetch(`/api/applications/draft/${applicationId}`);
         // const data = await response.json();
         // set({ draft: data });

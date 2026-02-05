@@ -4,6 +4,12 @@ import VehicleInformation from './VehicleInformation';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 
 jest.mock('../../stores/loanApplicationStore');
+jest.mock('../../services/api', () => ({
+  API_BASE: 'http://localhost:3000',
+  apiFetch: jest.fn(),
+  getAuthToken: jest.fn(),
+  setAuthToken: jest.fn(),
+}));
 
 jest.mock('../../utils/vehicleData', () => ({
   carMakes: ['Toyota', 'Honda', 'Ford'],
@@ -16,13 +22,13 @@ jest.mock('../../utils/vehicleData', () => ({
 }));
 
 describe('VehicleInformation Component', () => {
-  let mockUpdateVehicleDetails;
+  let mockUpdateVehicleAttributes;
   let mockNextStep;
   let mockPreviousStep;
   let mockSaveDraftToServer;
 
   const defaultDraft = {
-    vehicleDetails: {
+    vehicleAttributes: {
       vehicleType: '',
       year: '',
       make: '',
@@ -35,7 +41,7 @@ describe('VehicleInformation Component', () => {
   };
 
   beforeEach(() => {
-    mockUpdateVehicleDetails = jest.fn();
+    mockUpdateVehicleAttributes = jest.fn();
     mockNextStep = jest.fn();
     mockPreviousStep = jest.fn();
     mockSaveDraftToServer = jest.fn().mockResolvedValue();
@@ -44,7 +50,7 @@ describe('VehicleInformation Component', () => {
 
     useLoanApplicationStore.mockReturnValue({
       draft: defaultDraft,
-      updateVehicleDetails: mockUpdateVehicleDetails,
+      updateVehicleAttributes: mockUpdateVehicleAttributes,
       nextStep: mockNextStep,
       previousStep: mockPreviousStep,
       saveDraftToServer: mockSaveDraftToServer,
@@ -102,7 +108,7 @@ describe('VehicleInformation Component', () => {
   describe('Form Population from Store', () => {
     it('should populate form fields with data from store', () => {
       const mockData = {
-        vehicleDetails: {
+        vehicleAttributes: {
           vehicleType: 'new',
           year: '2024',
           make: 'Toyota',
@@ -116,7 +122,7 @@ describe('VehicleInformation Component', () => {
 
       useLoanApplicationStore.mockReturnValue({
         draft: mockData,
-        updateVehicleDetails: mockUpdateVehicleDetails,
+        updateVehicleAttributes: mockUpdateVehicleAttributes,
         nextStep: mockNextStep,
         previousStep: mockPreviousStep,
         saveDraftToServer: mockSaveDraftToServer,
@@ -326,11 +332,33 @@ describe('VehicleInformation Component', () => {
     it('should call saveDraftToServer when Save Draft button is clicked', async () => {
       render(<VehicleInformation />);
 
+      // Fill in required fields to pass validation
+      const newRadio = screen.getByLabelText('New');
+      fireEvent.click(newRadio);
+
+      const yearInput = screen.getByLabelText(/year/i);
+      fireEvent.change(yearInput, { target: { value: '2023' } });
+
+      const makeInput = screen.getByLabelText(/make/i);
+      fireEvent.change(makeInput, { target: { value: 'Toyota' } });
+
+      const modelInput = screen.getByLabelText(/model/i);
+      fireEvent.change(modelInput, { target: { value: 'Camry' } });
+
+      const vinInput = screen.getByLabelText(/vin/i);
+      fireEvent.change(vinInput, { target: { value: '1HGBH41JXMN109186' } });
+
+      const mileageInput = screen.getByLabelText(/mileage/i);
+      fireEvent.change(mileageInput, { target: { value: '10000' } });
+
+      const purchasePriceInput = screen.getByLabelText(/purchase price/i);
+      fireEvent.change(purchasePriceInput, { target: { value: '30000' } });
+
       const saveDraftButton = screen.getByRole('button', { name: /save draft/i });
       fireEvent.click(saveDraftButton);
 
       await waitFor(() => {
-        expect(mockUpdateVehicleDetails).toHaveBeenCalled();
+        expect(mockUpdateVehicleAttributes).toHaveBeenCalled();
         expect(mockSaveDraftToServer).toHaveBeenCalled();
       });
     });
@@ -343,7 +371,7 @@ describe('VehicleInformation Component', () => {
       const previousButton = screen.getByRole('button', { name: /previous/i });
       fireEvent.click(previousButton);
 
-      expect(mockUpdateVehicleDetails).toHaveBeenCalled();
+      expect(mockUpdateVehicleAttributes).toHaveBeenCalled();
       expect(mockPreviousStep).toHaveBeenCalled();
     });
 
@@ -374,7 +402,7 @@ describe('VehicleInformation Component', () => {
       fireEvent.click(nextButton);
 
       await waitFor(() => {
-        expect(mockUpdateVehicleDetails).toHaveBeenCalledWith(
+        expect(mockUpdateVehicleAttributes).toHaveBeenCalledWith(
           expect.objectContaining({
             vehicleType: 'new',
             year: '2024',

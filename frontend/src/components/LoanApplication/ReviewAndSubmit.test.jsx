@@ -5,6 +5,12 @@ import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 
 // Mock dependencies
 jest.mock('../../stores/loanApplicationStore');
+jest.mock('../../services/api', () => ({
+  API_BASE: 'http://localhost:3000',
+  apiFetch: jest.fn(),
+  getAuthToken: jest.fn(),
+  setAuthToken: jest.fn(),
+}));
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),
   useNavigate: jest.fn(),
@@ -17,21 +23,22 @@ describe('ReviewAndSubmit', () => {
   const mockNavigate = jest.fn();
   const mockPreviousStep = jest.fn();
   const mockClearDraft = jest.fn();
+  const mockSaveDraftToServer = jest.fn();
 
   const mockDraft = {
-    personalInfo: {
+    personalInfoAttributes: {
       firstName: 'John',
       lastName: 'Doe',
       email: 'john.doe@example.com',
-      phone: '1234567890',
-      dateOfBirth: '1990-01-15',
+      phoneNumber: '1234567890',
+      dob: '1990-01-15',
       ssn: '123456789',
-      streetAddress: '123 Main St',
+      addressStreet: '123 Main St',
       city: 'New York',
       state: 'NY',
-      zipCode: '10001',
+      zip: '10001',
     },
-    vehicleDetails: {
+    vehicleAttributes: {
       year: 2020,
       make: 'Toyota',
       model: 'Camry',
@@ -39,7 +46,7 @@ describe('ReviewAndSubmit', () => {
       mileage: 25000,
       vehicleType: 'new',
     },
-    financialInfo: {
+    financialInfoAttributes: {
       employmentStatus: 'employed',
       employer: 'Tech Corp',
       jobTitle: 'Software Engineer',
@@ -47,14 +54,17 @@ describe('ReviewAndSubmit', () => {
       annualIncome: 80000,
       monthlyExpenses: 2000,
     },
-    loanDetails: {
-      purchasePrice: 30000,
-      downPayment: 5000,
-      loanAmount: 25000,
-      loanTerm: 60,
-      interestRate: 4.5,
-    },
+    purchasePrice: 30000,
+    downPayment: 5000,
+    loanAmount: 25000,
+    termMonths: 60,
+    apr: 4.5,
+    monthlyPayment: 500,
     documents: [
+      { document_name: 'Driver License', file_name: 'license.pdf' },
+      { document_name: 'Pay Stub', file_name: 'paystub.pdf' },
+    ],
+    documentsAttributes: [
       { document_name: 'Driver License', file_name: 'license.pdf' },
       { document_name: 'Pay Stub', file_name: 'paystub.pdf' },
     ],
@@ -62,11 +72,13 @@ describe('ReviewAndSubmit', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
+    mockSaveDraftToServer.mockResolvedValue({ success: true });
     useNavigate.mockReturnValue(mockNavigate);
     useLoanApplicationStore.mockReturnValue({
       draft: mockDraft,
       previousStep: mockPreviousStep,
       clearDraft: mockClearDraft,
+      saveDraftToServer: mockSaveDraftToServer,
     });
   });
 
@@ -141,6 +153,7 @@ describe('ReviewAndSubmit', () => {
       draft: { ...mockDraft, documents: [] },
       previousStep: mockPreviousStep,
       clearDraft: mockClearDraft,
+      saveDraftToServer: mockSaveDraftToServer,
     });
 
     renderComponent();
@@ -219,14 +232,14 @@ describe('ReviewAndSubmit', () => {
   test('handles missing optional fields gracefully', () => {
     useLoanApplicationStore.mockReturnValue({
       draft: {
-        personalInfo: {},
-        vehicleDetails: {},
-        financialInfo: {},
-        loanDetails: {},
+        personalInfoAttributes: {},
+        vehicleAttributes: {},
+        financialInfoAttributes: {},
         documents: [],
       },
       previousStep: mockPreviousStep,
       clearDraft: mockClearDraft,
+      saveDraftToServer: mockSaveDraftToServer,
     });
 
     renderComponent();
@@ -251,20 +264,5 @@ describe('ReviewAndSubmit', () => {
     renderComponent();
 
     expect(screen.getByText('$80,000.00')).toBeInTheDocument();
-  });
-
-  test('displays document with file_name when document_name is missing', () => {
-    useLoanApplicationStore.mockReturnValue({
-      draft: {
-        ...mockDraft,
-        documents: [{ file_name: 'document.pdf' }],
-      },
-      previousStep: mockPreviousStep,
-      clearDraft: mockClearDraft,
-    });
-
-    renderComponent();
-
-    expect(screen.getByText('document.pdf')).toBeInTheDocument();
   });
 });

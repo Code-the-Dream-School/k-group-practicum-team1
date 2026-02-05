@@ -5,8 +5,9 @@ import PersonalInformation from '../../components/LoanApplication/PersonalInform
 import VehicleInformation from '../../components/LoanApplication/VehicleInformation';
 import FinancialInformation from '../../components/LoanApplication/FinancialInformation';
 import LoanDetails from '../../components/LoanApplication/LoanDetails';
-import DocumentsUpload from '../../components/LoanApplication/DocumentsUpload';
+// import DocumentsUpload from '../../components/LoanApplication/DocumentsUpload';
 import ReviewAndSubmit from '../../components/LoanApplication/ReviewAndSubmit';
+import { STEPS } from '../../constants/stepperConstant';
 
 const NewApplicationPage = () => {
   const { currentStep, goToStep, clearDraft } = useLoanApplicationStore();
@@ -16,14 +17,7 @@ const NewApplicationPage = () => {
     clearDraft();
   }, [clearDraft]);
 
-  const steps = [
-    { label: 'Personal Details', icon: null },
-    { label: 'Vehicle Details', icon: null },
-    { label: 'Financial Information', icon: null },
-    { label: 'Loan Details', icon: null },
-    { label: 'Documents Upload', icon: null },
-    { label: 'Review & Submit', icon: null },
-  ];
+  const steps = STEPS;
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -36,8 +30,8 @@ const NewApplicationPage = () => {
       case 4:
         return <LoanDetails />;
       case 5:
-        return <DocumentsUpload />;
-      case 6:
+        // return <DocumentsUpload />;
+        // case 6:
         return <ReviewAndSubmit />;
       default:
         return <PersonalInformation />;

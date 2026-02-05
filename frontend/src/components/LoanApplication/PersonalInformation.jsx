@@ -2,25 +2,28 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 import US_STATES from '../../utils/UsStates';
+import { formatDateToUS } from '../../utils/dateHelpers';
 
 const PersonalInformation = () => {
-  const { draft, updatePersonalInfo, nextStep, saveDraftToServer } = useLoanApplicationStore();
+  const { draft, updatePersonalInfoAttributes, updateAddressesAttributes, nextStep, saveDraftToServer } =
+    useLoanApplicationStore();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { errors, isSubmitting },
+    trigger,
     reset,
     getValues,
   } = useForm({
-    defaultValues: draft.personalInfo,
+    defaultValues: { ...draft.personalInfoAttributes, ...draft.addressesAttributes?.[0] },
     mode: 'onBlur',
   });
 
   // Update form when draft changes
   useEffect(() => {
-    reset(draft.personalInfo);
-  }, [draft.personalInfo, reset]);
+    reset({ ...draft.personalInfoAttributes, ...draft.addressesAttributes?.[0] });
+  }, [draft.personalInfoAttributes, draft.addressesAttributes, reset]);
 
   const validateAge = (value) => {
     if (!value) return 'Date of birth is required';
@@ -41,8 +44,27 @@ const PersonalInformation = () => {
   };
 
   const handleSaveDraft = async () => {
+    const isValid = await trigger();
+    if (!isValid) {
+      return;
+    }
     const formData = getValues();
-    updatePersonalInfo(formData);
+    updatePersonalInfoAttributes({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phoneNumber: formData.phoneNumber,
+      dob: formatDateToUS(formData.dateOfBirth),
+      ssn: formData.ssn,
+    });
+    updateAddressesAttributes([
+      {
+        addressStreet: formData.addressStreet,
+        city: formData.city,
+        state: formData.state,
+        zip: formData.zip,
+      },
+    ]);
     try {
       await saveDraftToServer();
       alert('Draft saved successfully!');
@@ -53,10 +75,22 @@ const PersonalInformation = () => {
   };
 
   const onSubmit = (data) => {
-    if (!isValid) {
-      return;
-    }
-    updatePersonalInfo(data);
+    updatePersonalInfoAttributes({
+      firstName: data.firstName,
+      lastName: data.lastName,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+      dob: formatDateToUS(data.dateOfBirth),
+      ssn: data.ssn,
+    });
+    updateAddressesAttributes([
+      {
+        addressStreet: data.addressStreet,
+        city: data.city,
+        state: data.state,
+        zip: data.zip,
+      },
+    ]);
     nextStep();
   };
 
@@ -140,13 +174,13 @@ const PersonalInformation = () => {
             <input
               type="tel"
               id="phone"
-              {...register('phone', { validate: validatePhone })}
+              {...register('phoneNumber', { validate: validatePhone })}
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.phone ? 'border-red-500' : 'border-gray-300'
+                errors.phoneNumber ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="(555) 123-4567"
             />
-            {errors.phone && <p className="mt-1 text-sm text-red-500">{errors.phone.message}</p>}
+            {errors.phoneNumber && <p className="mt-1 text-sm text-red-500">{errors.phoneNumber.message}</p>}
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -189,13 +223,13 @@ const PersonalInformation = () => {
           <input
             type="text"
             id="streetAddress"
-            {...register('streetAddress', { required: 'Street address is required' })}
+            {...register('addressStreet', { required: 'Street address is required' })}
             className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-              errors.streetAddress ? 'border-red-500' : 'border-gray-300'
+              errors.addressStreet ? 'border-red-500' : 'border-gray-300'
             }`}
             placeholder="123 Main Street"
           />
-          {errors.streetAddress && <p className="mt-1 text-sm text-red-500">{errors.streetAddress.message}</p>}
+          {errors.addressStreet && <p className="mt-1 text-sm text-red-500">{errors.addressStreet.message}</p>}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -242,7 +276,7 @@ const PersonalInformation = () => {
             <input
               type="text"
               id="zipCode"
-              {...register('zipCode', {
+              {...register('zip', {
                 required: 'ZIP code is required',
                 pattern: {
                   value: /^\d{5}$/,
@@ -250,12 +284,12 @@ const PersonalInformation = () => {
                 },
               })}
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.zipCode ? 'border-red-500' : 'border-gray-300'
+                errors.zip ? 'border-red-500' : 'border-gray-300'
               }`}
               placeholder="12345"
               maxLength="5"
             />
-            {errors.zipCode && <p className="mt-1 text-sm text-red-500">{errors.zipCode.message}</p>}
+            {errors.zip && <p className="mt-1 text-sm text-red-500">{errors.zip.message}</p>}
           </div>
         </div>
         <div className="flex justify-between pt-6 border-t border-gray-200">

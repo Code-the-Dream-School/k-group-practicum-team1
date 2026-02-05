@@ -5,6 +5,12 @@ import DocumentsUpload from './DocumentsUpload';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 
 jest.mock('../../stores/loanApplicationStore');
+jest.mock('../../services/api', () => ({
+  API_BASE: 'http://localhost:3000',
+  apiFetch: jest.fn(),
+  getAuthToken: jest.fn(),
+  setAuthToken: jest.fn(),
+}));
 
 describe('DocumentsUpload', () => {
   const mockUpdateDocuments = jest.fn();

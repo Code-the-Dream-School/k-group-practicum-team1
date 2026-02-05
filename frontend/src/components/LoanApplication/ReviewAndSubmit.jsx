@@ -1,10 +1,11 @@
+/* eslint-disable react-hooks/incompatible-library */
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 import { useNavigate } from 'react-router-dom';
 
 const ReviewAndSubmit = () => {
-  const { draft, previousStep, clearDraft } = useLoanApplicationStore();
+  const { draft, previousStep, saveDraftToServer, clearDraft } = useLoanApplicationStore();
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -25,25 +26,18 @@ const ReviewAndSubmit = () => {
   const onSubmit = async () => {
     setIsSubmitting(true);
 
-    try {
-      // TODO: Replace with actual API call to submit application
-      // const response = await fetch('/api/v1/applications', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(draft),
-      // });
-
-      await new Promise((resolve) => setTimeout(resolve, 2000)); // Simulate API call
-
-      alert('Application submitted successfully!');
-      clearDraft();
-      navigate('/dashboard');
-    } catch (error) {
-      console.error('Error submitting application:', error);
-      alert('Failed to submit application. Please try again.');
-    } finally {
-      setIsSubmitting(false);
-    }
+    saveDraftToServer()
+      .then(async () => {
+        alert('Application submitted successfully!');
+        clearDraft();
+        navigate('/dashboard');
+      })
+      .catch((error) => {
+        console.error('Error submitting application:', error);
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   };
 
   const handlePrevious = () => {
@@ -94,66 +88,67 @@ const ReviewAndSubmit = () => {
             <div>
               <p className="text-sm text-gray-600">Full Name</p>
               <p className="text-base font-medium text-gray-900">
-                {draft.personalInfo?.firstName} {draft.personalInfo?.lastName}
+                {draft.personalInfoAttributes?.firstName} {draft.personalInfoAttributes?.lastName}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Email</p>
-              <p className="text-base font-medium text-gray-900">{draft.personalInfo?.email || 'N/A'}</p>
+              <p className="text-base font-medium text-gray-900">{draft.personalInfoAttributes?.email || 'N/A'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Phone</p>
-              <p className="text-base font-medium text-gray-900">{formatPhoneNumber(draft.personalInfo?.phone)}</p>
+              <p className="text-base font-medium text-gray-900">
+                {formatPhoneNumber(draft.personalInfoAttributes?.phoneNumber)}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Date of Birth</p>
-              <p className="text-base font-medium text-gray-900">{formatDate(draft.personalInfo?.dateOfBirth)}</p>
+              <p className="text-base font-medium text-gray-900">{formatDate(draft.personalInfoAttributes?.dob)}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">SSN</p>
-              <p className="text-base font-medium text-gray-900">{maskSSN(draft.personalInfo?.ssn)}</p>
+              <p className="text-base font-medium text-gray-900">{maskSSN(draft.personalInfoAttributes?.ssn)}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Address</p>
               <p className="text-base font-medium text-gray-900">
-                {draft.personalInfo?.streetAddress || 'N/A'}
-                {draft.personalInfo?.city && `, ${draft.personalInfo.city}`}
-                {draft.personalInfo?.state && `, ${draft.personalInfo.state}`}
-                {draft.personalInfo?.zipCode && ` ${draft.personalInfo.zipCode}`}
+                {draft.personalInfoAttributes?.addressStreet || 'N/A'}
+                {draft.personalInfoAttributes?.city && `, ${draft.personalInfoAttributes.city}`}
+                {draft.personalInfoAttributes?.state && `, ${draft.personalInfoAttributes.state}`}
+                {draft.personalInfoAttributes?.zip && ` ${draft.personalInfoAttributes.zip}`}
               </p>
             </div>
           </div>
         </div>
-
         <div className="border border-gray-200 rounded-lg p-6">
           <h3 className="text-xl font-semibold text-gray-800 mb-4">Vehicle Information</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-600">Year</p>
-              <p className="text-base font-medium text-gray-900">{draft.vehicleDetails?.year || 'N/A'}</p>
+              <p className="text-base font-medium text-gray-900">{draft.vehicleAttributes?.year || 'N/A'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Make</p>
-              <p className="text-base font-medium text-gray-900">{draft.vehicleDetails?.make || 'N/A'}</p>
+              <p className="text-base font-medium text-gray-900">{draft.vehicleAttributes?.make || 'N/A'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Model</p>
-              <p className="text-base font-medium text-gray-900">{draft.vehicleDetails?.model || 'N/A'}</p>
+              <p className="text-base font-medium text-gray-900">{draft.vehicleAttributes?.model || 'N/A'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">VIN</p>
-              <p className="text-base font-medium text-gray-900">{draft.vehicleDetails?.vin || 'N/A'}</p>
+              <p className="text-base font-medium text-gray-900">{draft.vehicleAttributes?.vin || 'N/A'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Mileage</p>
               <p className="text-base font-medium text-gray-900">
-                {draft.vehicleDetails?.mileage ? `${draft.vehicleDetails.mileage.toLocaleString()} miles` : 'N/A'}
+                {draft.vehicleAttributes?.mileage ? `${draft.vehicleAttributes.mileage.toLocaleString()} miles` : 'N/A'}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Condition</p>
               <p className="text-base font-medium text-gray-900 capitalize">
-                {draft.vehicleDetails?.vehicleType || 'N/A'}
+                {draft.vehicleAttributes?.vehicleType || 'N/A'}
               </p>
             </div>
           </div>
@@ -165,29 +160,33 @@ const ReviewAndSubmit = () => {
             <div>
               <p className="text-sm text-gray-600">Employment Status</p>
               <p className="text-base font-medium text-gray-900 capitalize">
-                {draft.financialInfo?.employmentStatus || 'N/A'}
+                {draft.financialInfoAttributes?.employmentStatus || 'N/A'}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Employer</p>
-              <p className="text-base font-medium text-gray-900">{draft.financialInfo?.employer || 'N/A'}</p>
+              <p className="text-base font-medium text-gray-900">{draft.financialInfoAttributes?.employer || 'N/A'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Job Title</p>
-              <p className="text-base font-medium text-gray-900">{draft.financialInfo?.jobTitle || 'N/A'}</p>
+              <p className="text-base font-medium text-gray-900">{draft.financialInfoAttributes?.jobTitle || 'N/A'}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Years Employed</p>
-              <p className="text-base font-medium text-gray-900">{draft.financialInfo?.yearsEmployed || 'N/A'}</p>
+              <p className="text-base font-medium text-gray-900">
+                {draft.financialInfoAttributes?.yearsEmployed || 'N/A'}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Annual Income</p>
-              <p className="text-base font-medium text-gray-900">{formatCurrency(draft.financialInfo?.annualIncome)}</p>
+              <p className="text-base font-medium text-gray-900">
+                {formatCurrency(draft.financialInfoAttributes?.annualIncome)}
+              </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Monthly Expenses</p>
               <p className="text-base font-medium text-gray-900">
-                {formatCurrency(draft.financialInfo?.monthlyExpenses)}
+                {formatCurrency(draft.financialInfoAttributes?.monthlyExpenses)}
               </p>
             </div>
           </div>
@@ -198,27 +197,25 @@ const ReviewAndSubmit = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <p className="text-sm text-gray-600">Purchase Price</p>
-              <p className="text-base font-medium text-gray-900">{formatCurrency(draft.loanDetails?.purchasePrice)}</p>
+              <p className="text-base font-medium text-gray-900">{formatCurrency(draft.purchasePrice)}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Down Payment</p>
-              <p className="text-base font-medium text-gray-900">{formatCurrency(draft.loanDetails?.downPayment)}</p>
+              <p className="text-base font-medium text-gray-900">{formatCurrency(draft.downPayment)}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Loan Amount</p>
-              <p className="text-base font-medium text-gray-900">{formatCurrency(draft.loanDetails?.loanAmount)}</p>
+              <p className="text-base font-medium text-gray-900">{formatCurrency(draft.loanAmount)}</p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Loan Term</p>
               <p className="text-base font-medium text-gray-900">
-                {draft.loanDetails?.loanTerm ? `${draft.loanDetails.loanTerm} months` : 'N/A'}
+                {draft.termMonths ? `${draft.termMonths} months` : 'N/A'}
               </p>
             </div>
             <div>
               <p className="text-sm text-gray-600">Interest Rate</p>
-              <p className="text-base font-medium text-gray-900">
-                {draft.loanDetails?.interestRate ? `${draft.loanDetails.interestRate}%` : 'N/A'}
-              </p>
+              <p className="text-base font-medium text-gray-900">{draft.apr ? `${draft.apr}%` : 'N/A'}</p>
             </div>
           </div>
         </div>
@@ -230,7 +227,7 @@ const ReviewAndSubmit = () => {
               <>
                 <p className="text-base text-gray-900">{getDocumentCount()} document(s) uploaded</p>
                 <div className="mt-3 space-y-2">
-                  {draft.documents.map((doc, index) => (
+                  {draft.documentsAttributes.map((doc, index) => (
                     <div key={index} className="flex items-center gap-2 text-sm text-gray-600">
                       <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                         <path
