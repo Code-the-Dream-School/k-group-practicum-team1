@@ -15,18 +15,28 @@ class PersonalInfo < ApplicationRecord
   def validate_date_of_birth
     return if dob.blank?
 
-    unless dob.match?(/\A\d{2}\/\d{2}\/\d{4}\z/)
-      errors.add(:dob, "must be in format mm/dd/yyyy")
+    birth_date = nil
+
+    if dob.is_a?(String)
+      unless dob.match?(/\A\d{2}\/\d{2}\/\d{4}\z/)
+        errors.add(:dob, "must be in format mm/dd/yyyy")
+        return
+      end
+
+      begin
+        birth_date = Date.strptime(dob, "%m/%d/%Y")
+      rescue ArgumentError
+        errors.add(:dob, "is not a valid date")
+        return
+      end
+    elsif dob.is_a?(Date) || dob.is_a?(Time) || dob.respond_to?(:to_date)
+      birth_date = dob.to_date
+    else
+      errors.add(:dob, "is not a valid date")
       return
     end
 
-    begin
-      birth_date = Date.strptime(dob, "%m/%d/%Y")
-      age = ((Date.today - birth_date) / 365).floor
-
-      errors.add(:dob, "must be at least 18 years old") if age < 18
-    rescue ArgumentError
-      errors.add(:dob, "is not a valid date")
-    end
+    age = ((Date.today - birth_date) / 365).floor
+    errors.add(:dob, "must be at least 18 years old") if age < 18
   end
 end
