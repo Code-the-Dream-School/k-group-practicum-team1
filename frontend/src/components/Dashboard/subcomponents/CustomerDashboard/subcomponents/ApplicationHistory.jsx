@@ -1,10 +1,14 @@
 /* eslint-disable react/prop-types */
 import React from 'react';
-import { HiClock, HiEye } from 'react-icons/hi';
+import { HiClock, HiEye, HiPencilAlt } from 'react-icons/hi';
+import { useNavigate } from 'react-router-dom';
 
 const ApplicationHistory = ({ applications, loading, error }) => {
+  const navigate = useNavigate();
   const getStatusBadgeClass = (status) => {
     const statusClasses = {
+      draft: 'bg-yellow-100 text-yellow-800',
+      submitted: 'bg-blue-100 text-blue-800',
       under_review: 'bg-yellow-100 text-yellow-800',
       approved: 'bg-green-100 text-green-800',
       rejected: 'bg-red-100 text-red-800',
@@ -67,8 +71,7 @@ const ApplicationHistory = ({ applications, loading, error }) => {
               <thead>
                 <tr className="border-b border-gray-200">
                   <th className="text-center py-3 px-4 font-semibold text-gray-900">Application ID</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-900">Vehicle</th>
-                  <th className="text-center py-3 px-4 font-semibold text-gray-900">Amount</th>
+                  <th className="text-center py-3 px-4 font-semibold text-gray-900">Loan Amount</th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-900">Submitted Date</th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-900">Status</th>
                   <th className="text-center py-3 px-4 font-semibold text-gray-900">Action</th>
@@ -77,10 +80,9 @@ const ApplicationHistory = ({ applications, loading, error }) => {
               <tbody>
                 {applications.map((app) => (
                   <tr key={app.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                    <td className="py-4 px-4 font-medium text-gray-900">#{app.application_number || app.id}</td>
-                    <td className="py-4 px-4 text-gray-700">{app.vehicle || 'N/A'}</td>
-                    <td className="py-4 px-4 text-gray-900 font-medium">{formatAmount(app.amount || 0)}</td>
-                    <td className="py-4 px-4 text-gray-700">{formatDate(app.created_at || app.date)}</td>
+                    <td className="py-4 px-4 font-medium text-gray-900">{app.applicationNumber}</td>
+                    <td className="py-4 px-4 text-gray-900 font-medium">{formatAmount(app.loanAmount || 0)}</td>
+                    <td className="py-4 px-4 text-gray-700">{formatDate(app.submittedDate || app.createdAt)}</td>
                     <td className="py-4 px-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(app.status)}`}>
                         {formatStatus(app.status || 'Pending')}
@@ -90,11 +92,11 @@ const ApplicationHistory = ({ applications, loading, error }) => {
                       <button
                         className="text-blue-600 hover:text-blue-800 transition-colors"
                         onClick={() => {
-                          /* Navigate to application details */
+                          navigate(app.status === 'draft' ? `/application/${app.id}/edit` : `/application/${app.id}`);
                         }}
-                        aria-label="View details"
+                        aria-label={app.status === 'draft' ? 'Edit Application' : 'View Details'}
                       >
-                        <HiEye className="w-5 h-5" />
+                        {app.status === 'draft' ? <HiPencilAlt className="w-5 h-5" /> : <HiEye className="w-5 h-5" />}
                       </button>
                     </td>
                   </tr>
@@ -112,7 +114,7 @@ const ApplicationHistory = ({ applications, loading, error }) => {
                 <div className="flex justify-between items-start mb-3">
                   <div>
                     <p className="font-semibold text-gray-900 text-sm mb-1">Application ID</p>
-                    <p className="font-medium text-gray-900">#{app.application_number || app.id}</p>
+                    <p className="font-medium text-gray-900">#{app.applicationNumber}</p>
                   </div>
                   <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(app.status)}`}>
                     {formatStatus(app.status || 'Pending')}
@@ -120,32 +122,30 @@ const ApplicationHistory = ({ applications, loading, error }) => {
                 </div>
 
                 <div className="space-y-2 mb-3">
-                  <div>
+                  {/* <div>
                     <p className="font-semibold text-gray-900 text-sm">Vehicle</p>
                     <p className="text-gray-700">{app.vehicle || 'N/A'}</p>
-                  </div>
+                  </div> */}
 
                   <div className="flex justify-between items-center">
                     <div>
                       <p className="font-semibold text-gray-900 text-sm">Amount</p>
-                      <p className="text-gray-900 font-medium">{formatAmount(app.amount || 0)}</p>
+                      <p className="text-gray-900 font-medium">{formatAmount(app.loanAmount || 0)}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-semibold text-gray-900 text-sm">Submitted Date</p>
-                      <p className="text-gray-700">{formatDate(app.created_at || app.date)}</p>
+                      <p className="text-gray-700">{formatDate(app.submittedDate || app.createdAt)}</p>
                     </div>
                   </div>
                 </div>
 
                 <button
                   className="w-full flex items-center justify-center gap-2 text-blue-600 hover:text-blue-800 transition-colors py-2 border-t border-gray-200 mt-3 pt-3"
-                  onClick={() => {
-                    /* Navigate to application details */
-                  }}
+                  onClick={() => {}}
                   aria-label="View details"
                 >
-                  <HiEye className="w-5 h-5" />
-                  <span className="font-medium">View Details</span>
+                  {app.status === 'draft' ? <HiPencilAlt className="w-5 h-5" /> : <HiEye className="w-5 h-5" />}
+                  <span className="font-medium">{app.status === 'draft' ? 'Edit Application' : 'View Details'}</span>
                 </button>
               </div>
             ))}

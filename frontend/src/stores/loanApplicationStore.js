@@ -136,11 +136,32 @@ export const useLoanApplicationStore = create(
       loadDraftFromServer: async (applicationId) => {
         // TODO: Implement API call to load draft
         console.log('Loading draft from server:', applicationId);
-        console.log('draft:', this.draft);
-        // const response = await fetch(`/api/applications/draft/${applicationId}`);
-        // const data = await response.json();
-        // set({ draft: data });
-        return Promise.resolve();
+        const response = await apiFetch(`/api/v1/applications/${applicationId}`, {
+          method: 'GET',
+        });
+        if (response.data) {
+          console.log('saveddraft:', response.data);
+
+          const data = humps.camelizeKeys(response.data);
+          set({
+            draft: {
+              ...data,
+              personalInfoAttributes: data.personalInfo || null,
+              addressesAttributes: data.addresses?.[0] || null,
+              vehicleAttributes: data.vehicle || null,
+              financialInfoAttributes: data.financialInfo || null,
+              applicationProgress: data.applicationProgress || 'personal',
+              // documentsAttributes: data.documentsAttributes || null,
+            },
+            applicationId: data.id,
+            currentStep: STEPS.findIndex((step) => step.key === data.applicationProgress) + 1 || 1,
+          });
+          return Promise.resolve();
+        } else {
+          console.log('No draft data found on server for applicationId:', applicationId);
+          // set({ draft: data });
+          // return Promise.resolve();
+        }
       },
     }),
     {

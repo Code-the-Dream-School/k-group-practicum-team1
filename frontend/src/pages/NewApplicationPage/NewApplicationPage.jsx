@@ -8,14 +8,21 @@ import LoanDetails from '../../components/LoanApplication/LoanDetails';
 // import DocumentsUpload from '../../components/LoanApplication/DocumentsUpload';
 import ReviewAndSubmit from '../../components/LoanApplication/ReviewAndSubmit';
 import { STEPS } from '../../constants/stepperConstant';
+import { useParams } from 'react-router-dom';
 
 const NewApplicationPage = () => {
-  const { currentStep, goToStep, clearDraft } = useLoanApplicationStore();
+  const { id } = useParams();
+  console.log('Application ID from params:', id);
+  const { currentStep, goToStep, loadDraftFromServer, clearDraft } = useLoanApplicationStore();
 
   // Reset state on first load
   useEffect(() => {
-    clearDraft();
-  }, [clearDraft]);
+    if (!id) {
+      clearDraft();
+    } else {
+      loadDraftFromServer(id);
+    }
+  }, [clearDraft, id, loadDraftFromServer]);
 
   const steps = STEPS;
 

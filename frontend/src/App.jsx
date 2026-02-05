@@ -29,6 +29,14 @@ function App() {
             }
           />
           <Route
+            path="/application/:id/edit"
+            element={
+              <ProtectedRoute>
+                <NewApplicationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/dashboard"
             element={
               <ProtectedRoute>
