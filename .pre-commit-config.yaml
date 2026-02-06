@@ -1,0 +1,56 @@
+# /k-group-practicum-team1/.pre-commit-config.yaml
+# Pre-commit hooks for K-Group Practicum Team1 project
+repos:
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ['--baseline', '.secrets.baseline']
+        exclude: .*\.lock|.*\.log
+  - repo: local
+    hooks:
+      - id: block-sensitive-files
+        name: Block Sensitive Files
+        entry: sh -c 'git diff --cached --name-only | grep -qE "\.(pem|key|env|credentials)$" && echo "ERROR - Sensitive files detected. Remove with git rm --cached" && exit 1 || exit 0'
+        language: system
+        pass_filenames: false
+      - id: auto-clean-untracked
+        name: Auto Move Untracked Files
+        entry: sh -c 'if [ -n "$(git status --porcelain | grep "^??" | grep -v ".idea/" | grep -v ".backups/")" ]; then ./git-clean-commit.sh 2>/dev/null || true; fi; exit 0'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: verify-selective-staging
+        name: Verify Selective Staging
+        entry: sh -c 'echo "Staged files:" && git diff --cached --name-only'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: rubocop-check
+        name: RuboCop Lint Ruby Files
+        entry: sh -c 'RUBY_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep "\.rb$" || true); if [ -n "$RUBY_FILES" ]; then cd backend && bundle exec rubocop --force-exclusion $(echo "$RUBY_FILES" | sed "s|^backend/||g"); fi'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: prettier-check
+        name: Prettier Format Frontend Files
+        entry: sh -c 'FRONTEND_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "^frontend/.*\.(ts|tsx|js|jsx|css|json|md)$" || true); if [ -n "$FRONTEND_FILES" ]; then cd frontend && RELATIVE_FILES=$(echo "$FRONTEND_FILES" | sed "s|^frontend/||g") && npx prettier --write $RELATIVE_FILES && cd .. && git add $FRONTEND_FILES; fi'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+      - id: eslint-check
+        name: ESLint Lint Frontend Files
+        entry: sh -c 'FRONTEND_FILES=$(git diff --cached --name-only --diff-filter=ACM | grep -E "^frontend/.*\.(ts|tsx|js|jsx)$" || true); if [ -n "$FRONTEND_FILES" ]; then cd frontend && RELATIVE_FILES=$(echo "$FRONTEND_FILES" | sed "s|^frontend/||g") && npx eslint $RELATIVE_FILES; fi'
+        language: system
+        pass_filenames: false
+        stages: [pre-commit]
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: mixed-line-ending
+        args: ['--fix=lf']
+        name: Fix Line Endings to LF
+      - id: end-of-file-fixer
+        name: Fix End of Files
+      - id: trailing-whitespace
+        name: Trim Trailing Whitespace
