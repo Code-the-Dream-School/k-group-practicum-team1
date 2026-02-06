@@ -48,14 +48,14 @@ describe('CustomerDashboard Component', () => {
       user: { first_name: 'John' },
       isAuthenticated: true,
     });
-    
+
     // Mock apiFetch to return applications data
     apiFetch.mockResolvedValue({
       data: {
         applications: [],
       },
     });
-    
+
     jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'warn').mockImplementation(() => {});
   });
@@ -193,9 +193,7 @@ describe('CustomerDashboard Component', () => {
       // Mock apiFetch to return applications so the section renders
       apiFetch.mockResolvedValue({
         data: {
-          applications: [
-            { id: 1, status: 'pending', application_number: 'APP-001' },
-          ],
+          applications: [{ id: 1, status: 'pending', application_number: 'APP-001' }],
         },
       });
 
@@ -233,9 +231,7 @@ describe('CustomerDashboard Component', () => {
       // Mock apiFetch to return applications so h2 renders
       apiFetch.mockResolvedValue({
         data: {
-          applications: [
-            { id: 1, status: 'pending', application_number: 'APP-001' },
-          ],
+          applications: [{ id: 1, status: 'pending', application_number: 'APP-001' }],
         },
       });
 

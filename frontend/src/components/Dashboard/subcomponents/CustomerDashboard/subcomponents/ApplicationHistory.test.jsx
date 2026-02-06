@@ -89,7 +89,9 @@ describe('ApplicationHistory Component', () => {
     });
 
     test('renders status badges', () => {
-      const { container } = renderWithRouter(<ApplicationHistory applications={mockApplications} loading={false} error={null} />);
+      const { container } = renderWithRouter(
+        <ApplicationHistory applications={mockApplications} loading={false} error={null} />
+      );
       const badges = container.querySelectorAll('.rounded-full');
       expect(badges.length).toBeGreaterThan(0);
     });
@@ -103,13 +105,17 @@ describe('ApplicationHistory Component', () => {
 
   describe('Responsive Design', () => {
     test('has desktop table view with hidden class for mobile', () => {
-      const { container } = renderWithRouter(<ApplicationHistory applications={mockApplications} loading={false} error={null} />);
+      const { container } = renderWithRouter(
+        <ApplicationHistory applications={mockApplications} loading={false} error={null} />
+      );
       const desktopTable = container.querySelector('.hidden.md\\:block');
       expect(desktopTable).toBeInTheDocument();
     });
 
     test('has mobile card view with hidden class for desktop', () => {
-      const { container } = renderWithRouter(<ApplicationHistory applications={mockApplications} loading={false} error={null} />);
+      const { container } = renderWithRouter(
+        <ApplicationHistory applications={mockApplications} loading={false} error={null} />
+      );
       const mobileCards = container.querySelector('.md\\:hidden');
       expect(mobileCards).toBeInTheDocument();
     });
@@ -117,13 +123,17 @@ describe('ApplicationHistory Component', () => {
 
   describe('Component Structure', () => {
     test('has white background container', () => {
-      const { container } = renderWithRouter(<ApplicationHistory applications={mockApplications} loading={false} error={null} />);
+      const { container } = renderWithRouter(
+        <ApplicationHistory applications={mockApplications} loading={false} error={null} />
+      );
       const mainContainer = container.querySelector('.bg-white.rounded-lg.shadow-sm');
       expect(mainContainer).toBeInTheDocument();
     });
 
     test('displays clock icon with title', () => {
-      const { container } = renderWithRouter(<ApplicationHistory applications={mockApplications} loading={false} error={null} />);
+      const { container } = renderWithRouter(
+        <ApplicationHistory applications={mockApplications} loading={false} error={null} />
+      );
       const iconContainer = container.querySelector('.flex.items-center.gap-2');
       expect(iconContainer).toBeInTheDocument();
     });
@@ -132,7 +142,9 @@ describe('ApplicationHistory Component', () => {
   describe('Status Badge Styling', () => {
     test('applies different badge colors based on status', () => {
       const approvedApp = { ...mockApplications[0], status: 'approved' };
-      const { container } = renderWithRouter(<ApplicationHistory applications={[approvedApp]} loading={false} error={null} />);
+      const { container } = renderWithRouter(
+        <ApplicationHistory applications={[approvedApp]} loading={false} error={null} />
+      );
       const badge = container.querySelector('.bg-green-100');
       expect(badge).toBeInTheDocument();
     });
@@ -154,7 +166,9 @@ describe('ApplicationHistory Component', () => {
 
   describe('Mobile Card Layout', () => {
     test('renders mobile cards with application data', () => {
-      const { container } = renderWithRouter(<ApplicationHistory applications={mockApplications} loading={false} error={null} />);
+      const { container } = renderWithRouter(
+        <ApplicationHistory applications={mockApplications} loading={false} error={null} />
+      );
       const mobileSection = container.querySelector('.md\\:hidden');
       expect(mobileSection).toBeInTheDocument();
     });
