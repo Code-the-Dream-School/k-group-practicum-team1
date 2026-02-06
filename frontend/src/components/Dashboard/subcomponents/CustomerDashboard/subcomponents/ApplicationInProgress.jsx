@@ -3,6 +3,8 @@ import { HiCheck, HiClock, HiDocumentText } from 'react-icons/hi';
 import humps from 'humps';
 import Stepper from '../../../../Stepper/Stepper';
 import { apiFetch } from '../../../../../services/api';
+import { formatCurrency } from '../../../../../utils/currencyHelpers';
+import { getStatusBadgeClass, formatStatus } from '../../../../../utils/statusHelpers';
 
 // eslint-disable-next-line react/prop-types
 const ApplicationInProgress = ({ applicationId }) => {
@@ -18,18 +20,6 @@ const ApplicationInProgress = ({ applicationId }) => {
     () => ({ submitted: 1, pending: 2, pending_documents: 2, under_review: 3, approved: 4, rejected: 4 }),
     []
   );
-
-  const getStatusBadgeClass = (status) => {
-    const statusClasses = {
-      submitted: 'bg-blue-100 text-blue-800',
-      pending: 'bg-blue-100 text-blue-800',
-      pending_documents: 'bg-blue-100 text-blue-800',
-      under_review: 'bg-yellow-100 text-yellow-800',
-      approved: 'bg-green-100 text-green-800',
-      rejected: 'bg-red-100 text-red-800',
-    };
-    return statusClasses[status?.toLowerCase()] || 'bg-gray-100 text-gray-800';
-  };
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -55,19 +45,9 @@ const ApplicationInProgress = ({ applicationId }) => {
     }
   }, [applicationId, statusInOrder]);
 
-  const formatStatus = (status) => {
-    return status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
-  };
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-  };
-
-  const formatAmount = (amount) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(
-      amount
-    );
   };
 
   const current_step = statusInOrder[application?.status] || 1;
@@ -134,7 +114,9 @@ const ApplicationInProgress = ({ applicationId }) => {
         </div>
         <div>
           <p className="text-gray-600 text-sm mb-1">Loan Amount</p>
-          <p className="text-gray-900 text-xl font-bold">{formatAmount(application?.loanAmount)}</p>
+          <p className="text-gray-900 text-xl font-bold">
+            {formatCurrency(application?.loanAmount, { maximumFractionDigits: 0 })}
+          </p>
         </div>
         <div>
           <p className="text-gray-600 text-sm mb-1">Term</p>

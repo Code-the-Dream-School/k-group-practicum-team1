@@ -28,7 +28,7 @@ module Api
         applications = scope.limit(per_page).offset(offset)
         total_pages = (total.to_f / per_page).ceil
         render json: {
-          applications: applications.map { |a| ApplicationSerializer.list_item(a) },
+          applications: applications.map { |a| ApplicationSerializer.list_item(a, logged_in_user: current_user) },
           meta: {
             total: total,
             count: applications.size,
@@ -108,43 +108,9 @@ module Api
 
       def index_scope
         if current_user.customer?
-          current_user.applications.includes(:user)
+          current_user.applications
         else
-          Application.includes(:user)
-        end
-      end
-
-      def apply_index_filters(scope)
-        scope = scope.where("application_number ILIKE ?", "%#{sanitize_like(params[:application_number])}%") if params[:application_number].present?
-        scope = scope.where(status: params[:status]) if params[:status].present? && Application.statuses.key?(params[:status])
-        if params[:applicant_name].present?
-          q = "%#{sanitize_like(params[:applicant_name])}%"
-          scope = scope.joins(:user).where("users.first_name ILIKE :q OR users.last_name ILIKE :q", q: q)
-        end
-        scope
-      end
-
-      def apply_index_sort(scope)
-        if current_user.customer?
-          scope.order(created_at: :desc)
-        else
-          sort_by = %w[application_number status submitted_date created_at].include?(params[:sort_by]) ? params[:sort_by] : "created_at"
-          sort_order = params[:sort_order].to_s.downcase == "asc" ? :asc : :desc
-          scope.order(Application.arel_table[sort_by].send(sort_order))
-        end
-      end
-
-      def sanitize_like(value)
-        return "" if value.blank?
-
-        ActiveRecord::Base.sanitize_sql_like(value.to_s)
-      end
-
-      def index_scope
-        if current_user.customer?
-          current_user.applications.includes(:user)
-        else
-          Application.includes(:user)
+          Application.includes(:user).where.not(status: :draft)
         end
       end
 

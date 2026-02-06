@@ -1,7 +1,17 @@
 class ApplicationSerializer
-  def self.list_item(application)
+  def self.list_item(application, logged_in_user: nil)
+    print "ApplicationSerializer.list_item called with application id: #{application.id}, logged_in_user id: #{logged_in_user&.id}\n"
     user = application.user
     applicant_name = user ? "#{user.first_name} #{user.last_name}".strip : ""
+    application_completeness = (!logged_in_user.customer? && !application.application_review.nil?) ? {
+                                  personal_info_complete: application.application_review.personal_info_complete,
+                                  vehicle_info_complete: application.application_review.vehicle_info_complete,
+                                  financial_info_complete: application.application_review.financial_info_complete,
+                                  documents_complete: application.application_review.documents_complete,
+                                  credit_check_authorized: application.application_review.credit_check_authorized
+                                } : nil
+    vehicle_name = (application.vehicle && application.vehicle.year && application.vehicle.make && application.vehicle.model) ?
+               "#{application.vehicle.year} #{application.vehicle.make} #{application.vehicle.model} #{application.vehicle.trim}".strip : nil
     {
       id: application.id,
       application_number: application.application_number,
@@ -14,7 +24,8 @@ class ApplicationSerializer
       loan_amount: application.loan_amount,
       term_months: application.term_months,
       apr: application.apr,
-      monthly_payment: application.monthly_payment,
+      vehicle: vehicle_name,
+      application_completeness: application_completeness,
       submitted_date: application.submitted_date,
       created_at: application.created_at,
       updated_at: application.updated_at

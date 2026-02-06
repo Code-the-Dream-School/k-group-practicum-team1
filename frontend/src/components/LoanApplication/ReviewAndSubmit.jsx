@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
+import { formatCurrency } from '../../utils/currencyHelpers';
 
 const ReviewAndSubmit = ({ viewOnly = false }) => {
   const { id } = useParams();
@@ -75,14 +76,6 @@ const ReviewAndSubmit = ({ viewOnly = false }) => {
       return `(${match[1]}) ${match[2]}-${match[3]}`;
     }
     return phone;
-  };
-
-  const formatCurrency = (amount) => {
-    if (!amount) return 'N/A';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
   };
 
   const formatDate = (date) => {

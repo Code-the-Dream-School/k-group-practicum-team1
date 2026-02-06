@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
+import { formatCurrency } from '../../utils/currencyHelpers';
 
 const LoanDetails = () => {
   const { draft, updateLoanDetails, nextStep, previousStep, saveDraftToServer } = useLoanApplicationStore();
@@ -133,14 +134,6 @@ const LoanDetails = () => {
       monthlyPayment: monthlyPayment.totalMonthly,
     });
     nextStep();
-  };
-
-  const formatCurrency = (value) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      minimumFractionDigits: 2,
-    }).format(value);
   };
 
   return (
