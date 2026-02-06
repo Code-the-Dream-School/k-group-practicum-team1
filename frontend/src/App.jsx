@@ -10,6 +10,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import Auth from './components/auth/Auth';
 import Profile from './pages/Profile/Profile';
 import ReviewAndSubmit from './components/LoanApplication/ReviewAndSubmit';
+import LoanOfficerReview from './pages/LoanOfficerReview/LoanOfficerReview';
 
 function App() {
   return (
@@ -57,6 +58,14 @@ function App() {
             element={
               <ProtectedRoute>
                 <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/officer-review/:appId"
+            element={
+              <ProtectedRoute>
+                <LoanOfficerReview />
               </ProtectedRoute>
             }
           />

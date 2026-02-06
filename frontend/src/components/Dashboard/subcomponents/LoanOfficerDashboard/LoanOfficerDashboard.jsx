@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import humps from 'humps';
+import { useNavigate } from 'react-router-dom';
 import { FiCheckCircle } from 'react-icons/fi';
 import { IoCloudUploadOutline, IoShieldCheckmarkOutline } from 'react-icons/io5';
 import { FaRegHourglassHalf } from 'react-icons/fa6';
@@ -16,6 +17,8 @@ function LoanOfficerDashboard() {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [applicantName, setApplicantName] = useState('');
   const [status, setStatus] = useState('');
+
+  const navigate = useNavigate();
 
   const fetchLoanData = React.useCallback(
     async (sortBy = null, sortOrder = 'asc', filterApplicantName = '', filterStatus = '') => {
@@ -296,7 +299,7 @@ function LoanOfficerDashboard() {
                       </div>
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap text-md text-gray-700 flex items-center justify-center">
-                      <MdOutlinePendingActions />
+                      <MdOutlinePendingActions onClick={() => navigate(`/officer-review/${item.id}`)} />
                     </td>
                   </tr>
                 ))}

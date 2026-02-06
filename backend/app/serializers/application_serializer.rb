@@ -53,7 +53,9 @@ class ApplicationSerializer
       vehicle: vehicle_json,
       addresses: addresses_json,
       financial_info: financial_info_json,
-      personal_info: personal_info_json
+      personal_info: personal_info_json,
+      application_review: application_review_json,
+      last_updated_at: @app.updated_at,
     }
   end
 
@@ -95,6 +97,15 @@ class ApplicationSerializer
     @app.personal_info.slice(
       :id, :first_name, :last_name, :email,
       :phone_number, :dob, :ssn
+    )
+  end
+
+  def application_review_json
+    return nil unless @app.application_review
+
+    @app.application_review.slice(
+      :id, :personal_info_complete, :vehicle_info_complete,
+      :financial_info_complete, :documents_complete, :credit_check_authorized
     )
   end
 end
