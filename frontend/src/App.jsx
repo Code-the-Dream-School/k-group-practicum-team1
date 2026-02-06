@@ -53,14 +53,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-        <Route
-          path="/officer-review"
-          element={
-            <ProtectedRoute>
-              <LoanOfficerReview />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/officer-review"
+            element={
+              <ProtectedRoute>
+                <LoanOfficerReview />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </main>
       <Footer />

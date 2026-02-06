@@ -137,7 +137,7 @@ function LoanOfficerReview() {
             <p className="text-gray-600 text-md font-bold">Dec 1, 2025</p>
             <h3 className="text-gray-500 text-md font-normal">Completeness</h3>
             <div className="w-full relative bg-slate-100 rounded-lg h-5 shadow-inner">
-              <div className="h-full rounded-lg bg-yellow-400" style={{ width: `${completeness}%` }}></div>
+              <div className="h-full rounded-lg bg-yellow-400" style={{ width: `${completeness}%` }} />
               <div className="absolute inset-0 flex items-center justify-center">
                 <span className="text-xs font-bold text-slate-800 drop-shadow-sm">{completeness}%</span>
               </div>
