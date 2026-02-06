@@ -4,6 +4,10 @@ import Stepper from '../../components/Stepper/Stepper';
 import PersonalInformation from '../../components/LoanApplication/PersonalInformation';
 import VehicleInformation from '../../components/LoanApplication/VehicleInformation';
 import FinancialInformation from '../../components/LoanApplication/FinancialInformation';
+import LoanDetails from '../../components/LoanApplication/LoanDetails';
+// import DocumentsUpload from '../../components/LoanApplication/DocumentsUpload';
+import ReviewAndSubmit from '../../components/LoanApplication/ReviewAndSubmit';
+import { STEPS } from '../../constants/stepperConstant';
 
 const NewApplicationPage = () => {
   const { currentStep, goToStep, clearDraft } = useLoanApplicationStore();
@@ -13,14 +17,7 @@ const NewApplicationPage = () => {
     clearDraft();
   }, [clearDraft]);
 
-  const steps = [
-    { label: 'Personal Details', icon: null },
-    { label: 'Vehicle Details', icon: null },
-    { label: 'Financial Information', icon: null },
-    { label: 'Loan Details', icon: null },
-    { label: 'Documents Upload', icon: null },
-    { label: 'Review & Submit', icon: null },
-  ];
+  const steps = STEPS;
 
   const renderStepContent = () => {
     switch (currentStep) {
@@ -31,26 +28,11 @@ const NewApplicationPage = () => {
       case 3:
         return <FinancialInformation />;
       case 4:
-        return (
-          <div className="bg-white rounded-lg shadow-md p-8 mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Loan Details</h2>
-            <p className="text-gray-600">Loan details form coming soon...</p>
-          </div>
-        );
+        return <LoanDetails />;
       case 5:
-        return (
-          <div className="bg-white rounded-lg shadow-md p-8 mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Documents Upload</h2>
-            <p className="text-gray-600">Documents upload form coming soon...</p>
-          </div>
-        );
-      case 6:
-        return (
-          <div className="bg-white rounded-lg shadow-md p-8 mx-auto">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Review & Submit</h2>
-            <p className="text-gray-600">Review form coming soon...</p>
-          </div>
-        );
+        // return <DocumentsUpload />;
+        // case 6:
+        return <ReviewAndSubmit />;
       default:
         return <PersonalInformation />;
     }

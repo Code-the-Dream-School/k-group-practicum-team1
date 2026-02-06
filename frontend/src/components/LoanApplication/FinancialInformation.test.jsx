@@ -4,15 +4,21 @@ import FinancialInformation from './FinancialInformation';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 
 jest.mock('../../stores/loanApplicationStore');
+jest.mock('../../services/api', () => ({
+  API_BASE: 'http://localhost:3000',
+  apiFetch: jest.fn(),
+  getAuthToken: jest.fn(),
+  setAuthToken: jest.fn(),
+}));
 
 describe('FinancialInformation Component', () => {
-  let mockUpdateFinancialInfo;
+  let mockUpdateFinancialInfoAttributes;
   let mockNextStep;
   let mockPreviousStep;
   let mockSaveDraftToServer;
 
   const defaultDraft = {
-    financialInfo: {
+    financialInfoAttributes: {
       employmentStatus: '',
       employer: '',
       jobTitle: '',
@@ -25,14 +31,14 @@ describe('FinancialInformation Component', () => {
   };
 
   beforeEach(() => {
-    mockUpdateFinancialInfo = jest.fn();
+    mockUpdateFinancialInfoAttributes = jest.fn();
     mockNextStep = jest.fn();
     mockPreviousStep = jest.fn();
     mockSaveDraftToServer = jest.fn().mockResolvedValue();
 
     useLoanApplicationStore.mockReturnValue({
       draft: defaultDraft,
-      updateFinancialInfo: mockUpdateFinancialInfo,
+      updateFinancialInfoAttributes: mockUpdateFinancialInfoAttributes,
       nextStep: mockNextStep,
       previousStep: mockPreviousStep,
       saveDraftToServer: mockSaveDraftToServer,
@@ -104,7 +110,7 @@ describe('FinancialInformation Component', () => {
   describe('Form Population from Store', () => {
     it('should populate form fields with data from store', () => {
       const mockData = {
-        financialInfo: {
+        financialInfoAttributes: {
           employmentStatus: 'full-time',
           employer: 'Acme Corp',
           jobTitle: 'Software Engineer',
@@ -118,7 +124,7 @@ describe('FinancialInformation Component', () => {
 
       useLoanApplicationStore.mockReturnValue({
         draft: mockData,
-        updateFinancialInfo: mockUpdateFinancialInfo,
+        updateFinancialInfoAttributes: mockUpdateFinancialInfoAttributes,
         nextStep: mockNextStep,
         previousStep: mockPreviousStep,
         saveDraftToServer: mockSaveDraftToServer,
@@ -350,16 +356,38 @@ describe('FinancialInformation Component', () => {
     it('should call saveDraftToServer when Save Draft button is clicked', async () => {
       render(<FinancialInformation />);
 
+      // Fill in required fields to pass validation
+      const employmentStatusSelect = screen.getByLabelText(/employment status/i);
+      fireEvent.change(employmentStatusSelect, { target: { value: 'full-time' } });
+
       const employerInput = screen.getByLabelText(/employer name/i);
       fireEvent.change(employerInput, { target: { value: 'Test Corp' } });
+
+      const jobTitleInput = screen.getByLabelText(/job title/i);
+      fireEvent.change(jobTitleInput, { target: { value: 'Engineer' } });
+
+      const yearsEmployedInput = screen.getByLabelText(/years employed/i);
+      fireEvent.change(yearsEmployedInput, { target: { value: '5' } });
+
+      const annualIncomeInput = screen.getByLabelText(/annual income/i);
+      fireEvent.change(annualIncomeInput, { target: { value: '80000' } });
+
+      const monthlyExpensesInput = screen.getByLabelText(/monthly expenses/i);
+      fireEvent.change(monthlyExpensesInput, { target: { value: '2000' } });
+
+      const creditScoreInput = screen.getByLabelText(/credit score estimate/i);
+      fireEvent.change(creditScoreInput, { target: { value: 'good' } });
 
       const saveDraftButton = screen.getByRole('button', { name: /save draft/i });
       fireEvent.click(saveDraftButton);
 
-      await waitFor(() => {
-        expect(mockUpdateFinancialInfo).toHaveBeenCalled();
-        expect(mockSaveDraftToServer).toHaveBeenCalled();
-      });
+      await waitFor(
+        () => {
+          expect(mockUpdateFinancialInfoAttributes).toHaveBeenCalled();
+          expect(mockSaveDraftToServer).toHaveBeenCalled();
+        },
+        { timeout: 3000 }
+      );
     });
   });
 
@@ -382,7 +410,7 @@ describe('FinancialInformation Component', () => {
       fireEvent.click(nextButton);
 
       await waitFor(() => {
-        expect(mockUpdateFinancialInfo).not.toHaveBeenCalled();
+        expect(mockUpdateFinancialInfoAttributes).not.toHaveBeenCalled();
         expect(mockNextStep).not.toHaveBeenCalled();
       });
     });
@@ -426,7 +454,7 @@ describe('FinancialInformation Component', () => {
       fireEvent.click(nextButton);
 
       await waitFor(() => {
-        expect(mockUpdateFinancialInfo).toHaveBeenCalledWith({
+        expect(mockUpdateFinancialInfoAttributes).toHaveBeenCalledWith({
           employmentStatus: 'full-time',
           employer: 'Acme Corp',
           jobTitle: 'Engineer',

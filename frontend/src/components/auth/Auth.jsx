@@ -11,7 +11,7 @@ export default function AuthPage() {
   const handleAuthSuccess = (user) => {
     console.log('Auth success callback called with user:', user);
     if (user.role === 'customer') {
-      navigate('/applications');
+      navigate('/dashboard');
     } else if (user.role === 'loan_officer') {
       navigate('/officer/dashboard');
     } else if (user.role === 'underwriter') {
@@ -21,9 +21,13 @@ export default function AuthPage() {
     }
   };
 
-  return isLogin ? (
-    <Login onSwitchToSignup={() => navigate('/signup')} onLoginSuccess={handleAuthSuccess} />
-  ) : (
-    <Signup onSwitchToLogin={() => navigate('/login')} onLoginSuccess={handleAuthSuccess} />
+  return (
+    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center bg-gray-50 p-4">
+      {isLogin ? (
+        <Login onSwitchToSignup={() => navigate('/signup')} onLoginSuccess={handleAuthSuccess} />
+      ) : (
+        <Signup onSwitchToLogin={() => navigate('/login')} onLoginSuccess={handleAuthSuccess} />
+      )}
+    </div>
   );
 }

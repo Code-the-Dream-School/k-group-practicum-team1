@@ -8,7 +8,7 @@ class FinancialInfo < ApplicationRecord
     poor: "poor"
   }
 
-  validates :application_id, presence: true, uniqueness: true
+  validates :application_id, uniqueness: true
 
   validates :years_employed, numericality: { greater_than_or_equal_to: 0 },
             allow_nil: true

@@ -16,35 +16,43 @@ function App() {
   return (
     <>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route path="/login" element={<Auth />} />
-        <Route path="/signup" element={<Auth />} />
-        <Route path="/applications" element={<NewApplicationPage />} />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <Profile />
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/officer-dashboard"
-          element={
-            <ProtectedRoute>
-              <LoanOfficerDashboard />
-            </ProtectedRoute>
-          }
-        />
+      <main>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/login" element={<Auth />} />
+          <Route path="/signup" element={<Auth />} />
+          <Route
+            path="/application"
+            element={
+              <ProtectedRoute>
+                <NewApplicationPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/officer-dashboard"
+            element={
+              <ProtectedRoute>
+                <LoanOfficerDashboard />{' '}
+              </ProtectedRoute>
+            }
+          />
         <Route
           path="/officer-review"
           element={
@@ -53,7 +61,8 @@ function App() {
             </ProtectedRoute>
           }
         />
-      </Routes>
+        </Routes>
+      </main>
       <Footer />
     </>
   );

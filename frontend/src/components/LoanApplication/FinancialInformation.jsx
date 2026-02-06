@@ -3,16 +3,17 @@ import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 
 const FinancialInformation = () => {
-  const { draft, updateFinancialInfo, nextStep, previousStep, saveDraftToServer } = useLoanApplicationStore();
+  const { draft, updateFinancialInfoAttributes, nextStep, previousStep, saveDraftToServer } = useLoanApplicationStore();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid, isSubmitting },
+    formState: { errors, isSubmitting },
+    trigger,
     reset,
     getValues,
   } = useForm({
-    defaultValues: draft.financialInfo,
+    defaultValues: draft.financialInfoAttributes || {},
     mode: 'onBlur',
   });
 
@@ -34,8 +35,8 @@ const FinancialInformation = () => {
 
   // Update form when draft changes
   useEffect(() => {
-    reset(draft.financialInfo);
-  }, [draft.financialInfo, reset]);
+    reset(draft.financialInfoAttributes || {});
+  }, [draft.financialInfoAttributes, reset]);
 
   const validatePositiveNumber = (value, fieldName, isOptional = false) => {
     if (!value) return isOptional ? true : `${fieldName} is required`;
@@ -52,8 +53,12 @@ const FinancialInformation = () => {
   };
 
   const handleSaveDraft = async () => {
+    const isValid = await trigger();
+    if (!isValid) {
+      return;
+    }
     const formData = getValues();
-    updateFinancialInfo(formData);
+    updateFinancialInfoAttributes(formData);
     try {
       await saveDraftToServer();
       alert('Draft saved successfully!');
@@ -64,10 +69,7 @@ const FinancialInformation = () => {
   };
 
   const onSubmit = (data) => {
-    if (!isValid) {
-      return;
-    }
-    updateFinancialInfo(data);
+    updateFinancialInfoAttributes(data);
     nextStep();
   };
 

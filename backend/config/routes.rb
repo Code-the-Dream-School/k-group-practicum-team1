@@ -14,7 +14,7 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       resources :users
-      resources :applications, only: [ :create, :update ] do
+      resources :applications, only: [ :index, :show, :create, :update ] do
         resource :review, only: [ :update ], controller: "application_review"
       end
       get "/me", to: "users#me"

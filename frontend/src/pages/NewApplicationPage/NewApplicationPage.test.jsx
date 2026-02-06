@@ -4,6 +4,12 @@ import NewApplicationPage from './NewApplicationPage';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 
 jest.mock('../../stores/loanApplicationStore');
+jest.mock('../../services/api', () => ({
+  API_BASE: 'http://localhost:3000',
+  apiFetch: jest.fn(),
+  getAuthToken: jest.fn(),
+  setAuthToken: jest.fn(),
+}));
 
 jest.mock('../../components/Stepper/Stepper', () => {
   return function MockStepper({ steps, currentStep, title, progressTextType, onStepClick }) {
@@ -68,7 +74,7 @@ describe('NewApplicationPage', () => {
     expect(screen.getByTestId('stepper-title')).toHaveTextContent('Application Progress');
     expect(screen.getByTestId('stepper-current-step')).toHaveTextContent('1');
     expect(screen.getByTestId('stepper-progress-type')).toHaveTextContent('step');
-    expect(screen.getByTestId('stepper-total-steps')).toHaveTextContent('6');
+    expect(screen.getByTestId('stepper-total-steps')).toHaveTextContent('5');
   });
 
   it('should render all step labels in the Stepper', () => {
@@ -79,7 +85,6 @@ describe('NewApplicationPage', () => {
       'Vehicle Details',
       'Financial Information',
       'Loan Details',
-      'Documents Upload',
       'Review & Submit',
     ];
 

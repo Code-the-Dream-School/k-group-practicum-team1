@@ -8,6 +8,18 @@ servers:
   - url: http://localhost:3000
     description: Local server
 
+tags:
+  - name: Users, Registration
+    description: User registration endpoints
+  - name: Sessions
+    description: Authentication endpoints (login/logout)
+  - name: Users
+    description: User management endpoints
+  - name: Applications
+    description: Loan application list and details
+  - name: Application Reviews
+    description: Application review endpoints
+
 components:
   securitySchemes:
     bearerAuth:
@@ -98,24 +110,326 @@ components:
     LoginRequest:
       type: object
       properties:
-        email:
-          type: string
-          format: email
-          example: john.doe@example.com
-        password:
-          type: string
-          example: Password123!
+        user:
+          type: object
+          properties:
+            email:
+              type: string
+              format: email
+              example: john.doe@example.com
+            password:
+              type: string
+              example: Password123!
+          required:
+            - email
+            - password
       required:
-        - email
-        - password
+        - user
 
     AuthResponse:
       type: object
       properties:
-        token:
+        status:
+          type: object
+          properties:
+            code:
+              type: integer
+              example: 200
+            message:
+              type: string
+              example: "Logged in successfully."
+            token:
+              type: string
+              example: "eyJhbGciOiJIUzI1NiJ9..."
+
+    Address:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        address_street:
           type: string
-        user:
-          $ref: '#/components/schemas/User'
+          example: "123 Main St"
+        city:
+          type: string
+          example: "San Francisco"
+        state:
+          type: string
+          example: "CA"
+        zip:
+          type: string
+          example: "94102"
+
+    Vehicle:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        vehicle_type:
+          type: string
+          enum: [new, certified_used, used]
+          example: "new"
+        year:
+          type: integer
+          example: 2024
+        make:
+          type: string
+          example: "Toyota"
+        model:
+          type: string
+          example: "Camry"
+        trim:
+          type: string
+          example: "LE"
+        vin:
+          type: string
+          example: "1HGBH41JXMN108186"
+        mileage:
+          type: integer
+          nullable: true
+          example: 0
+        vehicle_value:
+          type: number
+          format: double
+          nullable: true
+          example: 25000.00
+
+    FinancialInfo:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        employment_status:
+          type: string
+          nullable: true
+        employer:
+          type: string
+          nullable: true
+        job_title:
+          type: string
+          nullable: true
+        years_employed:
+          type: number
+          format: double
+          nullable: true
+          example: 5.5
+        annual_income:
+          type: number
+          format: double
+          nullable: true
+          example: 75000.00
+        additional_income:
+          type: number
+          format: double
+          nullable: true
+          example: 5000.00
+        monthly_expenses:
+          type: number
+          format: double
+          nullable: true
+          example: 3000.00
+        credit_score:
+          type: string
+          enum: [excellent, good, fair, poor]
+          nullable: true
+          example: "good"
+
+    Application:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        application_number:
+          type: string
+          example: "#CA-2026-00001"
+        status:
+          type: string
+          enum: [draft, submitted, pending, under_review, pending_documents, approved, rejected]
+          example: "draft"
+        purchase_price:
+          type: number
+          format: double
+          example: 25000.00
+        loan_amount:
+          type: number
+          format: double
+          example: 20000.00
+        down_payment:
+          type: number
+          format: double
+          example: 5000.00
+        term_months:
+          type: integer
+          enum: [36, 48, 60, 72]
+          example: 60
+        apr:
+          type: number
+          format: double
+          nullable: true
+          example: 5.9
+        monthly_payment:
+          type: number
+          format: double
+          nullable: true
+          example: 386.00
+        application_progress:
+          type: string
+          enum: [personal, vehicle, financial, terms]
+          example: "personal"
+        submitted_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2026-01-15"
+        user_id:
+          type: integer
+          example: 1
+        vehicle:
+          nullable: true
+          $ref: '#/components/schemas/Vehicle'
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+        financial_info:
+          nullable: true
+          $ref: '#/components/schemas/FinancialInfo'
+
+    ApplicationListItem:
+      type: object
+      description: Application summary for list responses (GET /api/v1/applications)
+      properties:
+        id:
+          type: integer
+          example: 1
+        application_number:
+          type: string
+          example: "#CA-2026-00001"
+        user_id:
+          type: integer
+          example: 5
+        applicant_name:
+          type: string
+          example: "John Doe"
+        status:
+          type: string
+          enum: [draft, submitted, pending, under_review, pending_documents, approved, rejected]
+          example: "submitted"
+        application_progress:
+          type: string
+          enum: [personal, vehicle, financial, terms]
+          example: "financial"
+        purchase_price:
+          type: number
+          format: double
+          example: 25000.00
+        down_payment:
+          type: number
+          format: double
+          example: 5000.00
+        loan_amount:
+          type: number
+          format: double
+          example: 20000.00
+        term_months:
+          type: integer
+          example: 60
+        apr:
+          type: number
+          format: double
+          nullable: true
+          example: 5.90
+        monthly_payment:
+          type: number
+          format: double
+          nullable: true
+          example: 386.66
+        submitted_date:
+          type: string
+          format: date
+          nullable: true
+          example: "2026-01-10"
+        created_at:
+          type: string
+          format: date-time
+          example: "2026-01-08T10:30:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2026-01-10T14:20:00Z"
+
+    ApplicationsListResponse:
+      type: object
+      properties:
+        applications:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationListItem'
+        meta:
+          type: object
+          properties:
+            total:
+              type: integer
+              example: 45
+            count:
+              type: integer
+              example: 20
+            current_page:
+              type: integer
+              example: 1
+            total_pages:
+              type: integer
+              example: 3
+
+    CreateApplicationRequest:
+      type: object
+      description: Request body for creating a new loan application
+      properties:
+        application:
+          type: object
+          properties:
+            purchase_price:
+              type: number
+              format: double
+              example: 25000.00
+              description: Purchase price of the vehicle (must be > 0)
+            loan_amount:
+              type: number
+              format: double
+              example: 20000.00
+              description: Amount to borrow (must be > 0 and <= purchase_price)
+            down_payment:
+              type: number
+              format: double
+              example: 5000.00
+              description: Down payment amount (must be >= 0, and down_payment + loan_amount = purchase_price)
+            term_months:
+              type: integer
+              enum: [36, 48, 60, 72]
+              example: 60
+              description: Loan term in months
+            apr:
+              type: number
+              format: double
+              nullable: true
+              example: 5.9
+              description: Annual percentage rate (optional, 0-100)
+            application_progress:
+              type: string
+              enum: [personal, vehicle, financial, terms]
+              example: "personal"
+              description: Current progress stage (defaults to 'personal' if not provided)
+          required:
+            - purchase_price
+            - loan_amount
+            - down_payment
+            - term_months
+      required:
+        - application
 
 paths:
   # ------------------------
@@ -306,6 +620,175 @@ paths:
           description: Unauthorized
         '404':
           description: User not found
+  # ------------------------
+  # Applications (list first so both show in UI)
+  # ------------------------
+  /api/v1/applications:
+    get:
+      operationId: getApplicationsList
+      summary: List applications
+      description: |
+        List applications with role-based access. Requires JWT.
+        - **Customer:** returns only their own applications, sorted by created_at desc. Filter/sort params are ignored.
+        - **Loan officer / Underwriter:** returns all applications. Optional query params: application_number (partial), status (exact), applicant_name (partial), sort_by (application_number|status|submitted_date|created_at), sort_order (asc|desc), page (default 1). Pagination 20 per page.
+      tags:
+        - Applications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 1
+          description: Page number (20 per page)
+        - name: application_number
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by application number (partial, case-insensitive). LO/underwriter only.
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [draft, submitted, pending, under_review, pending_documents, approved, rejected]
+          description: Filter by status. LO/underwriter only.
+        - name: applicant_name
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Search first_name or last_name (partial, case-insensitive). LO/underwriter only.
+        - name: sort_by
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [application_number, status, submitted_date, created_at]
+            default: created_at
+          description: Sort field. LO/underwriter only.
+        - name: sort_order
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort order. LO/underwriter only.
+      responses:
+        '200':
+          description: List of applications with pagination meta
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationsListResponse'
+        '401':
+          description: Unauthorized
+
+    post:
+      operationId: createApplication
+      summary: Create a new application
+      description: |
+        Create a new loan application. Requires JWT authentication.
+        - Application is automatically associated with the authenticated user
+        - `application_number` is auto-generated
+        - `status` defaults to "draft"
+        - `application_progress` defaults to "personal" if not provided
+        - `monthly_payment` is calculated automatically if APR is provided
+      tags:
+        - Applications
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateApplicationRequest'
+      responses:
+        '201':
+          description: Application created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '401':
+          description: Unauthorized - Not authenticated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: ["You need to sign in or sign up before continuing."]
+        '422':
+          description: Validation errors
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: ["Purchase price must be greater than 0", "Loan amount must be less than or equal to purchase price"]
+
+  "/api/v1/applications/{id}":
+    get:
+      operationId: getApplicationById
+      summary: Get application by ID
+      description: Get a single loan application by ID. Customers can only access their own applications. Loan officers and underwriters can access any application.
+      tags:
+        - Applications
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Application ID
+          example: 1
+      responses:
+        '200':
+          description: Application details with associated vehicle, addresses, and financial_info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '401':
+          description: Unauthorized - Not authenticated or customer trying to access another user's application
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: ["Unauthorized"]
+        '404':
+          description: Application not found
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errors:
+                    type: array
+                    items:
+                      type: string
+                    example: ["Application not found"]
+
   # ------------------------
   # Application Reviews
   # ------------------------

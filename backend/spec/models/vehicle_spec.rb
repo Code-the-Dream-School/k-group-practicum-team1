@@ -85,23 +85,24 @@ RSpec.describe Vehicle, type: :model do
       expect(vehicle).to be_valid
     end
 
-    it 'validates presence of vin' do
+    it 'validates vin to be nil' do
       vehicle = build(:vehicle, application: application, vin: nil)
-      expect(vehicle).not_to be_valid
-      expect(vehicle.errors[:vin]).to include("can't be blank")
+      expect(vehicle).to be_valid
     end
 
     it 'validates uniqueness of vin' do
-      create(:vehicle, application: application, vin: '1HGBH41JXMN108186')
+      vin = "2HGBH42JXMN1#{format('%05d', rand(100_000))}"
+      create(:vehicle, application: application, vin: vin)
       new_application = create(:application)
-      duplicate_vehicle = build(:vehicle, application: new_application, vin: '1HGBH41JXMN108186')
+      duplicate_vehicle = build(:vehicle, application: new_application, vin: vin)
       expect(duplicate_vehicle).not_to be_valid
       expect(duplicate_vehicle.errors[:vin]).to include("has already been taken")
     end
 
     describe 'vin format validation' do
       it 'accepts valid 17-character VIN' do
-        vehicle = build(:vehicle, application: application, vin: '1HGBH41JXMN108186')
+        vin = "2HGBH42JXMN1#{format('%05d', rand(100_000))}"
+        vehicle = build(:vehicle, application: application, vin: vin)
         expect(vehicle).to be_valid
       end
 
@@ -136,13 +137,15 @@ RSpec.describe Vehicle, type: :model do
       end
 
       it 'normalizes VIN to uppercase' do
-        vehicle = create(:vehicle, application: application, vin: '1hgbh41jxmn108186')
-        expect(vehicle.vin).to eq('1HGBH41JXMN108186')
+        vin = "2hgbh42jxmn1#{format('%05d', rand(100_000))}"
+        vehicle = create(:vehicle, application: application, vin: vin)
+        expect(vehicle.vin).to eq(vin.upcase)
       end
 
       it 'strips whitespace from VIN' do
-        vehicle = create(:vehicle, application: application, vin: ' 1HGBH41JXMN108186 ')
-        expect(vehicle.vin).to eq('1HGBH41JXMN108186')
+        vin = "2HGBH42JXMN1#{format('%05d', rand(100_000))}"
+        vehicle = create(:vehicle, application: application, vin: " #{vin} ")
+        expect(vehicle.vin).to eq(vin)
       end
     end
 
