@@ -91,7 +91,7 @@ RSpec.describe Application, type: :model do
     it 'validates term_months is in allowed values' do
       application = build(:application, user: user, term_months: 24)
       expect(application).not_to be_valid
-      expect(application.errors[:term_months]).to include("must be 36, 48, 60, or 72 months")
+      expect(application.errors[:term_months]).to include("must be 36, 48, 60, 72 or 84 months")
     end
 
     it 'validates apr is greater than or equal to 0 when present' do

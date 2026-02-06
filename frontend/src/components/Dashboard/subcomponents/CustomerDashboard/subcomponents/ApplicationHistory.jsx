@@ -92,7 +92,9 @@ const ApplicationHistory = ({ applications, loading, error }) => {
                       <button
                         className="text-blue-600 hover:text-blue-800 transition-colors"
                         onClick={() => {
-                          navigate(app.status === 'draft' ? `/application/${app.id}/edit` : `/application/${app.id}`);
+                          navigate(
+                            app.status === 'draft' ? `/application/${app.id}/edit` : `/application/${app.id}/view`
+                          );
                         }}
                         aria-label={app.status === 'draft' ? 'Edit Application' : 'View Details'}
                       >

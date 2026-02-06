@@ -11,7 +11,7 @@ FactoryBot.define do
     mileage { 0 }
     vehicle_value { 25000.00 }
 
-    trait :new_vehicle do
+    trait :new do
       vehicle_type { 'new' }
       mileage { 0 }
       vehicle_value { 30000.00 }

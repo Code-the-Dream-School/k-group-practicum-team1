@@ -76,21 +76,27 @@ module Api
 
       def application_params
         if params[:application].present?
-          params.require(:application).permit(
+          application_params = params.require(:application).dup
+          application_params.delete(:status)
+          application_params.delete(:submitted_date)
+          application_params.delete(:vehicle_attributes) if application_params[:vehicle_attributes].blank?
+          application_params.delete(:financial_info_attributes) if application_params[:financial_info_attributes].blank?
+
+          application_params.permit(
             :purchase_price, :loan_amount, :down_payment,
             :term_months, :apr, :monthly_payment, :application_progress,
             personal_info_attributes: [
-              :first_name, :last_name, :email,
+              :id, :first_name, :last_name, :email,
               :phone_number, :dob, :ssn
             ],
             addresses_attributes: [
-              :address_type, :address_street, :city, :state, :zip
+              :id, :address_type, :address_street, :city, :state, :zip
             ],
             vehicle_attributes: [
-              :vehicle_type, :make, :model, :year, :vin, :trim, :mileage
+              :id, :vehicle_type, :make, :model, :year, :vin, :trim, :mileage
             ],
             financial_info_attributes: [
-              :employment_status, :employer, :job_title, :years_employed,
+              :id, :employment_status, :employer, :job_title, :years_employed,
                :annual_income, :additional_income, :monthly_expenses,
                :credit_score
             ],

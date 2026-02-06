@@ -33,11 +33,15 @@ describe('ReviewAndSubmit', () => {
       phoneNumber: '1234567890',
       dob: '1990-01-15',
       ssn: '123456789',
-      addressStreet: '123 Main St',
-      city: 'New York',
-      state: 'NY',
-      zip: '10001',
     },
+    addressesAttributes: [
+      {
+        addressStreet: '123 Main St',
+        city: 'New York',
+        state: 'NY',
+        zip: '10001',
+      },
+    ],
     vehicleAttributes: {
       year: 2020,
       make: 'Toyota',

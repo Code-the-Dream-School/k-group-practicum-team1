@@ -51,7 +51,18 @@ class ApplicationSerializer
   def vehicle_json
     return nil unless @app.vehicle
 
-    @app.vehicle.slice(:id, :vehicle_type, :year, :make, :model, :trim, :vin, :mileage, :vehicle_value)
+    v = @app.vehicle
+    {
+      id: v.id,
+      vehicle_type: v.read_attribute(:vehicle_type),
+      year: v.year,
+      make: v.make,
+      model: v.model,
+      trim: v.trim,
+      vin: v.vin,
+      mileage: v.mileage,
+      vehicle_value: v.vehicle_value
+    }
   end
 
   def addresses_json

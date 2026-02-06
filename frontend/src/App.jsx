@@ -10,6 +10,7 @@ import LoanOfficerDashboard from './pages/LoanOfficerDashboard/LoanOfficerDashbo
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Auth from './components/auth/Auth';
 import Profile from './pages/Profile/Profile';
+import ReviewAndSubmit from './components/LoanApplication/ReviewAndSubmit';
 
 function App() {
   return (
@@ -32,7 +33,15 @@ function App() {
             path="/application/:id/edit"
             element={
               <ProtectedRoute>
-                <NewApplicationPage />
+                <NewApplicationPage isEditing />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/application/:id/view"
+            element={
+              <ProtectedRoute>
+                <ReviewAndSubmit viewOnly />
               </ProtectedRoute>
             }
           />

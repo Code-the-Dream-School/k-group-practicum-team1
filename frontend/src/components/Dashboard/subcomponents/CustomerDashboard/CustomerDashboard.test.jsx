@@ -16,6 +16,7 @@ jest.mock('../../../../context/AuthContext', () => ({
 }));
 
 import { useAuth } from '../../../../context/AuthContext';
+import { apiFetch } from '../../../../services/api';
 
 jest.mock('./subcomponents/ApplicationHistory', () => {
   return function MockApplicationHistory({ applications, loading, error }) {
@@ -47,6 +48,14 @@ describe('CustomerDashboard Component', () => {
       user: { first_name: 'John' },
       isAuthenticated: true,
     });
+    
+    // Mock apiFetch to return applications data
+    apiFetch.mockResolvedValue({
+      data: {
+        applications: [],
+      },
+    });
+    
     jest.spyOn(console, 'error').mockImplementation(() => {});
     jest.spyOn(console, 'warn').mockImplementation(() => {});
   });
@@ -88,6 +97,16 @@ describe('CustomerDashboard Component', () => {
 
   describe('Applications Display', () => {
     test('renders applications in progress section with multiple apps', async () => {
+      // Mock apiFetch to return applications with non-draft status
+      apiFetch.mockResolvedValue({
+        data: {
+          applications: [
+            { id: 1, status: 'pending', application_number: 'APP-001' },
+            { id: 2, status: 'approved', application_number: 'APP-002' },
+          ],
+        },
+      });
+
       renderWithRouter(<CustomerDashboard />);
 
       await waitFor(() => {
@@ -171,6 +190,15 @@ describe('CustomerDashboard Component', () => {
     });
 
     test('section header has proper styling', async () => {
+      // Mock apiFetch to return applications so the section renders
+      apiFetch.mockResolvedValue({
+        data: {
+          applications: [
+            { id: 1, status: 'pending', application_number: 'APP-001' },
+          ],
+        },
+      });
+
       renderWithRouter(<CustomerDashboard />);
 
       await waitFor(() => {
@@ -202,6 +230,15 @@ describe('CustomerDashboard Component', () => {
 
   describe('Accessibility', () => {
     test('has proper heading hierarchy', async () => {
+      // Mock apiFetch to return applications so h2 renders
+      apiFetch.mockResolvedValue({
+        data: {
+          applications: [
+            { id: 1, status: 'pending', application_number: 'APP-001' },
+          ],
+        },
+      });
+
       renderWithRouter(<CustomerDashboard />);
 
       await waitFor(() => {

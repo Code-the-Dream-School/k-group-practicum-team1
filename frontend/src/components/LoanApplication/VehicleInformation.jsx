@@ -13,7 +13,7 @@ const VehicleInformation = () => {
     trigger,
     getValues,
   } = useForm({
-    defaultValues: draft.vehicleAttributes || {},
+    defaultValues: { ...draft.vehicleAttributes, purchasePrice: draft.purchasePrice },
     mode: 'onBlur',
   });
 

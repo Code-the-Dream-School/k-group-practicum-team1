@@ -41,6 +41,7 @@ export const useLoanApplicationStore = create(
         set((state) => ({
           draft: {
             ...state.draft,
+            purchasePrice: state.draft.purchasePrice,
             vehicleAttributes: {
               ...state.draft.vehicleAttributes,
               ...data,
@@ -133,29 +134,39 @@ export const useLoanApplicationStore = create(
           applicationId: null,
         }),
 
-      loadDraftFromServer: async (applicationId) => {
-        // TODO: Implement API call to load draft
-        console.log('Loading draft from server:', applicationId);
+      loadDraftFromServer: async (applicationId, isEditing) => {
         const response = await apiFetch(`/api/v1/applications/${applicationId}`, {
           method: 'GET',
         });
         if (response.data) {
-          console.log('saveddraft:', response.data);
-
+          console.log('load draft before camelize:', response.data);
           const data = humps.camelizeKeys(response.data);
+
+          if (isEditing && data.status !== 'draft') {
+            console.warn('Attempting to edit an application that is not in draft status. Redirecting to dashboard.');
+            set({ applicationId: null });
+            return Promise.reject(new Error('Cannot edit application that is not in draft status'));
+          }
           set({
             draft: {
-              ...data,
+              purchasePrice: data.purchasePrice || null,
+              loanAmount: data.loanAmount || null,
+              downPayment: data.downPayment || null,
+              termMonths: data.termMonths || null,
+              apr: data.apr || null,
+              submittedDate: data.submittedDate || null,
+              applicationProgress: data.applicationProgress || 'personal',
+              status: data.status || 'draft',
               personalInfoAttributes: data.personalInfo || null,
-              addressesAttributes: data.addresses?.[0] || null,
+              addressesAttributes: data.addresses || null,
               vehicleAttributes: data.vehicle || null,
               financialInfoAttributes: data.financialInfo || null,
-              applicationProgress: data.applicationProgress || 'personal',
-              // documentsAttributes: data.documentsAttributes || null,
             },
             applicationId: data.id,
             currentStep: STEPS.findIndex((step) => step.key === data.applicationProgress) + 1 || 1,
           });
+
+          console.log('Draft loaded successfully from server:', data);
           return Promise.resolve();
         } else {
           console.log('No draft data found on server for applicationId:', applicationId);
