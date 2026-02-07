@@ -76,21 +76,27 @@ module Api
 
       def application_params
         if params[:application].present?
-          params.require(:application).permit(
+          application_params = params.require(:application).dup
+          application_params.delete(:status)
+          application_params.delete(:submitted_date)
+          application_params.delete(:vehicle_attributes) if application_params[:vehicle_attributes].blank?
+          application_params.delete(:financial_info_attributes) if application_params[:financial_info_attributes].blank?
+
+          application_params.permit(
             :purchase_price, :loan_amount, :down_payment,
             :term_months, :apr, :monthly_payment, :application_progress,
             personal_info_attributes: [
-              :first_name, :last_name, :email,
+              :id, :first_name, :last_name, :email,
               :phone_number, :dob, :ssn
             ],
             addresses_attributes: [
-              :address_type, :address_street, :city, :state, :zip
+              :id, :address_type, :address_street, :city, :state, :zip
             ],
             vehicle_attributes: [
-              :vehicle_type, :make, :model, :year, :vin, :trim, :mileage
+              :id, :vehicle_type, :make, :model, :year, :vin, :trim, :mileage
             ],
             financial_info_attributes: [
-              :employment_status, :employer, :job_title, :years_employed,
+              :id, :employment_status, :employer, :job_title, :years_employed,
                :annual_income, :additional_income, :monthly_expenses,
                :credit_score
             ],
@@ -98,6 +104,40 @@ module Api
         else
           raise ActionController::ParameterMissing.new(:application), "Request must include 'application' key in JSON body"
         end
+      end
+
+      def index_scope
+        if current_user.customer?
+          current_user.applications.includes(:user)
+        else
+          Application.includes(:user)
+        end
+      end
+
+      def apply_index_filters(scope)
+        scope = scope.where("application_number ILIKE ?", "%#{sanitize_like(params[:application_number])}%") if params[:application_number].present?
+        scope = scope.where(status: params[:status]) if params[:status].present? && Application.statuses.key?(params[:status])
+        if params[:applicant_name].present?
+          q = "%#{sanitize_like(params[:applicant_name])}%"
+          scope = scope.joins(:user).where("users.first_name ILIKE :q OR users.last_name ILIKE :q", q: q)
+        end
+        scope
+      end
+
+      def apply_index_sort(scope)
+        if current_user.customer?
+          scope.order(created_at: :desc)
+        else
+          sort_by = %w[application_number status submitted_date created_at].include?(params[:sort_by]) ? params[:sort_by] : "created_at"
+          sort_order = params[:sort_order].to_s.downcase == "asc" ? :asc : :desc
+          scope.order(Application.arel_table[sort_by].send(sort_order))
+        end
+      end
+
+      def sanitize_like(value)
+        return "" if value.blank?
+
+        ActiveRecord::Base.sanitize_sql_like(value.to_s)
       end
 
       def index_scope

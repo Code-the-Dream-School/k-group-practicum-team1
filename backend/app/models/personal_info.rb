@@ -1,6 +1,8 @@
 class PersonalInfo < ApplicationRecord
   belongs_to :application
 
+  before_validation :parse_dob_string
+
   validates :application_id, uniqueness: true
   validates :first_name, presence: true
   validates :last_name, presence: true
@@ -11,6 +13,20 @@ class PersonalInfo < ApplicationRecord
   validate :validate_date_of_birth
 
   private
+
+  def parse_dob_string
+    raw_dob = dob_before_type_cast
+    return if raw_dob.blank?
+    return unless raw_dob.is_a?(String)
+
+    if raw_dob.match?(/\A\d{2}\/\d{2}\/\d{4}\z/)
+      self.dob = Date.strptime(raw_dob, "%m/%d/%Y")
+    elsif raw_dob.match?(/\A\d{4}-\d{2}-\d{2}\z/)
+      self.dob = Date.strptime(raw_dob, "%Y-%m-%d")
+    end
+
+    rescue ArgumentError
+  end
 
   def validate_date_of_birth
     return if dob.blank?

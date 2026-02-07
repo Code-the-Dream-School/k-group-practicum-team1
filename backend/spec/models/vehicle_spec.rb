@@ -11,10 +11,11 @@ RSpec.describe Vehicle, type: :model do
     it do
       should define_enum_for(:vehicle_type)
         .with_values(
-          new_vehicle: 'new',
+          new: 'new',
           certified_used: 'certified_used',
           used: 'used'
         )
+        .with_prefix(:vehicle_type)
         .backed_by_column_of_type(:string)
     end
   end
@@ -211,12 +212,12 @@ RSpec.describe Vehicle, type: :model do
 
     it 'has a valid default vehicle_type' do
       vehicle = create(:vehicle, application: application)
-      expect(vehicle.vehicle_type).to eq('new_vehicle')
+      expect(vehicle.vehicle_type).to eq('new')
     end
 
-    it 'creates a new vehicle with :new_vehicle trait' do
-      vehicle = create(:vehicle, :new_vehicle, application: application)
-      expect(vehicle.vehicle_type).to eq('new_vehicle')
+    it 'creates a new vehicle with :new trait' do
+      vehicle = create(:vehicle, :new, application: application)
+      expect(vehicle.vehicle_type).to eq('new')
       expect(vehicle.mileage).to eq(0)
     end
 

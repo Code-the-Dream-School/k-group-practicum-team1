@@ -1,5 +1,6 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import NewApplicationPage from './NewApplicationPage';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 
@@ -9,6 +10,12 @@ jest.mock('../../services/api', () => ({
   apiFetch: jest.fn(),
   getAuthToken: jest.fn(),
   setAuthToken: jest.fn(),
+}));
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: jest.fn(),
+  useParams: jest.fn(),
 }));
 
 jest.mock('../../components/Stepper/Stepper', () => {
@@ -38,15 +45,24 @@ jest.mock('../../components/LoanApplication/PersonalInformation', () => {
 describe('NewApplicationPage', () => {
   let mockClearDraft;
   let mockGoToStep;
+  let mockLoadDraftFromServer;
+  let mockNavigate;
 
   beforeEach(() => {
     mockClearDraft = jest.fn();
     mockGoToStep = jest.fn();
+    mockLoadDraftFromServer = jest.fn();
+    mockNavigate = jest.fn();
+
+    const { useNavigate, useParams } = require('react-router-dom');
+    useNavigate.mockReturnValue(mockNavigate);
+    useParams.mockReturnValue({});
 
     useLoanApplicationStore.mockReturnValue({
       currentStep: 1,
       goToStep: mockGoToStep,
       clearDraft: mockClearDraft,
+      loadDraftFromServer: mockLoadDraftFromServer,
     });
   });
 
@@ -55,20 +71,32 @@ describe('NewApplicationPage', () => {
   });
 
   it('should render the page with title and description', () => {
-    render(<NewApplicationPage />);
+    render(
+      <MemoryRouter>
+        <NewApplicationPage />
+      </MemoryRouter>
+    );
 
     expect(screen.getByText('Auto Loan Application')).toBeInTheDocument();
     expect(screen.getByText('Complete the form below to apply for an auto loan')).toBeInTheDocument();
   });
 
   it('should call clearDraft on component mount', () => {
-    render(<NewApplicationPage />);
+    render(
+      <MemoryRouter>
+        <NewApplicationPage />
+      </MemoryRouter>
+    );
 
     expect(mockClearDraft).toHaveBeenCalledTimes(1);
   });
 
   it('should render Stepper with correct props', () => {
-    render(<NewApplicationPage />);
+    render(
+      <MemoryRouter>
+        <NewApplicationPage />
+      </MemoryRouter>
+    );
 
     expect(screen.getByTestId('stepper')).toBeInTheDocument();
     expect(screen.getByTestId('stepper-title')).toHaveTextContent('Application Progress');
@@ -78,7 +106,11 @@ describe('NewApplicationPage', () => {
   });
 
   it('should render all step labels in the Stepper', () => {
-    render(<NewApplicationPage />);
+    render(
+      <MemoryRouter>
+        <NewApplicationPage />
+      </MemoryRouter>
+    );
 
     const expectedSteps = [
       'Personal Details',
@@ -98,15 +130,24 @@ describe('NewApplicationPage', () => {
       currentStep: 1,
       goToStep: mockGoToStep,
       clearDraft: mockClearDraft,
+      loadDraftFromServer: mockLoadDraftFromServer,
     });
 
-    render(<NewApplicationPage />);
+    render(
+      <MemoryRouter>
+        <NewApplicationPage />
+      </MemoryRouter>
+    );
 
     expect(screen.getByTestId('personal-information')).toBeInTheDocument();
   });
 
   it('should call goToStep when a step is clicked in Stepper', () => {
-    render(<NewApplicationPage />);
+    render(
+      <MemoryRouter>
+        <NewApplicationPage />
+      </MemoryRouter>
+    );
 
     const step2Button = screen.getByTestId('step-2');
     fireEvent.click(step2Button);
@@ -119,9 +160,14 @@ describe('NewApplicationPage', () => {
       currentStep: 99,
       goToStep: mockGoToStep,
       clearDraft: mockClearDraft,
+      loadDraftFromServer: mockLoadDraftFromServer,
     });
 
-    render(<NewApplicationPage />);
+    render(
+      <MemoryRouter>
+        <NewApplicationPage />
+      </MemoryRouter>
+    );
 
     expect(screen.getByTestId('personal-information')).toBeInTheDocument();
   });

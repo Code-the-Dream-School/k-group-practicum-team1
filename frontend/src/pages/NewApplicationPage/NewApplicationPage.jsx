@@ -8,14 +8,25 @@ import LoanDetails from '../../components/LoanApplication/LoanDetails';
 // import DocumentsUpload from '../../components/LoanApplication/DocumentsUpload';
 import ReviewAndSubmit from '../../components/LoanApplication/ReviewAndSubmit';
 import { STEPS } from '../../constants/stepperConstant';
+import { useNavigate, useParams } from 'react-router-dom';
+import PropTypes from 'prop-types';
 
-const NewApplicationPage = () => {
-  const { currentStep, goToStep, clearDraft } = useLoanApplicationStore();
+const NewApplicationPage = ({ isEditing }) => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { currentStep, goToStep, loadDraftFromServer, clearDraft } = useLoanApplicationStore();
 
   // Reset state on first load
   useEffect(() => {
-    clearDraft();
-  }, [clearDraft]);
+    if (!id) {
+      clearDraft();
+    } else {
+      clearDraft();
+      loadDraftFromServer(id, isEditing).catch(() => {
+        navigate('/dashboard');
+      });
+    }
+  }, [clearDraft, id, isEditing, loadDraftFromServer, navigate]);
 
   const steps = STEPS;
 
@@ -60,6 +71,10 @@ const NewApplicationPage = () => {
       </div>
     </div>
   );
+};
+
+NewApplicationPage.propTypes = {
+  isEditing: PropTypes.bool,
 };
 
 export default NewApplicationPage;

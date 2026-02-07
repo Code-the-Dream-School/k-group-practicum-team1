@@ -39,7 +39,7 @@ class Application < ApplicationRecord
 
   validates :down_payment, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true
 
-  validates :term_months, inclusion: { in: [ 36, 48, 60, 72 ], message: "must be 36, 48, 60, or 72 months" }, allow_nil: true
+  validates :term_months, inclusion: { in: [ 36, 48, 60, 72, 84 ], message: "must be 36, 48, 60, 72 or 84 months" }, allow_nil: true
 
   validates :apr, numericality: { greater_than_or_equal_to: 0, less_than: 100 },
             allow_nil: true

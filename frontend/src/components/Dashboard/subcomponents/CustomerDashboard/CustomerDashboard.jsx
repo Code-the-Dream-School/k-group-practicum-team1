@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { HiPencilAlt } from 'react-icons/hi';
+import humps from 'humps';
 import ApplicationHistory from './subcomponents/ApplicationHistory';
 import ApplicationInProgress from './subcomponents/ApplicationInProgress';
 import NewApplication from './subcomponents/NewApplication';
 import { useAuth } from '../../../../context/AuthContext';
+import { apiFetch } from '../../../../services/api';
 
 const CustomerDashboard = () => {
   const { user } = useAuth();
@@ -16,42 +18,15 @@ const CustomerDashboard = () => {
     const fetchApplications = async () => {
       try {
         setLoading(true);
-        // const response = await fetch('/api/v1/applications');
-        // if (!response.ok) {
-        //   throw new Error('Failed to fetch applications');
-        // }
-        // const data = await response.json();
+        const response = await apiFetch('/api/v1/applications', {
+          method: 'GET',
+        });
 
-        // Mock data for development - Remove when API is ready
-        const mockData = [
-          {
-            id: 1,
-            application_number: 'AK-2024-002',
-            vehicle: '2022 Honda Civic',
-            amount: 18500,
-            created_at: '2024-01-10',
-            status: 'under_review',
-          },
-          {
-            id: 2,
-            application_number: 'FL-2024-003',
-            vehicle: '2024 Ford F-150',
-            amount: 35000,
-            created_at: '2024-01-05',
-            status: 'pending',
-          },
-          {
-            id: 3,
-            application_number: 'TX-2023-125',
-            vehicle: '2021 Chevrolet Silverado',
-            amount: 28000,
-            created_at: '2023-11-20',
-            status: 'approved',
-          },
-        ];
-        setApplications(mockData);
-        // Uncomment below when API is ready
-        // setApplications(data);
+        if (response.data && Array.isArray(response.data.applications)) {
+          setApplications(humps.camelizeKeys(response.data.applications));
+        } else {
+          setApplications([]);
+        }
       } catch (err) {
         setError(err.message);
       } finally {
@@ -86,13 +61,15 @@ const CustomerDashboard = () => {
             <NewApplication />
           ) : (
             <>
-              <div className="mb-4">
+              <div className="mb-4 text-left">
                 <h2 className="text-2xl font-bold text-gray-900">Applications in Progress</h2>
                 <p className="text-gray-600">Track the status of your current applications</p>
               </div>
-              {filteredApplications.map((app) => (
-                <ApplicationInProgress applicationId={app.id} key={app.id} />
-              ))}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                {filteredApplications.map((app) => (
+                  <ApplicationInProgress applicationId={app.id} key={app.id} />
+                ))}
+              </div>
             </>
           )}
           <ApplicationHistory applications={applications} loading={loading} error={error} />

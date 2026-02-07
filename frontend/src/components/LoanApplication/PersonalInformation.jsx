@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 import US_STATES from '../../utils/UsStates';
-import { formatDateToUS } from '../../utils/dateHelpers';
+import { formatDateToUS, formatDateToISO } from '../../utils/dateHelpers';
 
 const PersonalInformation = () => {
   const { draft, updatePersonalInfoAttributes, updateAddressesAttributes, nextStep, saveDraftToServer } =
@@ -22,7 +22,11 @@ const PersonalInformation = () => {
 
   // Update form when draft changes
   useEffect(() => {
-    reset({ ...draft.personalInfoAttributes, ...draft.addressesAttributes?.[0] });
+    reset({
+      ...draft.personalInfoAttributes,
+      dob: draft.personalInfoAttributes?.dob ? formatDateToISO(draft.personalInfoAttributes?.dob) : null,
+      ...draft.addressesAttributes?.[0],
+    });
   }, [draft.personalInfoAttributes, draft.addressesAttributes, reset]);
 
   const validateAge = (value) => {
@@ -54,7 +58,7 @@ const PersonalInformation = () => {
       lastName: formData.lastName,
       email: formData.email,
       phoneNumber: formData.phoneNumber,
-      dob: formatDateToUS(formData.dateOfBirth),
+      dob: formatDateToUS(formData.dob),
       ssn: formData.ssn,
     });
     updateAddressesAttributes([
@@ -80,7 +84,7 @@ const PersonalInformation = () => {
       lastName: data.lastName,
       email: data.email,
       phoneNumber: data.phoneNumber,
-      dob: formatDateToUS(data.dateOfBirth),
+      dob: formatDateToUS(data.dob),
       ssn: data.ssn,
     });
     updateAddressesAttributes([
@@ -185,18 +189,18 @@ const PersonalInformation = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <label htmlFor="dateOfBirth" className="block text-left text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="dob" className="block text-left text-sm font-medium text-gray-700 mb-2">
               Date of Birth <span className="text-red-500">*</span>
             </label>
             <input
               type="date"
-              id="dateOfBirth"
-              {...register('dateOfBirth', { validate: validateAge })}
+              id="dob"
+              {...register('dob', { validate: validateAge })}
               className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
-                errors.dateOfBirth ? 'border-red-500' : 'border-gray-300'
+                errors.dob ? 'border-red-500' : 'border-gray-300'
               }`}
             />
-            {errors.dateOfBirth && <p className="mt-1 text-sm text-red-500">{errors.dateOfBirth.message}</p>}
+            {errors.dob && <p className="mt-1 text-sm text-red-500">{errors.dob.message}</p>}
           </div>
 
           <div>

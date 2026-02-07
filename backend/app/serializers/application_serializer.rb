@@ -41,7 +41,8 @@ class ApplicationSerializer
       user_id: @app.user_id,
       vehicle: vehicle_json,
       addresses: addresses_json,
-      financial_info: financial_info_json
+      financial_info: financial_info_json,
+      personal_info: personal_info_json
     }
   end
 
@@ -50,7 +51,18 @@ class ApplicationSerializer
   def vehicle_json
     return nil unless @app.vehicle
 
-    @app.vehicle.slice(:id, :vehicle_type, :year, :make, :model, :trim, :vin, :mileage, :vehicle_value)
+    v = @app.vehicle
+    {
+      id: v.id,
+      vehicle_type: v.read_attribute(:vehicle_type),
+      year: v.year,
+      make: v.make,
+      model: v.model,
+      trim: v.trim,
+      vin: v.vin,
+      mileage: v.mileage,
+      vehicle_value: v.vehicle_value
+    }
   end
 
   def addresses_json
@@ -63,6 +75,15 @@ class ApplicationSerializer
     @app.financial_info.slice(
       :id, :employment_status, :employer, :job_title, :years_employed,
       :annual_income, :additional_income, :monthly_expenses, :credit_score
+    )
+  end
+
+  def personal_info_json
+    return nil unless @app.personal_info
+
+    @app.personal_info.slice(
+      :id, :first_name, :last_name, :email,
+      :phone_number, :dob, :ssn
     )
   end
 end

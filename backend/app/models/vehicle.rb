@@ -2,10 +2,10 @@ class Vehicle < ApplicationRecord
   belongs_to :application
 
   enum :vehicle_type, {
-    new_vehicle: "new",
+    new: "new",
     certified_used: "certified_used",
     used: "used"
-  }
+  }, prefix: :vehicle_type, instance_methods: true
 
   validates :application_id, uniqueness: true
   validates :vehicle_type, presence: true

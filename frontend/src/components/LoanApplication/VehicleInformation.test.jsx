@@ -116,8 +116,8 @@ describe('VehicleInformation Component', () => {
           trim: 'Sport',
           vin: '1HGBH41JXMN109186',
           mileage: '15000',
-          purchasePrice: '30000',
         },
+        purchasePrice: '30000',
       };
 
       useLoanApplicationStore.mockReturnValue({
