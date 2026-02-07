@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import humps from 'humps';
 import { STEPS } from '../constants/stepperConstant';
-import { apiFetch } from '../services/api';
+import { fetchApplicationById, createApplication, updateApplication } from '../services/applicationApi';
 
 export const useLoanApplicationStore = create(
   persist(
@@ -41,7 +41,7 @@ export const useLoanApplicationStore = create(
         set((state) => ({
           draft: {
             ...state.draft,
-            purchasePrice: state.draft.purchasePrice,
+            purchasePrice: data.purchasePrice || state.draft.purchasePrice,
             vehicleAttributes: {
               ...state.draft.vehicleAttributes,
               ...data,
@@ -99,22 +99,13 @@ export const useLoanApplicationStore = create(
         const snakeCaseDraft = humps.decamelizeKeys({ ...draft, applicationProgress: applicationProgress });
         console.log('Saving draft to server (snake_case):', snakeCaseDraft);
 
-        let response = null;
+        let data = null;
         if (!applicationId) {
-          response = await apiFetch(`/api/v1/applications`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ application: snakeCaseDraft }),
-          });
+          data = await createApplication(snakeCaseDraft);
         } else {
-          response = await apiFetch(`/api/v1/applications/${applicationId}`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ application: snakeCaseDraft }),
-          });
+          data = await updateApplication(applicationId, snakeCaseDraft);
         }
 
-        const { data } = response;
         console.log('Draft saved successfully:', data);
         set({ applicationId: data.id });
         return Promise.resolve();
@@ -135,43 +126,39 @@ export const useLoanApplicationStore = create(
         }),
 
       loadDraftFromServer: async (applicationId, isEditing) => {
-        const response = await apiFetch(`/api/v1/applications/${applicationId}`, {
-          method: 'GET',
-        });
-        if (response.data) {
-          console.log('load draft before camelize:', response.data);
-          const data = humps.camelizeKeys(response.data);
+        const data = await fetchApplicationById(applicationId);
+        if (data) {
+          console.log('load draft before camelize:', data);
+          const camelizedData = humps.camelizeKeys(data);
 
-          if (isEditing && data.status !== 'draft') {
+          if (isEditing && camelizedData.status !== 'draft') {
             console.warn('Attempting to edit an application that is not in draft status. Redirecting to dashboard.');
             set({ applicationId: null });
             return Promise.reject(new Error('Cannot edit application that is not in draft status'));
           }
           set({
             draft: {
-              purchasePrice: data.purchasePrice || null,
-              loanAmount: data.loanAmount || null,
-              downPayment: data.downPayment || null,
-              termMonths: data.termMonths || null,
-              apr: data.apr || null,
-              submittedDate: data.submittedDate || null,
-              applicationProgress: data.applicationProgress || 'personal',
-              status: data.status || 'draft',
-              personalInfoAttributes: data.personalInfo || null,
-              addressesAttributes: data.addresses || null,
-              vehicleAttributes: data.vehicle || null,
-              financialInfoAttributes: data.financialInfo || null,
+              purchasePrice: camelizedData.purchasePrice || null,
+              loanAmount: camelizedData.loanAmount || null,
+              downPayment: camelizedData.downPayment || null,
+              termMonths: camelizedData.termMonths || null,
+              apr: camelizedData.apr || null,
+              submittedDate: camelizedData.submittedDate || null,
+              applicationProgress: camelizedData.applicationProgress || 'personal',
+              status: camelizedData.status || 'draft',
+              personalInfoAttributes: camelizedData.personalInfo || null,
+              addressesAttributes: camelizedData.addresses || null,
+              vehicleAttributes: camelizedData.vehicle || null,
+              financialInfoAttributes: camelizedData.financialInfo || null,
             },
-            applicationId: data.id,
-            currentStep: STEPS.findIndex((step) => step.key === data.applicationProgress) + 1 || 1,
+            applicationId: camelizedData.id,
+            currentStep: STEPS.findIndex((step) => step.key === camelizedData.applicationProgress) + 1 || 1,
           });
 
-          console.log('Draft loaded successfully from server:', data);
+          console.log('Draft loaded successfully from server:', camelizedData);
           return Promise.resolve();
         } else {
           console.log('No draft data found on server for applicationId:', applicationId);
-          // set({ draft: data });
-          // return Promise.resolve();
         }
       },
     }),
