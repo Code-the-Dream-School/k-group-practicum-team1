@@ -60,6 +60,16 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_04_090000) do
     t.index ["user_id"], name: "index_applications_on_user_id"
   end
 
+  create_table "documents", force: :cascade do |t|
+    t.bigint "application_id", null: false
+    t.string "document_name"
+    t.string "description"
+    t.string "file_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["application_id"], name: "index_documents_on_application_id"
+  end
+
   create_table "financial_infos", force: :cascade do |t|
     t.bigint "application_id", null: false
     t.string "employment_status"
@@ -129,6 +139,7 @@ ActiveRecord::Schema[8.0].define(version: 2026_02_04_090000) do
   add_foreign_key "application_reviews", "applications"
   add_foreign_key "application_reviews", "users", column: "reviewed_by_id"
   add_foreign_key "applications", "users"
+  add_foreign_key "documents", "applications"
   add_foreign_key "financial_infos", "applications"
   add_foreign_key "personal_infos", "applications"
   add_foreign_key "vehicles", "applications"
