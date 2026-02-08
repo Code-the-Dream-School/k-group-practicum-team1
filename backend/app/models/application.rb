@@ -5,6 +5,7 @@ class Application < ApplicationRecord
   has_one :financial_info, dependent: :destroy
   has_one :application_review, dependent: :destroy
   has_one :personal_info, dependent: :destroy
+  has_many :documents, dependent: :destroy
 
   accepts_nested_attributes_for :personal_info, :financial_info, :vehicle, :addresses, allow_destroy: true
 

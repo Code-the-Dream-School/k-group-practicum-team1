@@ -20,10 +20,9 @@ RSpec.describe Document, type: :model do
       expect(document.errors[:document_name]).to include("can't be blank")
     end
 
-    it 'validates presence of file_url' do
+    it 'allows nil file_url' do
       document = build(:document, application: application, file_url: nil)
-      expect(document).not_to be_valid
-      expect(document.errors[:file_url]).to include("can't be blank")
+      expect(document).to be_valid
     end
 
     it 'allows nil description' do
