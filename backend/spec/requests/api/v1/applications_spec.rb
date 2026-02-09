@@ -248,7 +248,8 @@ RSpec.describe "API::V1::Applications", type: :request do
         expect(JSON.parse(response.body)["purchase_price"].to_f).to eq(35000.0)
       end
 
-      it "allows loan officer to update any draft application" do
+      it "allows loan officer to update submitted application" do
+        application.update_columns(status: "submitted", submitted_date: Date.current)
         patch "/api/v1/applications/#{application.id}",
               params: { application: { application_progress: "vehicle" } },
               headers: auth_headers(loan_officer)
@@ -295,7 +296,7 @@ RSpec.describe "API::V1::Applications", type: :request do
     end
 
     context "non-draft applications" do
-      it "prevents updating submitted application" do
+      it "prevents customer from updating submitted application" do
         application.update_column(:status, "submitted")
         patch "/api/v1/applications/#{application.id}",
               params: { application: { purchase_price: 35000 } },
@@ -305,13 +306,70 @@ RSpec.describe "API::V1::Applications", type: :request do
         expect(JSON.parse(response.body)["errors"]).to include("Only draft, pending, or under review applications can be updated")
       end
 
-      it "prevents updating approved application" do
+      it "prevents customer from updating approved application" do
         application.update_column(:status, "approved")
         patch "/api/v1/applications/#{application.id}",
               params: { application: { purchase_price: 35000 } },
               headers: auth_headers(customer)
 
         expect(response).to have_http_status(:forbidden)
+      end
+
+      it "prevents loan officer from updating draft application" do
+        patch "/api/v1/applications/#{application.id}",
+              params: { application: { status: "submitted" } },
+              headers: auth_headers(loan_officer)
+
+        expect(response).to have_http_status(:forbidden)
+        expect(JSON.parse(response.body)["errors"]).to include("Draft applications cannot be updated by loan officers or underwriters")
+      end
+
+      it "prevents underwriter from updating draft application" do
+        patch "/api/v1/applications/#{application.id}",
+              params: { application: { status: "approved" } },
+              headers: auth_headers(underwriter)
+
+        expect(response).to have_http_status(:forbidden)
+      end
+
+      it "allows loan officer to update status of submitted application" do
+        application.update_columns(status: "submitted", submitted_date: Date.current)
+        patch "/api/v1/applications/#{application.id}",
+              params: { application: { status: "pending" } },
+              headers: auth_headers(loan_officer)
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)["status"]).to eq("pending")
+      end
+
+      it "allows loan officer to update status of pending application" do
+        application.update_columns(status: "pending", submitted_date: 1.day.ago)
+        patch "/api/v1/applications/#{application.id}",
+              params: { application: { status: "under_review" } },
+              headers: auth_headers(loan_officer)
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)["status"]).to eq("under_review")
+      end
+
+      it "allows underwriter to update status of under_review application" do
+        application.update_columns(status: "under_review", submitted_date: 1.week.ago)
+        patch "/api/v1/applications/#{application.id}",
+              params: { application: { status: "approved" } },
+              headers: auth_headers(underwriter)
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)["status"]).to eq("approved")
+      end
+
+      it "allows underwriter to update status to rejected" do
+        application.update_columns(status: "under_review", submitted_date: 1.week.ago)
+        patch "/api/v1/applications/#{application.id}",
+              params: { application: { status: "rejected" } },
+              headers: auth_headers(underwriter)
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body)["status"]).to eq("rejected")
       end
     end
 
