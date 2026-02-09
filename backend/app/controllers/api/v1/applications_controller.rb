@@ -4,7 +4,7 @@ module Api
       before_action :authenticate_user!
       before_action :set_application, only: [ :show, :update ]
       before_action :authorize_user!, only: [ :show, :update ]
-      before_action :ensure_eligible_status!, only: [ :update ]
+      before_action :enforce_update_permissions!, only: [ :update ]
 
       # POST /api/v1/applications
       def create
@@ -67,10 +67,18 @@ module Api
         end
       end
 
-      def ensure_eligible_status!
+      def enforce_update_permissions!
         return if @application.nil?
         unless @application.draft? || @application.pending? || @application.under_review?
           render json: { errors: [ "Only draft, pending, or under review applications can be updated" ] }, status: :forbidden
+          return
+        end
+        if current_user.loan_officer? || current_user.underwriter?
+          if @application.draft?
+            render json: { errors: [ "Draft applications cannot be updated by loan officers or underwriters" ] }, status: :forbidden
+          end
+        elsif !@application.draft?
+          render json: { errors: [ "Only draft applications can be updated" ] }, status: :forbidden
         end
       end
 
@@ -81,29 +89,33 @@ module Api
           application_params.delete(:vehicle_attributes) if application_params[:vehicle_attributes].blank?
           application_params.delete(:financial_info_attributes) if application_params[:financial_info_attributes].blank?
 
-          application_params.permit(
+          permitted_params = [
             :purchase_price, :loan_amount, :down_payment,
             :term_months, :apr, :monthly_payment, :application_progress,
-            :status,
-            personal_info_attributes: [
-              :id, :first_name, :last_name, :email,
-              :phone_number, :dob, :ssn
-            ],
-            addresses_attributes: [
-              :id, :address_type, :address_street, :city, :state, :zip
-            ],
-            vehicle_attributes: [
-              :id, :vehicle_type, :make, :model, :year, :vin, :trim, :mileage
-            ],
-            financial_info_attributes: [
-              :id, :employment_status, :employer, :job_title, :years_employed,
-               :annual_income, :additional_income, :monthly_expenses,
-               :credit_score
-            ],
-            application_review_attributes: [
-              :id, :review_notes
-            ]
-          )
+            {
+              personal_info_attributes: [
+                :id, :first_name, :last_name, :email,
+                :phone_number, :dob, :ssn
+              ],
+              addresses_attributes: [
+                :id, :address_type, :address_street, :city, :state, :zip
+              ],
+              vehicle_attributes: [
+                :id, :vehicle_type, :make, :model, :year, :vin, :trim, :mileage
+              ],
+              financial_info_attributes: [
+                :id, :employment_status, :employer, :job_title, :years_employed,
+                :annual_income, :additional_income, :monthly_expenses,
+                :credit_score
+              ],
+              application_review_attributes: [
+                :id, :review_notes
+              ]
+            }
+          ]
+          permitted_params << :status if current_user.loan_officer? || current_user.underwriter?
+
+          application_params.permit(*permitted_params)
         else
           raise ActionController::ParameterMissing.new(:application), "Request must include 'application' key in JSON body"
         end
