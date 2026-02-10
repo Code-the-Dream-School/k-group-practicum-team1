@@ -14,10 +14,12 @@ const LoanDetails = () => {
     trigger,
     reset,
     getValues,
+    setValue,
   } = useForm({
     defaultValues: {
-      termMonths: draft.loanDetails?.termMonths || '',
-      downPayment: draft.vehicleAttributes?.downPayment || '',
+      termMonths: draft.termMonths || '',
+      downPayment: draft.downPayment || '',
+      loanAmount: draft.loanAmount || '',
     },
     mode: 'onChange',
   });
@@ -28,7 +30,7 @@ const LoanDetails = () => {
     totalMonthly: 0,
   });
 
-  const vehiclePrice = parseFloat(draft.vehicleAttributes?.purchasePrice || 0);
+  const vehiclePrice = parseFloat(draft.purchasePrice || 0);
   const downPaymentInput = watch('downPayment');
   const downPayment = parseFloat(downPaymentInput || 0);
   const loanAmount = vehiclePrice - downPayment;
@@ -90,10 +92,13 @@ const LoanDetails = () => {
 
   useEffect(() => {
     reset({
-      termMonths: draft.loanDetails?.termMonths || '',
-      downPayment: draft.vehicleAttributes?.downPayment || '',
+      termMonths: draft.termMonths || '',
+      downPayment: draft.downPayment || '',
     });
-  }, [draft.loanDetails, draft.vehicleAttributes, reset]);
+    if (draft.termMonths) {
+      setValue('termMonths', draft.termMonths, { shouldValidate: true, shouldTouch: true });
+    }
+  }, [draft, reset, setValue]);
 
   const handleSaveDraft = async () => {
     const isValid = await trigger();

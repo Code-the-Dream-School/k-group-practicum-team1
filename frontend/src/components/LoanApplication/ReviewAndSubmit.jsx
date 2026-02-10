@@ -1,12 +1,17 @@
 /* eslint-disable react-hooks/incompatible-library */
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
-import { useNavigate } from 'react-router-dom';
 
-const ReviewAndSubmit = () => {
-  const { draft, previousStep, saveDraftToServer, clearDraft } = useLoanApplicationStore();
+const ReviewAndSubmit = ({ viewOnly = false }) => {
+  const { id } = useParams();
   const navigate = useNavigate();
+  const { draft, previousStep, loadDraftFromServer, saveDraftToServer, clearDraft } = useLoanApplicationStore();
+
+  console.log('Draft data in ReviewAndSubmit:', draft);
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const {
@@ -17,9 +22,27 @@ const ReviewAndSubmit = () => {
   } = useForm({
     mode: 'onSubmit',
     defaultValues: {
-      agreedToTerms: false,
+      agreedToTerms: viewOnly || false,
     },
   });
+
+  useEffect(() => {
+    // Only load from server if viewing an existing application via URL id
+    if (id && viewOnly) {
+      loadDraftFromServer(id).catch((error) => {
+        console.error('Failed to load application draft:', error);
+        navigate('/dashboard');
+      });
+    }
+  }, [id, viewOnly, navigate, loadDraftFromServer]);
+
+  // Redirect if in viewOnly mode but application is still in draft status
+  useEffect(() => {
+    if (viewOnly && draft.status === 'draft') {
+      console.warn('Cannot view draft application in viewOnly mode. Redirecting to dashboard.');
+      navigate('/dashboard');
+    }
+  }, [viewOnly, draft.status, navigate]);
 
   const agreedToTerms = watch('agreedToTerms');
 
@@ -78,8 +101,31 @@ const ReviewAndSubmit = () => {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-8 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-2">Review & Submit</h2>
-      <p className="text-gray-600 mb-6">Please review all information before submitting your application.</p>
+      {viewOnly && (
+        <div className="mb-4">
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard')}
+            className="flex items-center gap-1 px-3 py-1.5 text-sm text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+        </div>
+      )}
+      <h2 className="text-2xl font-bold text-gray-800 text-center mb-6">
+        {viewOnly ? 'Application Summary' : 'Review & Submit'}
+      </h2>
+      {viewOnly && (
+        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <p className="text-green-800 font-medium">Application was submitted on {formatDate(draft.submittedDate)}</p>
+        </div>
+      )}
+      {!viewOnly && (
+        <p className="text-gray-600 mb-6">Please review all information before submitting your application.</p>
+      )}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         <div className="border border-gray-200 rounded-lg p-6">
@@ -112,10 +158,10 @@ const ReviewAndSubmit = () => {
             <div>
               <p className="text-sm text-gray-600">Address</p>
               <p className="text-base font-medium text-gray-900">
-                {draft.personalInfoAttributes?.addressStreet || 'N/A'}
-                {draft.personalInfoAttributes?.city && `, ${draft.personalInfoAttributes.city}`}
-                {draft.personalInfoAttributes?.state && `, ${draft.personalInfoAttributes.state}`}
-                {draft.personalInfoAttributes?.zip && ` ${draft.personalInfoAttributes.zip}`}
+                {draft.addressesAttributes?.[0]?.addressStreet || 'N/A'}
+                {draft.addressesAttributes?.[0]?.city && `, ${draft.addressesAttributes[0]?.city}`}
+                {draft.addressesAttributes?.[0]?.state && `, ${draft.addressesAttributes[0]?.state}`}
+                {draft.addressesAttributes?.[0]?.zip && ` ${draft.addressesAttributes[0]?.zip}`}
               </p>
             </div>
           </div>
@@ -255,13 +301,20 @@ const ReviewAndSubmit = () => {
               {...register('agreedToTerms', {
                 required: 'You must agree to the terms and conditions to submit your application',
               })}
-              className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              disabled={viewOnly}
+              className="mt-1 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded disabled:opacity-50 disabled:cursor-not-allowed"
             />
             <label htmlFor="terms" className="text-sm text-gray-700">
-              I certify that all information provided in this application is true and accurate to the best of my
-              knowledge. I understand that any false information may result in the denial of my application or
-              termination of my loan. I authorize the lender to verify the information provided and to obtain credit
-              reports as necessary for the evaluation of this application.
+              {viewOnly ? (
+                <span>I certify that I have reviewed all information in this application.</span>
+              ) : (
+                <span>
+                  I certify that all information provided in this application is true and accurate to the best of my
+                  knowledge. I understand that any false information may result in the denial of my application or
+                  termination of my loan. I authorize the lender to verify the information provided and to obtain credit
+                  reports as necessary for the evaluation of this application.
+                </span>
+              )}
             </label>
           </div>
           {errors.agreedToTerms && (
@@ -278,32 +331,38 @@ const ReviewAndSubmit = () => {
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-6 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={handlePrevious}
-            className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-          >
-            Previous
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting || !agreedToTerms}
-            className="px-8 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
-          >
-            {isSubmitting ? (
-              <span className="flex items-center gap-2">
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
-                Submitting...
-              </span>
-            ) : (
-              'Submit Application'
-            )}
-          </button>
-        </div>
+        {!viewOnly && (
+          <div className="flex items-center justify-between pt-6 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={handlePrevious}
+              className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Previous
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting || !agreedToTerms}
+              className="px-8 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+            >
+              {isSubmitting ? (
+                <span className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                  Submitting...
+                </span>
+              ) : (
+                'Submit Application'
+              )}
+            </button>
+          </div>
+        )}
       </form>
     </div>
   );
+};
+
+ReviewAndSubmit.propTypes = {
+  viewOnly: PropTypes.bool,
 };
 
 export default ReviewAndSubmit;

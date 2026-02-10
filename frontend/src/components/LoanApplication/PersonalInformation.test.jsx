@@ -33,7 +33,7 @@ describe('PersonalInformation Component', () => {
       lastName: '',
       email: '',
       phoneNumber: '',
-      dateOfBirth: '',
+      dob: '',
       ssn: '',
     },
     addressesAttributes: [
@@ -115,7 +115,7 @@ describe('PersonalInformation Component', () => {
           lastName: 'Doe',
           email: 'john.doe@example.com',
           phoneNumber: '5551234567',
-          dateOfBirth: '1990-01-01',
+          dob: '1990-01-01',
           ssn: '123456789',
         },
         addressesAttributes: [

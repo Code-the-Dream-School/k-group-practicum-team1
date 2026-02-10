@@ -18,13 +18,9 @@ describe('LoanDetails Component', () => {
   let mockSaveDraftToServer;
 
   const defaultDraft = {
-    vehicleAttributes: {
-      purchasePrice: '30000',
-      downPayment: '5000',
-    },
-    loanDetails: {
-      termMonths: '',
-    },
+    purchasePrice: '30000',
+    downPayment: '5000',
+    termMonths: '',
   };
 
   beforeEach(() => {
@@ -333,7 +329,7 @@ describe('LoanDetails Component', () => {
     it('should load existing loan term from draft', () => {
       const draftWithLoanTerm = {
         ...defaultDraft,
-        loanDetails: { termMonths: '60' },
+        termMonths: '60',
       };
 
       useLoanApplicationStore.mockReturnValue({
