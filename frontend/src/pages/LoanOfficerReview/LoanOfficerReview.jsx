@@ -14,7 +14,7 @@ function LoanOfficerReview() {
     throw new Error('Application ID is required to review the application');
   }
 
-  const [criteria, setCriteria] = useState('');
+  const [criteria, setCriteria] = useState('yes');
   const [completenessValues, setCompletenessValues] = useState({
     personal: false,
     vehicle: false,
@@ -230,10 +230,9 @@ function LoanOfficerReview() {
                   onChange={(e) => setCriteria(e.target.value)}
                   className="w-full bg-white border border-gray-300 text-gray-600  rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
                 >
-                  <option value="yes" selected>
-                    Yes - Eligible
-                  </option>
+                  <option value="yes">Yes - Eligible</option>
                   <option value="no">No - Denied</option>
+                  <option value="underwriting">Send to Underwriting</option>
                 </select>
                 <h2>Officer Notes</h2>
                 <textarea
@@ -247,8 +246,16 @@ function LoanOfficerReview() {
               <button className="  bg-gray-400 hover:bg-gray-500 text-white  py-2 px-4 rounded-lg transition shadow-lg cursor-pointer">
                 Cancel
               </button>
-              <button className="  bg-blue-600 hover:bg-blue-700 text-white  py-2 px-4 rounded-lg transition shadow-lg cursor-pointer">
-                Save & Send to UnderWriting
+              <button
+                className={`py-2 px-4 rounded-lg transition shadow-lg cursor-pointer text-white ${
+                  criteria === 'yes'
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : criteria === 'no'
+                      ? 'bg-red-600 hover:bg-red-700'
+                      : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+              >
+                {criteria === 'yes' ? 'Approve Loan' : criteria === 'no' ? 'Reject Loan' : 'Send to Underwriting'}
               </button>
             </div>
           </div>
