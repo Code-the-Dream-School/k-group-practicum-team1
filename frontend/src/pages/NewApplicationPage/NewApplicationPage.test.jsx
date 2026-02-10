@@ -102,7 +102,7 @@ describe('NewApplicationPage', () => {
     expect(screen.getByTestId('stepper-title')).toHaveTextContent('Application Progress');
     expect(screen.getByTestId('stepper-current-step')).toHaveTextContent('1');
     expect(screen.getByTestId('stepper-progress-type')).toHaveTextContent('step');
-    expect(screen.getByTestId('stepper-total-steps')).toHaveTextContent('5');
+    expect(screen.getByTestId('stepper-total-steps')).toHaveTextContent('6');
   });
 
   it('should render all step labels in the Stepper', () => {
