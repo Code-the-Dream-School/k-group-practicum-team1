@@ -1,5 +1,83 @@
-# /README.md
-# K-Group Practicum Team 1
+# TurboLoan
+
+*by One Ruby Studio*
+
+## Description
+
+A full-stack auto loan application system that allows customers to apply for vehicle loans, loan officers to review and assess applications, and underwriters to make final lending decisions. The platform streamlines the entire loan lifecycle — from application submission through approval or rejection — with role-based dashboards, real-time progress tracking, and document management.
+
+## Key Features
+
+- **Customer Portal** — Multi-step loan application with auto-save, document upload, and application tracking
+- **Loan Officer Dashboard** — Searchable and sortable application queue with server-side filtering, completeness checklists, and eligibility assessments
+- **Underwriter Review** — Final decision workflow for approving, rejecting, or returning applications
+- **Role-Based Access Control** — Separate dashboards and permissions for customers and loan officers.
+- **Real-Time Application Status** — Track applications through draft, submitted, under review, approved, and rejected stages
+- **Secure Authentication** — JWT-based authentication with Devise for session management
+- **RESTful API** — Full API documentation via Swagger UI
+
+## Technology
+
+| Layer | Stack |
+|-------|-------|
+| **Frontend** | React, Vite, Tailwind CSS, Zustand, React Hook Form, React Router |
+| **Backend** | Ruby on Rails 8, PostgreSQL, Devise, Devise-JWT |
+| **Testing** | Jest, React Testing Library, RSpec, FactoryBot, Shoulda Matchers |
+| **API Docs** | Swagger / Rswag |
+| **Dev Tools** | Foreman, dotenv-rails, ESLint, Prettier |
+| **Project Management** | Jira, Slack
+| **Design & Planning** | Figma, Miro (Wireframes), ER Diagrams
+
+## Team Members
+
+| Name | Role |
+|------|------|
+| [Shuveksha Tuladhar](https://github.com/shuveksha-tuladhar) | Full Stack Developer |
+| [Vera Fesianava](https://github.com/verafes) | Full Stack Developer |
+| [Elena Bychenkova](https://github.com/ElenaByc) | Full Stack Developer |
+| [Thanh Phong Le](https://github.com/ltphongssvn) | Full Stack Developer |
+| [Valery Lyzhyn](https://github.com/sheper96) | Full Stack Developer |
+
+## Mentors
+
+| Name | Role |
+|------|------|
+| [Diana Liao](https://github.com/DianaLiao) | Lead & Technical Mentor |
+| [Gabriel Halley](https://github.com/ghalley) | Technical Mentor |
+
+---
+
+## Database Models & Associations
+
+### Entity Relationship Diagram
+
+![ER Diagram](backend/public/erd.png)
+
+### Models
+
+| Model | Key Associations | Description |
+|-------|-----------------|-------------|
+| **User** | has_many :applications | Customer, loan officer, or underwriter. Authenticates via Devise + JWT. |
+| **Application** | belongs_to :user, has_one :vehicle, :personal_info, :financial_info, :application_review, has_many :addresses, :documents | Core loan application with status tracking, auto-generated application number, and monthly payment calculation. |
+| **PersonalInfo** | belongs_to :application | Applicant's name, email, phone, DOB, and SSN. Validates age ≥ 18. |
+| **Vehicle** | belongs_to :application | Vehicle details — year, make, model, VIN, mileage, and condition (new / certified_used / used). |
+| **Address** | belongs_to :application | Street address with validated US state abbreviation and zip code. |
+| **FinancialInfo** | belongs_to :application | Employment details, income, expenses, and self-reported credit score (excellent / good / fair / poor). |
+| **ApplicationReview** | belongs_to :application, belongs_to :reviewer (User) | Loan officer review checklist and notes. Tracks completeness of each section. |
+| **Document** | belongs_to :application | Uploaded document metadata (name, type). |
+
+### Enums
+
+| Model | Enum | Values |
+|-------|------|--------|
+| User | `role` | customer, loan_officer, underwriter |
+| Application | `status` | draft, submitted, pending, under_review, pending_documents, approved, rejected |
+| Application | `application_progress` | personal, vehicle, financial, terms, review |
+| Vehicle | `vehicle_type` | new, certified_used, used |
+| FinancialInfo | `credit_score` | excellent, good, fair, poor |
+
+---
+
 
 ## Environment Setup
 
@@ -125,16 +203,46 @@ bundle exec rails db:drop db:create db:migrate db:seed
 3. **Use the token**: Add `Authorization: Bearer <token>` header to all protected requests
 
 ### Available Endpoints
-| Method | Endpoint | Description                 |
-|--------|----------|-----------------------------|
-| POST   | `/signup` | User registration           |
-| POST   | `/login` | User login                  |
-| GET    | `/api/v1/users` | List all users              |
-| GET    | `/api/v1/users/:id` | Get specific user           |
-| GET    | `/api/v1/me` | Get current user profile    |
-| PATCH  | `/api/v1/users/:id` | Update specific user profile |
-| DELETE | `/api/v1/users/:id` | Delete specific user |
-| DELETE | `/logout` | User logout                 |
+
+#### Authentication
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/signup` | Register a new user | No |
+| POST | `/login` | Login and receive JWT token | No |
+| DELETE | `/logout` | Logout and invalidate token | Yes |
+
+#### Users
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/v1/me` | Get current user profile | Yes |
+| GET | `/api/v1/users` | List all users (loan officer / underwriter only) | Yes |
+| GET | `/api/v1/users/:id` | Get specific user | Yes |
+| PATCH | `/api/v1/users/:id` | Update user profile | Yes |
+| DELETE | `/api/v1/users/:id` | Delete user (loan officer / underwriter only) | Yes |
+
+#### Applications
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/v1/applications` | Create a new loan application | Yes |
+| GET | `/api/v1/applications` | List applications (scoped by role, paginated) | Yes |
+| GET | `/api/v1/applications/:id` | Get full application details | Yes |
+| PATCH | `/api/v1/applications/:id` | Update a draft application | Yes |
+
+**Query params for `GET /api/v1/applications`** (loan officer / underwriter):
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `page` | integer | Page number (default: 1, 20 per page) |
+| `status` | string | Filter by status (`submitted`, `pending`, `under_review`, etc.) |
+| `applicant_name` | string | Search by applicant first or last name |
+| `application_number` | string | Search by application number |
+| `sort_by` | string | Sort column: `application_number`, `status`, `submitted_date`, `created_at` |
+| `sort_order` | string | `asc` or `desc` (default: `desc`) |
+
+#### Application Review
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| PATCH | `/api/v1/applications/:application_id/review` | Update review checklist and notes (loan officer / underwriter only) | Yes |
 
 ### Testing with Swagger UI
 Visit **[http://localhost:3000/api-docs](http://localhost:3000/api-docs)** to:
