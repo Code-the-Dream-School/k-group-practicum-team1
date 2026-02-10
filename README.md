@@ -1,5 +1,7 @@
 # TurboLoan
 
+*by One Ruby Studio*
+
 ## Description
 
 A full-stack auto loan application system that allows customers to apply for vehicle loans, loan officers to review and assess applications, and underwriters to make final lending decisions. The platform streamlines the entire loan lifecycle — from application submission through approval or rejection — with role-based dashboards, real-time progress tracking, and document management.
@@ -24,7 +26,7 @@ A full-stack auto loan application system that allows customers to apply for veh
 | **API Docs** | Swagger / Rswag |
 | **Dev Tools** | Foreman, dotenv-rails, ESLint, Prettier |
 | **Project Management** | Jira, Slack
-| **Design & Planning** | Miro (Wireframes), ER Diagrams
+| **Design & Planning** | Figma, Miro (Wireframes), ER Diagrams
 
 ## Team Members
 
@@ -201,16 +203,46 @@ bundle exec rails db:drop db:create db:migrate db:seed
 3. **Use the token**: Add `Authorization: Bearer <token>` header to all protected requests
 
 ### Available Endpoints
-| Method | Endpoint | Description                 |
-|--------|----------|-----------------------------|
-| POST   | `/signup` | User registration           |
-| POST   | `/login` | User login                  |
-| GET    | `/api/v1/users` | List all users              |
-| GET    | `/api/v1/users/:id` | Get specific user           |
-| GET    | `/api/v1/me` | Get current user profile    |
-| PATCH  | `/api/v1/users/:id` | Update specific user profile |
-| DELETE | `/api/v1/users/:id` | Delete specific user |
-| DELETE | `/logout` | User logout                 |
+
+#### Authentication
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/signup` | Register a new user | No |
+| POST | `/login` | Login and receive JWT token | No |
+| DELETE | `/logout` | Logout and invalidate token | Yes |
+
+#### Users
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| GET | `/api/v1/me` | Get current user profile | Yes |
+| GET | `/api/v1/users` | List all users (loan officer / underwriter only) | Yes |
+| GET | `/api/v1/users/:id` | Get specific user | Yes |
+| PATCH | `/api/v1/users/:id` | Update user profile | Yes |
+| DELETE | `/api/v1/users/:id` | Delete user (loan officer / underwriter only) | Yes |
+
+#### Applications
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| POST | `/api/v1/applications` | Create a new loan application | Yes |
+| GET | `/api/v1/applications` | List applications (scoped by role, paginated) | Yes |
+| GET | `/api/v1/applications/:id` | Get full application details | Yes |
+| PATCH | `/api/v1/applications/:id` | Update a draft application | Yes |
+
+**Query params for `GET /api/v1/applications`** (loan officer / underwriter):
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `page` | integer | Page number (default: 1, 20 per page) |
+| `status` | string | Filter by status (`submitted`, `pending`, `under_review`, etc.) |
+| `applicant_name` | string | Search by applicant first or last name |
+| `application_number` | string | Search by application number |
+| `sort_by` | string | Sort column: `application_number`, `status`, `submitted_date`, `created_at` |
+| `sort_order` | string | `asc` or `desc` (default: `desc`) |
+
+#### Application Review
+| Method | Endpoint | Description | Auth |
+|--------|----------|-------------|------|
+| PATCH | `/api/v1/applications/:application_id/review` | Update review checklist and notes (loan officer / underwriter only) | Yes |
 
 ### Testing with Swagger UI
 Visit **[http://localhost:3000/api-docs](http://localhost:3000/api-docs)** to:
