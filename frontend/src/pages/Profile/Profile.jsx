@@ -51,6 +51,18 @@ const Profile = () => {
     );
   }
 
+  const roleLabels = {
+    customer: 'Customer',
+    loan_officer: 'Loan Officer',
+    underwriter: 'Underwriter',
+  };
+
+  const roleBadgeClass = {
+    customer: 'bg-blue-100 text-blue-800',
+    loan_officer: 'bg-purple-100 text-purple-800',
+    underwriter: 'bg-teal-100 text-teal-800',
+  };
+
   return (
     <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center bg-gray-50 p-4">
       <div className="w-full max-w-md mx-auto bg-white rounded-xl shadow-lg p-8 mb-8">
@@ -60,7 +72,14 @@ const Profile = () => {
           <ProfileRow label="Last Name" value={user.last_name} />
           <ProfileRow label="Email" value={user.email} />
           <ProfileRow label="Phone" value={user.phone_number} />
-          <ProfileRow label="Role" value={user.role} />
+          <div className="flex justify-between border-b border-gray-100 pb-2">
+            <span className="font-medium">Role</span>
+            <span
+              className={`px-3 py-1 rounded-full text-xs font-bold ${roleBadgeClass[user.role] || 'bg-gray-100 text-gray-800'}`}
+            >
+              {roleLabels[user.role] || user.role}
+            </span>
+          </div>
         </div>
       </div>
     </div>
