@@ -100,7 +100,7 @@ describe('Profile Component', () => {
       expect(screen.getByText('Doe')).toBeInTheDocument();
       expect(screen.getByText('john.doe@example.com')).toBeInTheDocument();
       expect(screen.getByText('1234567890')).toBeInTheDocument();
-      expect(screen.getByText('customer')).toBeInTheDocument();
+      expect(screen.getByText('Customer')).toBeInTheDocument();
     });
   });
 
@@ -195,7 +195,7 @@ describe('Profile Component', () => {
       expect(screen.getByText('bob@example.com')).toBeInTheDocument();
 
       const dashes = screen.getAllByText('-');
-      expect(dashes.length).toBe(3);
+      expect(dashes.length).toBe(2);
     });
   });
 

@@ -21,7 +21,6 @@ const DocumentsUpload = () => {
   const [uploadedDocuments, setUploadedDocuments] = useState(draft.documents || []);
   const [uploading, setUploading] = useState({});
 
-  // Clean up object URLs on unmount to prevent memory leaks
   useEffect(() => {
     return () => {
       uploadedDocuments.forEach((doc) => {

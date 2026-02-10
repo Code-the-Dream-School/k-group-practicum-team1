@@ -1,14 +1,140 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import humps from 'humps';
+import { useNavigate, useParams } from 'react-router-dom';
+import { apiFetch } from '../../services/api';
+import { formatDateToUS } from '../../utils/dateHelpers';
+import { formatCurrency } from '../../utils/currencyHelpers';
+import { getStatusBadgeClass, formatStatus } from '../../utils/statusHelpers';
 
-function LoanOfficerReview() {
-  const [criteria, setCriteria] = useState('');
-  const completeness = 60;
+const LoanOfficerReview = () => {
+  const { appId } = useParams();
+  const navigate = useNavigate();
+  const [applicationData, setApplicationData] = useState(null);
+
+  if (!appId) {
+    throw new Error('Application ID is required to review the application');
+  }
+
+  const [criteria, setCriteria] = useState('yes');
+  const [completenessValues, setCompletenessValues] = useState({
+    personal: false,
+    vehicle: false,
+    financial: false,
+    documents: false,
+    creditCheck: false,
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { data, errors },
+  } = useForm({
+    defaultValues: {
+      reviewNote: '',
+    },
+    mode: 'onChange',
+  });
+
+  useEffect(() => {
+    const fetchApplicationData = async () => {
+      const response = await apiFetch(`/api/v1/applications/${appId}`, {
+        method: 'GET',
+      });
+      if (response.data) {
+        setApplicationData(humps.camelizeKeys(response.data));
+        setCompletenessValues({
+          personal: response.data?.application_review?.personal_info_complete ?? false,
+          vehicle: response.data?.application_review?.vehicle_info_complete ?? false,
+          financial: response.data?.application_review?.financial_info_complete ?? false,
+          documents: response.data?.application_review?.documents_complete ?? false,
+          creditCheck: response.data?.application_review?.credit_check_authorized ?? false,
+        });
+      } else {
+        console.error('Failed to fetch application data');
+      }
+    };
+
+    fetchApplicationData();
+  }, [appId]);
+
+  const handleCompletenessUpdate = async (e) => {
+    const { name, checked } = e.target;
+    const updatedValues = {
+      ...completenessValues,
+      [name]: checked,
+    };
+
+    setCompletenessValues(updatedValues);
+
+    try {
+      const response = await apiFetch(`/api/v1/applications/${appId}/review`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          personal_info_complete: updatedValues.personal,
+          vehicle_info_complete: updatedValues.vehicle,
+          financial_info_complete: updatedValues.financial,
+          documents_complete: updatedValues.documents,
+          credit_check_authorized: updatedValues.creditCheck,
+        }),
+      });
+
+      if (response.data) {
+        setApplicationData((prevData) => ({
+          ...prevData,
+          applicationReview: {
+            ...prevData.applicationReview,
+            ...{
+              id: response.data.id,
+              personalInfoComplete: response.data.personal_info_complete,
+              vehicleInfoComplete: response.data.vehicle_info_complete,
+              financialInfoComplete: response.data.financial_info_complete,
+              documentsComplete: response.data.documents_complete,
+              creditCheckAuthorized: response.data.credit_check_authorized,
+              reviewNotes: data.reviewNote,
+            },
+          },
+        }));
+      }
+    } catch (error) {
+      console.error('Failed to update completeness values:', error);
+    }
+  };
+
+  const computeCompleteness = () => {
+    return Math.round(
+      (Object.values(completenessValues).filter(Boolean).length / Object.values(completenessValues).length) * 100
+    );
+  };
+
+  const onSubmit = async (formData) => {
+    const response = await apiFetch(`/api/v1/applications/${appId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(
+        humps.decamelizeKeys({
+          ...applicationData,
+          applicationReview: {
+            ...applicationData.applicationReview,
+            reviewNotes: formData.reviewNote,
+          },
+          status: criteria === 'yes' ? 'approved' : criteria === 'no' ? 'rejected' : 'under_review',
+        })
+      ),
+    });
+
+    if (response.data) {
+      navigate('/dashboard');
+    } else {
+      console.error('Failed to submit application decision');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex flex-col justify-between items-start mb-8">
           <h1 className="text-4xl font-bold text-gray-700 mb-2 text-left">Review Application</h1>
-          <p className="text-gray-600">Application #AL-2025-12345</p>
+          <p className="text-gray-600">Application {applicationData ? applicationData.applicationNumber : ''}</p>
         </div>
         <section className="flex flex-row items-start justify-between gap-6">
           <div className="sm:w-3/4 flex flex-col bg-white shadow-lg rounded-lg p-5 gap-5 ">
@@ -17,19 +143,29 @@ function LoanOfficerReview() {
               <div className="flex flex-wrap">
                 <div className="w-1/2">
                   <label className="text-gray-500 text-md font-normal">Full name</label>
-                  <h2 className="text-gray-600 text-md font-bold">John Doe</h2>
+                  <h2 className="text-gray-600 text-md font-bold">
+                    {applicationData?.personalInfo
+                      ? `${applicationData.personalInfo.firstName} ${applicationData.personalInfo.lastName}`
+                      : ''}
+                  </h2>
                 </div>
                 <div className="w-1/2">
                   <label className="text-gray-500 text-md font-normal">Email</label>
-                  <h2 className="text-gray-600 text-md font-bold">johndoe@mail.com</h2>
+                  <h2 className="text-gray-600 text-md font-bold">
+                    {applicationData?.personalInfo ? applicationData.personalInfo.email : ''}
+                  </h2>
                 </div>
                 <div className="w-1/2">
                   <label className="text-gray-500 text-md font-normal pt-2">Phone number</label>
-                  <h2 className="text-gray-600 text-md font-bold">(555)123-4567</h2>
+                  <h2 className="text-gray-600 text-md font-bold">
+                    {applicationData?.personalInfo ? applicationData.personalInfo.phoneNumber : ''}
+                  </h2>
                 </div>
                 <div className="w-1/2">
                   <label className="text-gray-500 text-md font-normal pt-2">Date of Birth</label>
-                  <h2 className="text-gray-600 text-md font-bold">01/15/1990</h2>
+                  <h2 className="text-gray-600 text-md font-bold">
+                    {applicationData?.personalInfo?.dob ? formatDateToUS(applicationData.personalInfo.dob) : ''}
+                  </h2>
                 </div>
                 <hr className="mt-5 border-t border-0 w-full border-gray-300 " />
               </div>
@@ -39,19 +175,27 @@ function LoanOfficerReview() {
               <div className="flex flex-wrap">
                 <div className="w-1/2">
                   <label className="text-gray-500 text-md font-normal">Vehicle</label>
-                  <h2 className="text-gray-600 text-md font-bold">2024 Honda Civic EX</h2>
+                  <h2 className="text-gray-600 text-md font-bold">
+                    {applicationData?.vehicle
+                      ? `${applicationData.vehicle.year} ${applicationData.vehicle.make} ${applicationData.vehicle.model} ${applicationData.vehicle.trim}`
+                      : ''}
+                  </h2>
                 </div>
                 <div className="w-1/2">
                   <label className="text-gray-500 text-md font-normal">VIN</label>
-                  <h2 className="text-gray-600 text-md font-bold">1HGCV1F32FA123456</h2>
+                  <h2 className="text-gray-600 text-md font-bold">{applicationData?.vehicle?.vin ?? '-'}</h2>
                 </div>
                 <div className="w-1/2">
                   <label className="text-gray-500 text-md font-normal pt-2">Purchase Price</label>
-                  <h2 className="text-gray-600 text-md font-bold">$30,000</h2>
+                  <h2 className="text-gray-600 text-md font-bold">
+                    {applicationData?.purchasePrice ? `${formatCurrency(applicationData.purchasePrice)}` : ''}
+                  </h2>
                 </div>
                 <div className="w-1/2">
                   <label className="text-gray-500 text-md font-normal pt-2">Down Payment</label>
-                  <h2 className="text-gray-600 text-md font-bold">$5,000</h2>
+                  <h2 className="text-gray-600 text-md font-bold">
+                    {applicationData?.downPayment ? `${formatCurrency(applicationData.downPayment)}` : ''}
+                  </h2>
                 </div>
                 <hr className="mt-5 border-t border-0 w-full border-gray-300 " />
               </div>
@@ -61,11 +205,15 @@ function LoanOfficerReview() {
               <div className="flex flex-wrap">
                 <div className="w-1/2">
                   <label className="text-gray-500 text-md font-normal">Loan Amount</label>
-                  <h2 className="text-gray-600 text-md font-bold">$25,000</h2>
+                  <h2 className="text-gray-600 text-md font-bold">
+                    {applicationData?.loanAmount ? `${formatCurrency(applicationData.loanAmount)}` : ''}
+                  </h2>
                 </div>
                 <div className="w-1/2">
                   <label className="text-gray-500 text-md font-normal">Term</label>
-                  <h2 className="text-gray-600 text-md font-bold">48 months</h2>
+                  <h2 className="text-gray-600 text-md font-bold">
+                    {applicationData?.termMonths ? `${applicationData.termMonths} months` : ''}
+                  </h2>
                 </div>
                 <hr className="mt-5 border-t border-0 w-full border-gray-300 " />
               </div>
@@ -74,23 +222,53 @@ function LoanOfficerReview() {
               <h2 className="text-gray-600 text-xl font-bold mb-2">Loan Details</h2>
               <div className="flex flex-col gap-3">
                 <label className="flex items-center">
-                  <input type="checkbox" className="mr-2 cursor-pointer" />
+                  <input
+                    type="checkbox"
+                    name="personal"
+                    className="mr-2 cursor-pointer"
+                    checked={completenessValues.personal}
+                    onChange={handleCompletenessUpdate}
+                  />
                   Personal Information
                 </label>
                 <label className="flex items-center">
-                  <input type="checkbox" className="mr-2 cursor-pointer" />
+                  <input
+                    type="checkbox"
+                    name="vehicle"
+                    className="mr-2 cursor-pointer"
+                    checked={completenessValues.vehicle}
+                    onChange={handleCompletenessUpdate}
+                  />
                   Vehicle Information
                 </label>
                 <label className="flex items-center">
-                  <input type="checkbox" className="mr-2 cursor-pointer" />
+                  <input
+                    type="checkbox"
+                    name="financial"
+                    className="mr-2 cursor-pointer"
+                    checked={completenessValues.financial}
+                    onChange={handleCompletenessUpdate}
+                  />
                   Financial Information
                 </label>
                 <label className="flex items-center">
-                  <input type="checkbox" className="mr-2 cursor-pointer" />
+                  <input
+                    type="checkbox"
+                    name="documents"
+                    className="mr-2 cursor-pointer"
+                    checked={completenessValues.documents}
+                    onChange={handleCompletenessUpdate}
+                  />
                   Documents Uploaded
                 </label>
                 <label className="flex items-center">
-                  <input type="checkbox" className="mr-2 cursor-pointer" />
+                  <input
+                    type="checkbox"
+                    name="creditCheck"
+                    className="mr-2 cursor-pointer"
+                    checked={completenessValues.creditCheck}
+                    onChange={handleCompletenessUpdate}
+                  />
                   Credit Check Authorized
                 </label>
               </div>
@@ -105,48 +283,65 @@ function LoanOfficerReview() {
                   onChange={(e) => setCriteria(e.target.value)}
                   className="w-full bg-white border border-gray-300 text-gray-600  rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
                 >
-                  <option value="yes" selected>
-                    Yes - Eligible
-                  </option>
+                  <option value="yes">Yes - Eligible</option>
                   <option value="no">No - Denied</option>
+                  <option value="underwriting">Send to Underwriting</option>
                 </select>
                 <h2>Officer Notes</h2>
                 <textarea
+                  {...register('reviewNote', { required: 'Review note is required' })}
                   rows={4}
                   placeholder="Add any observations or concerns..."
                   className="w-full bg-white border border-gray-300 text-gray-800  rounded-lg px-3 py-2 focus:outline-none cursor-auto"
                 />
+                {errors.reviewNote && <p className="text-red-600 text-sm mt-1">{errors.reviewNote.message}</p>}
               </div>
             </div>
             <div className="flex flex-wrap justify-between ">
               <button className="  bg-gray-400 hover:bg-gray-500 text-white  py-2 px-4 rounded-lg transition shadow-lg cursor-pointer">
                 Cancel
               </button>
-              <button className="  bg-blue-600 hover:bg-blue-700 text-white  py-2 px-4 rounded-lg transition shadow-lg cursor-pointer">
-                Save & Send to UnderWriting
+              <button
+                className={`py-2 px-4 rounded-lg transition shadow-lg cursor-pointer text-white ${
+                  criteria === 'yes'
+                    ? 'bg-green-600 hover:bg-green-700'
+                    : criteria === 'no'
+                      ? 'bg-red-600 hover:bg-red-700'
+                      : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+                onClick={handleSubmit(onSubmit)}
+              >
+                {criteria === 'yes' ? 'Approve Loan' : criteria === 'no' ? 'Reject Loan' : 'Send to Underwriting'}
               </button>
             </div>
           </div>
           <div className="sm:w-1/4 flex flex-col bg-white shadow-lg rounded-lg p-5 gap-1">
             <h2 className="text-gray-600 text-xl font-bold mb-2">Application Status</h2>
             <h3 className="text-gray-500 text-md font-normal">Current Status</h3>
-            <p className="w-fit bg-yellow-400 px-2 rounded-lg text-gray-800 ">Pending</p>
+            <p className="px-2 text-center text-gray-800 ">
+              {applicationData?.status && (
+                <span
+                  className={`px-3 py-1 rounded-full text-xs font-bold ${getStatusBadgeClass(applicationData?.status)}`}
+                >
+                  {formatStatus(applicationData?.status)}
+                </span>
+              )}
+            </p>
             <h3 className="text-gray-500 text-md font-normal">Submitted Date</h3>
-            <p className="text-gray-600 text-md font-bold">Dec 1, 2025</p>
+            <p className="text-gray-600 text-md font-bold">{formatDateToUS(applicationData?.submittedDate)}</p>
             <h3 className="text-gray-500 text-md font-normal">Last Updated</h3>
-            <p className="text-gray-600 text-md font-bold">Dec 1, 2025</p>
+            <p className="text-gray-600 text-md font-bold">
+              {formatDateToUS(applicationData?.lastUpdatedAt?.split('T')?.[0])}
+            </p>
             <h3 className="text-gray-500 text-md font-normal">Completeness</h3>
-            <div className="w-full relative bg-slate-100 rounded-lg h-5 shadow-inner">
-              <div className="h-full rounded-lg bg-yellow-400" style={{ width: `${completeness}%` }} />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <span className="text-xs font-bold text-slate-800 drop-shadow-sm">{completeness}%</span>
-              </div>
+            <div className="w-full bg-slate-100 rounded h-3 shadow-inner">
+              <div className="h-full rounded bg-blue-600 " style={{ width: `${computeCompleteness()}%` }} />
             </div>
           </div>
         </section>
       </div>
     </div>
   );
-}
+};
 
 export default LoanOfficerReview;

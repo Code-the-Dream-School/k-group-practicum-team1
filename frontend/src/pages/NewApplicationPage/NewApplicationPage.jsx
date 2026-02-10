@@ -5,7 +5,7 @@ import PersonalInformation from '../../components/LoanApplication/PersonalInform
 import VehicleInformation from '../../components/LoanApplication/VehicleInformation';
 import FinancialInformation from '../../components/LoanApplication/FinancialInformation';
 import LoanDetails from '../../components/LoanApplication/LoanDetails';
-// import DocumentsUpload from '../../components/LoanApplication/DocumentsUpload';
+import DocumentsUpload from '../../components/LoanApplication/DocumentsUpload';
 import ReviewAndSubmit from '../../components/LoanApplication/ReviewAndSubmit';
 import { STEPS } from '../../constants/stepperConstant';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -41,8 +41,8 @@ const NewApplicationPage = ({ isEditing }) => {
       case 4:
         return <LoanDetails />;
       case 5:
-        // return <DocumentsUpload />;
-        // case 6:
+        return <DocumentsUpload />;
+      case 6:
         return <ReviewAndSubmit />;
       default:
         return <PersonalInformation />;

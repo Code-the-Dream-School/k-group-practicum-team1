@@ -4,7 +4,7 @@ module Api
       before_action :authenticate_user!
       before_action :set_application, only: [ :show, :update ]
       before_action :authorize_user!, only: [ :show, :update ]
-      before_action :ensure_draft_status!, only: [ :update ]
+      before_action :ensure_eligible_status!, only: [ :update ]
 
       # POST /api/v1/applications
       def create
@@ -28,7 +28,7 @@ module Api
         applications = scope.limit(per_page).offset(offset)
         total_pages = (total.to_f / per_page).ceil
         render json: {
-          applications: applications.map { |a| ApplicationSerializer.list_item(a) },
+          applications: applications.map { |a| ApplicationSerializer.list_item(a, logged_in_user: current_user) },
           meta: {
             total: total,
             count: applications.size,
@@ -67,17 +67,16 @@ module Api
         end
       end
 
-      def ensure_draft_status!
+      def ensure_eligible_status!
         return if @application.nil?
-        unless @application.draft?
-          render json: { errors: [ "Only draft applications can be updated" ] }, status: :forbidden
+        unless @application.draft? || @application.pending? || @application.under_review?
+          render json: { errors: [ "Only draft, pending, or under review applications can be updated" ] }, status: :forbidden
         end
       end
 
       def application_params
         if params[:application].present?
           application_params = params.require(:application).dup
-          application_params.delete(:status)
           application_params.delete(:submitted_date)
           application_params.delete(:vehicle_attributes) if application_params[:vehicle_attributes].blank?
           application_params.delete(:financial_info_attributes) if application_params[:financial_info_attributes].blank?
@@ -85,6 +84,7 @@ module Api
           application_params.permit(
             :purchase_price, :loan_amount, :down_payment,
             :term_months, :apr, :monthly_payment, :application_progress,
+            :status,
             personal_info_attributes: [
               :id, :first_name, :last_name, :email,
               :phone_number, :dob, :ssn
@@ -100,6 +100,9 @@ module Api
                :annual_income, :additional_income, :monthly_expenses,
                :credit_score
             ],
+            application_review_attributes: [
+              :id, :review_notes
+            ]
           )
         else
           raise ActionController::ParameterMissing.new(:application), "Request must include 'application' key in JSON body"
@@ -108,43 +111,9 @@ module Api
 
       def index_scope
         if current_user.customer?
-          current_user.applications.includes(:user)
+          current_user.applications
         else
-          Application.includes(:user)
-        end
-      end
-
-      def apply_index_filters(scope)
-        scope = scope.where("application_number ILIKE ?", "%#{sanitize_like(params[:application_number])}%") if params[:application_number].present?
-        scope = scope.where(status: params[:status]) if params[:status].present? && Application.statuses.key?(params[:status])
-        if params[:applicant_name].present?
-          q = "%#{sanitize_like(params[:applicant_name])}%"
-          scope = scope.joins(:user).where("users.first_name ILIKE :q OR users.last_name ILIKE :q", q: q)
-        end
-        scope
-      end
-
-      def apply_index_sort(scope)
-        if current_user.customer?
-          scope.order(created_at: :desc)
-        else
-          sort_by = %w[application_number status submitted_date created_at].include?(params[:sort_by]) ? params[:sort_by] : "created_at"
-          sort_order = params[:sort_order].to_s.downcase == "asc" ? :asc : :desc
-          scope.order(Application.arel_table[sort_by].send(sort_order))
-        end
-      end
-
-      def sanitize_like(value)
-        return "" if value.blank?
-
-        ActiveRecord::Base.sanitize_sql_like(value.to_s)
-      end
-
-      def index_scope
-        if current_user.customer?
-          current_user.applications.includes(:user)
-        else
-          Application.includes(:user)
+          Application.includes(:user).where.not(status: :draft)
         end
       end
 

@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { HiCheck, HiClock, HiDocumentText } from 'react-icons/hi';
 import humps from 'humps';
 import Stepper from '../../../../Stepper/Stepper';
 import { apiFetch } from '../../../../../services/api';
+import { formatCurrency } from '../../../../../utils/currencyHelpers';
+import { getStatusBadgeClass, formatStatus } from '../../../../../utils/statusHelpers';
 
 // eslint-disable-next-line react/prop-types
 const ApplicationInProgress = ({ applicationId }) => {
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   if (!applicationId) {
     throw new Error('applicationId prop is required');
@@ -18,18 +22,6 @@ const ApplicationInProgress = ({ applicationId }) => {
     () => ({ submitted: 1, pending: 2, pending_documents: 2, under_review: 3, approved: 4, rejected: 4 }),
     []
   );
-
-  const getStatusBadgeClass = (status) => {
-    const statusClasses = {
-      submitted: 'bg-blue-100 text-blue-800',
-      pending: 'bg-blue-100 text-blue-800',
-      pending_documents: 'bg-blue-100 text-blue-800',
-      under_review: 'bg-yellow-100 text-yellow-800',
-      approved: 'bg-green-100 text-green-800',
-      rejected: 'bg-red-100 text-red-800',
-    };
-    return statusClasses[status?.toLowerCase()] || 'bg-gray-100 text-gray-800';
-  };
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -55,19 +47,9 @@ const ApplicationInProgress = ({ applicationId }) => {
     }
   }, [applicationId, statusInOrder]);
 
-  const formatStatus = (status) => {
-    return status.replace(/_/g, ' ').replace(/\b\w/g, (l) => l.toUpperCase());
-  };
-
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-  };
-
-  const formatAmount = (amount) => {
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(
-      amount
-    );
   };
 
   const current_step = statusInOrder[application?.status] || 1;
@@ -118,7 +100,18 @@ const ApplicationInProgress = ({ applicationId }) => {
     <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h3 className="text-xl font-bold text-gray-900">{application.applicationNumber}</h3>
+          <h3
+            className="text-xl font-bold text-blue-600 hover:text-blue-800 cursor-pointer"
+            onClick={() =>
+              navigate(
+                application.status === 'draft'
+                  ? `/application/${application.id}/edit`
+                  : `/application/${application.id}/view`
+              )
+            }
+          >
+            {application.applicationNumber}
+          </h3>
           <p className="text-gray-600 mt-1">{`${application?.vehicle.year} ${application?.vehicle.make} ${application?.vehicle.model}${application?.trim ? ` ${application.trim}` : ''}`}</p>
         </div>
         <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getStatusBadgeClass(application?.status)}`}>
@@ -134,7 +127,9 @@ const ApplicationInProgress = ({ applicationId }) => {
         </div>
         <div>
           <p className="text-gray-600 text-sm mb-1">Loan Amount</p>
-          <p className="text-gray-900 text-xl font-bold">{formatAmount(application?.loanAmount)}</p>
+          <p className="text-gray-900 text-xl font-bold">
+            {formatCurrency(application?.loanAmount, { maximumFractionDigits: 0 })}
+          </p>
         </div>
         <div>
           <p className="text-gray-600 text-sm mb-1">Term</p>

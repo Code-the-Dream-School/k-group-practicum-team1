@@ -10,15 +10,7 @@ export default function AuthPage() {
   const isLogin = location.pathname === '/login';
   const handleAuthSuccess = (user) => {
     console.log('Auth success callback called with user:', user);
-    if (user.role === 'customer') {
-      navigate('/dashboard');
-    } else if (user.role === 'loan_officer') {
-      navigate('/officer/dashboard');
-    } else if (user.role === 'underwriter') {
-      navigate('/underwriter/dashboard');
-    } else {
-      navigate('/dashboard');
-    }
+    navigate('/dashboard');
   };
 
   return (

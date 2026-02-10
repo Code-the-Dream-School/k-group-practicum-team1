@@ -4,13 +4,12 @@ import PropTypes from 'prop-types';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
+import { formatCurrency } from '../../utils/currencyHelpers';
 
 const ReviewAndSubmit = ({ viewOnly = false }) => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { draft, previousStep, loadDraftFromServer, saveDraftToServer, clearDraft } = useLoanApplicationStore();
-
-  console.log('Draft data in ReviewAndSubmit:', draft);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -77,14 +76,6 @@ const ReviewAndSubmit = ({ viewOnly = false }) => {
     return phone;
   };
 
-  const formatCurrency = (amount) => {
-    if (!amount) return 'N/A';
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-    }).format(amount);
-  };
-
   const formatDate = (date) => {
     if (!date) return 'N/A';
     return new Date(date).toLocaleDateString('en-US');
@@ -119,8 +110,30 @@ const ReviewAndSubmit = ({ viewOnly = false }) => {
         {viewOnly ? 'Application Summary' : 'Review & Submit'}
       </h2>
       {viewOnly && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <p className="text-green-800 font-medium">Application was submitted on {formatDate(draft.submittedDate)}</p>
+        <div
+          className={`mb-4 p-4 border rounded-lg ${
+            draft.status === 'rejected'
+              ? 'bg-red-50 border-red-200'
+              : draft.status === 'approved'
+                ? 'bg-green-50 border-green-200'
+                : 'bg-blue-50 border-blue-200'
+          }`}
+        >
+          <p
+            className={`font-medium ${
+              draft.status === 'rejected'
+                ? 'text-red-800'
+                : draft.status === 'approved'
+                  ? 'text-green-800'
+                  : 'text-blue-800'
+            }`}
+          >
+            {draft.status === 'approved'
+              ? 'Application was approved'
+              : draft.status === 'rejected'
+                ? 'Application was rejected'
+                : `Application was submitted on ${formatDate(draft.submittedDate)}`}
+          </p>
         </div>
       )}
       {!viewOnly && (

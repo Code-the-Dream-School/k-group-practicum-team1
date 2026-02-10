@@ -15,7 +15,10 @@ module Api
         application_review = ApplicationReview.find_or_initialize_by(application_id: params[:application_id])
 
         if application_review.update(application_review_params)
-          # Mark as completed if all checks are done
+
+          if application_review_params.values.any? && application.status == "submitted"
+            application.update(status: :pending)
+          end
           if application_review.all_complete?
             application_review.mark_as_completed!(current_user)
           end

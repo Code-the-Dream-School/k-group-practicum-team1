@@ -6,7 +6,6 @@ import Navbar from './layouts/Navbar/Navbar';
 import Footer from './layouts/Footer/Footer';
 import Dashboard from './components/Dashboard/Dashboard';
 import NewApplicationPage from './pages/NewApplicationPage/NewApplicationPage';
-import LoanOfficerDashboard from './pages/LoanOfficerDashboard/LoanOfficerDashboard';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Auth from './components/auth/Auth';
 import Profile from './pages/Profile/Profile';
@@ -63,15 +62,7 @@ function App() {
             }
           />
           <Route
-            path="/officer-dashboard"
-            element={
-              <ProtectedRoute>
-                <LoanOfficerDashboard />{' '}
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/officer-review"
+            path="/officer-review/:appId"
             element={
               <ProtectedRoute>
                 <LoanOfficerReview />
