@@ -55,7 +55,7 @@ class ApplicationSerializer
       financial_info: financial_info_json,
       personal_info: personal_info_json,
       application_review: application_review_json,
-      last_updated_at: @app.updated_at,
+      last_updated_at: @app.updated_at
     }
   end
 

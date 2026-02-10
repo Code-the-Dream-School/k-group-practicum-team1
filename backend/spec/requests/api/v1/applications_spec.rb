@@ -8,6 +8,8 @@ RSpec.describe "API::V1::Applications", type: :request do
 
   let!(:application) { create(:application, user: customer, status: "draft") }
   let!(:other_application) { create(:application, user: other_customer) }
+  let!(:submitted_application) { create(:application, :submitted, user: customer) }
+  let!(:other_submitted_application) { create(:application, :submitted, user: other_customer) }
 
   def auth_headers(user)
     token = Warden::JWTAuth::UserEncoder.new.call(user, :user, nil).first
@@ -99,20 +101,21 @@ RSpec.describe "API::V1::Applications", type: :request do
         get "/api/v1/applications", headers: auth_headers(customer)
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
-        expect(json["applications"].size).to eq(1)
-        expect(json["applications"].first["user_id"]).to eq(customer.id)
-        expect(json["meta"]["total"]).to eq(1)
+        expect(json["applications"].size).to eq(2)
+        json["applications"].each { |app| expect(app["user_id"]).to eq(customer.id) }
+        expect(json["meta"]["total"]).to eq(2)
       end
 
-      it "returns all applications for loan officer" do
+      it "returns all non-draft applications for loan officer" do
         get "/api/v1/applications", headers: auth_headers(loan_officer)
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
         expect(json["applications"].size).to be >= 2
         expect(json["meta"]["total"]).to be >= 2
+        json["applications"].each { |app| expect(app["status"]).not_to eq("draft") }
       end
 
-      it "returns all applications for underwriter" do
+      it "returns all non-draft applications for underwriter" do
         get "/api/v1/applications", headers: auth_headers(underwriter)
         expect(response).to have_http_status(:ok)
         json = JSON.parse(response.body)
@@ -122,6 +125,7 @@ RSpec.describe "API::V1::Applications", type: :request do
       it "includes applicant_name in each application" do
         get "/api/v1/applications", headers: auth_headers(loan_officer)
         json = JSON.parse(response.body)
+        expect(json["applications"]).not_to be_empty
         expect(json["applications"].first).to have_key("applicant_name")
         expect(json["applications"].first["applicant_name"]).to match(/\S+/)
       end
@@ -133,7 +137,7 @@ RSpec.describe "API::V1::Applications", type: :request do
       end
 
       it "paginates with 20 per page for loan officer" do
-        25.times { create(:application, user: other_customer) }
+        25.times { create(:application, :submitted, user: other_customer) }
         get "/api/v1/applications", headers: auth_headers(loan_officer), params: { page: 1 }
         json = JSON.parse(response.body)
         expect(json["applications"].size).to eq(20)
@@ -152,9 +156,9 @@ RSpec.describe "API::V1::Applications", type: :request do
       end
 
       it "filters by status for loan officer" do
-        get "/api/v1/applications", headers: auth_headers(loan_officer), params: { status: "draft" }
+        get "/api/v1/applications", headers: auth_headers(loan_officer), params: { status: "submitted" }
         json = JSON.parse(response.body)
-        json["applications"].each { |app| expect(app["status"]).to eq("draft") }
+        json["applications"].each { |app| expect(app["status"]).to eq("submitted") }
       end
 
       it "sorts by created_at desc by default for loan officer" do
