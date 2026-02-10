@@ -302,7 +302,7 @@ RSpec.describe "API::V1::Applications", type: :request do
               headers: auth_headers(customer)
 
         expect(response).to have_http_status(:forbidden)
-        expect(JSON.parse(response.body)["errors"]).to include("Only draft applications can be updated")
+        expect(JSON.parse(response.body)["errors"]).to include("Only draft, pending, or under review applications can be updated")
       end
 
       it "prevents updating approved application" do
