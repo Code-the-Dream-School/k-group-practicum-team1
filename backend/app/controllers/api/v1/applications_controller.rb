@@ -4,7 +4,7 @@ module Api
       before_action :authenticate_user!
       before_action :set_application, only: [ :show, :update ]
       before_action :authorize_user!, only: [ :show, :update ]
-      before_action :ensure_draft_status!, only: [ :update ]
+      before_action :ensure_eligible_status!, only: [ :update ]
 
       # POST /api/v1/applications
       def create
@@ -67,17 +67,16 @@ module Api
         end
       end
 
-      def ensure_draft_status!
+      def ensure_eligible_status!
         return if @application.nil?
-        unless @application.draft?
-          render json: { errors: [ "Only draft applications can be updated" ] }, status: :forbidden
+        unless @application.draft? || @application.pending? || @application.under_review?
+          render json: { errors: [ "Only draft, pending, or under review applications can be updated" ] }, status: :forbidden
         end
       end
 
       def application_params
         if params[:application].present?
           application_params = params.require(:application).dup
-          application_params.delete(:status)
           application_params.delete(:submitted_date)
           application_params.delete(:vehicle_attributes) if application_params[:vehicle_attributes].blank?
           application_params.delete(:financial_info_attributes) if application_params[:financial_info_attributes].blank?
@@ -85,6 +84,7 @@ module Api
           application_params.permit(
             :purchase_price, :loan_amount, :down_payment,
             :term_months, :apr, :monthly_payment, :application_progress,
+            :status,
             personal_info_attributes: [
               :id, :first_name, :last_name, :email,
               :phone_number, :dob, :ssn
@@ -100,6 +100,9 @@ module Api
                :annual_income, :additional_income, :monthly_expenses,
                :credit_score
             ],
+            application_review_attributes: [
+              :id, :review_notes
+            ]
           )
         else
           raise ActionController::ParameterMissing.new(:application), "Request must include 'application' key in JSON body"
