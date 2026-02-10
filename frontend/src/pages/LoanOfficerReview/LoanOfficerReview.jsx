@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { useForm } from 'react-hook-form';
 import humps from 'humps';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { apiFetch } from '../../services/api';
 import { formatDateToUS } from '../../utils/dateHelpers';
 import { formatCurrency } from '../../utils/currencyHelpers';
 import { getStatusBadgeClass, formatStatus } from '../../utils/statusHelpers';
 
-function LoanOfficerReview() {
+const LoanOfficerReview = () => {
   const { appId } = useParams();
+  const navigate = useNavigate();
   const [applicationData, setApplicationData] = useState(null);
 
   if (!appId) {
@@ -23,6 +25,17 @@ function LoanOfficerReview() {
     creditCheck: false,
   });
 
+  const {
+    register,
+    handleSubmit,
+    formState: { data, errors },
+  } = useForm({
+    defaultValues: {
+      reviewNote: '',
+    },
+    mode: 'onChange',
+  });
+
   useEffect(() => {
     const fetchApplicationData = async () => {
       const response = await apiFetch(`/api/v1/applications/${appId}`, {
@@ -31,11 +44,11 @@ function LoanOfficerReview() {
       if (response.data) {
         setApplicationData(humps.camelizeKeys(response.data));
         setCompletenessValues({
-          personal: response.data.application_review.personal_info_complete,
-          vehicle: response.data.application_review.vehicle_info_complete,
-          financial: response.data.application_review.financial_info_complete,
-          documents: response.data.application_review.documents_complete,
-          creditCheck: response.data.application_review.credit_check_authorized,
+          personal: response.data?.application_review?.personal_info_complete ?? false,
+          vehicle: response.data?.application_review?.vehicle_info_complete ?? false,
+          financial: response.data?.application_review?.financial_info_complete ?? false,
+          documents: response.data?.application_review?.documents_complete ?? false,
+          creditCheck: response.data?.application_review?.credit_check_authorized ?? false,
         });
       } else {
         console.error('Failed to fetch application data');
@@ -55,7 +68,7 @@ function LoanOfficerReview() {
     setCompletenessValues(updatedValues);
 
     try {
-      await apiFetch(`/api/v1/applications/${appId}/review`, {
+      const response = await apiFetch(`/api/v1/applications/${appId}/review`, {
         method: 'PATCH',
         body: JSON.stringify({
           personal_info_complete: updatedValues.personal,
@@ -65,6 +78,24 @@ function LoanOfficerReview() {
           credit_check_authorized: updatedValues.creditCheck,
         }),
       });
+
+      if (response.data) {
+        setApplicationData((prevData) => ({
+          ...prevData,
+          applicationReview: {
+            ...prevData.applicationReview,
+            ...{
+              id: response.data.id,
+              personalInfoComplete: response.data.personal_info_complete,
+              vehicleInfoComplete: response.data.vehicle_info_complete,
+              financialInfoComplete: response.data.financial_info_complete,
+              documentsComplete: response.data.documents_complete,
+              creditCheckAuthorized: response.data.credit_check_authorized,
+              reviewNotes: data.reviewNote,
+            },
+          },
+        }));
+      }
     } catch (error) {
       console.error('Failed to update completeness values:', error);
     }
@@ -74,6 +105,28 @@ function LoanOfficerReview() {
     return Math.round(
       (Object.values(completenessValues).filter(Boolean).length / Object.values(completenessValues).length) * 100
     );
+  };
+
+  const onSubmit = async (formData) => {
+    const response = await apiFetch(`/api/v1/applications/${appId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(
+        humps.decamelizeKeys({
+          ...applicationData,
+          applicationReview: {
+            ...applicationData.applicationReview,
+            reviewNotes: formData.reviewNote,
+          },
+          status: criteria === 'yes' ? 'approved' : criteria === 'no' ? 'rejected' : 'under_review',
+        })
+      ),
+    });
+
+    if (response.data) {
+      navigate('/dashboard');
+    } else {
+      console.error('Failed to submit application decision');
+    }
   };
 
   return (
@@ -236,10 +289,12 @@ function LoanOfficerReview() {
                 </select>
                 <h2>Officer Notes</h2>
                 <textarea
+                  {...register('reviewNote', { required: 'Review note is required' })}
                   rows={4}
                   placeholder="Add any observations or concerns..."
                   className="w-full bg-white border border-gray-300 text-gray-800  rounded-lg px-3 py-2 focus:outline-none cursor-auto"
                 />
+                {errors.reviewNote && <p className="text-red-600 text-sm mt-1">{errors.reviewNote.message}</p>}
               </div>
             </div>
             <div className="flex flex-wrap justify-between ">
@@ -254,6 +309,7 @@ function LoanOfficerReview() {
                       ? 'bg-red-600 hover:bg-red-700'
                       : 'bg-blue-600 hover:bg-blue-700'
                 }`}
+                onClick={handleSubmit(onSubmit)}
               >
                 {criteria === 'yes' ? 'Approve Loan' : criteria === 'no' ? 'Reject Loan' : 'Send to Underwriting'}
               </button>
@@ -286,6 +342,6 @@ function LoanOfficerReview() {
       </div>
     </div>
   );
-}
+};
 
 export default LoanOfficerReview;
