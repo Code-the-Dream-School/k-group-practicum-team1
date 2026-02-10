@@ -63,8 +63,12 @@ const ApplicationHistory = ({ applications, loading, error }) => {
                 {applications.map((app) => (
                   <tr key={app.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                     <td className="py-4 px-4 font-medium text-gray-900">{app.applicationNumber}</td>
-                    <td className="py-4 px-4 text-gray-900 font-medium">{formatCurrency(app.loanAmount || 0)}</td>
-                    <td className="py-4 px-4 text-gray-700">{formatDate(app.submittedDate || app.createdAt)}</td>
+                    <td className="py-4 px-4 text-gray-900 font-medium">
+                      {app.loanAmount ? formatCurrency(app.loanAmount) : '-'}
+                    </td>
+                    <td className="py-4 px-4 text-gray-700">
+                      {app.submittedDate ? formatDate(app.submittedDate) : '-'}
+                    </td>
                     <td className="py-4 px-4">
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusBadgeClass(app.status)}`}>
                         {formatStatus(app.status || 'Pending')}

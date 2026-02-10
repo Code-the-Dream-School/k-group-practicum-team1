@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { HiCheck, HiClock, HiDocumentText } from 'react-icons/hi';
 import humps from 'humps';
 import Stepper from '../../../../Stepper/Stepper';
@@ -11,6 +12,7 @@ const ApplicationInProgress = ({ applicationId }) => {
   const [application, setApplication] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   if (!applicationId) {
     throw new Error('applicationId prop is required');
@@ -98,7 +100,18 @@ const ApplicationInProgress = ({ applicationId }) => {
     <div className="bg-white rounded-lg shadow-sm p-6">
       <div className="flex justify-between items-start mb-6">
         <div>
-          <h3 className="text-xl font-bold text-gray-900">{application.applicationNumber}</h3>
+          <h3
+            className="text-xl font-bold text-blue-600 hover:text-blue-800 cursor-pointer"
+            onClick={() =>
+              navigate(
+                application.status === 'draft'
+                  ? `/application/${application.id}/edit`
+                  : `/application/${application.id}/view`
+              )
+            }
+          >
+            {application.applicationNumber}
+          </h3>
           <p className="text-gray-600 mt-1">{`${application?.vehicle.year} ${application?.vehicle.make} ${application?.vehicle.model}${application?.trim ? ` ${application.trim}` : ''}`}</p>
         </div>
         <span className={`px-4 py-2 rounded-lg text-sm font-medium ${getStatusBadgeClass(application?.status)}`}>
