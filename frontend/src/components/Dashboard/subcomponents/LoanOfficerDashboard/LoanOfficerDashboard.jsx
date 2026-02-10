@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import humps from 'humps';
 import { useNavigate } from 'react-router-dom';
 import { FiCheckCircle } from 'react-icons/fi';
-import { IoCloudUploadOutline, IoShieldCheckmarkOutline } from 'react-icons/io5';
+import { IoShieldCheckmarkOutline } from 'react-icons/io5';
 import { FaRegHourglassHalf } from 'react-icons/fa6';
 import { MdOutlinePendingActions } from 'react-icons/md';
+import { AiOutlineLike, AiOutlineDislike } from 'react-icons/ai';
 import { HiArrowUp, HiArrowDown } from 'react-icons/hi';
 import { formatCurrency } from '../../../../utils/currencyHelpers';
 import { formatStatus, getStatusBadgeClass } from '../../../../utils/statusHelpers';
@@ -14,6 +15,7 @@ import { formatDateToUS } from '../../../../utils/dateHelpers';
 
 function LoanOfficerDashboard() {
   const [loanData, setLoanData] = useState([]);
+  const [allLoanData, setAllLoanData] = useState([]);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'asc' });
   const [applicantName, setApplicantName] = useState('');
   const [status, setStatus] = useState('');
@@ -37,7 +39,11 @@ function LoanOfficerDashboard() {
       const response = await apiFetch(url, {
         method: 'GET',
       });
-      setLoanData(response.data.applications.map((app) => humps.camelizeKeys(app)));
+      const camelized = response.data.applications.map((app) => humps.camelizeKeys(app));
+      setLoanData(camelized);
+      if (!sortBy && !filterApplicantName && !filterStatus) {
+        setAllLoanData(camelized);
+      }
     },
     []
   );
@@ -76,10 +82,11 @@ function LoanOfficerDashboard() {
   const start = page * itemsPerPage;
   const currentData = loanData.slice(start, start + itemsPerPage);
 
-  const countSubmitted = loanData.filter((app) => app.status === 'submitted').length;
-  const countPendingDocs = loanData.filter((app) => app.status === 'pending_documents').length;
-  const countPending = loanData.filter((app) => app.status === 'pending').length;
-  const countUnderwriting = loanData.filter((app) => app.status === 'under_review').length;
+  const countSubmitted = allLoanData.filter((app) => app.status === 'submitted').length;
+  const countPending = allLoanData.filter((app) => app.status === 'pending').length;
+  const countUnderwriting = allLoanData.filter((app) => app.status === 'under_review').length;
+  const countApproved = allLoanData.filter((app) => app.status === 'approved').length;
+  const countRejected = allLoanData.filter((app) => app.status === 'rejected').length;
 
   console.log('Loan data fetched from server:', loanData);
 
@@ -113,15 +120,6 @@ function LoanOfficerDashboard() {
               </div>
               <div className="w-full flex justify-between sm:w-1/4 sm:min-h-30 max-w-xl bg-white shadow-lg rounded-lg p-6">
                 <div className="flex flex-col items-start justify-between ">
-                  <h2 className="text-gray-600">Pending Documents</h2>
-                  <h1 className="font-bold text-2xl">{countPendingDocs}</h1>
-                </div>
-                <div className="flex items-center ">
-                  <IoCloudUploadOutline className="w-8 h-8 text-yellow-600" />
-                </div>
-              </div>
-              <div className="w-full flex justify-between sm:w-1/4 sm:min-h-30 max-w-xl bg-white shadow-lg rounded-lg p-6">
-                <div className="flex flex-col items-start justify-between ">
                   <h2 className="text-gray-600">Pending</h2>
                   <h1 className="font-bold text-2xl">{countPending}</h1>
                 </div>
@@ -136,6 +134,24 @@ function LoanOfficerDashboard() {
                 </div>
                 <div className="flex items-center ">
                   <IoShieldCheckmarkOutline className="w-8 h-8 text-cyan-400" />
+                </div>
+              </div>
+              <div className="w-full flex justify-between sm:w-1/4 sm:min-h-30 max-w-xl bg-white shadow-lg rounded-lg p-6">
+                <div className="flex flex-col items-start justify-between ">
+                  <h2 className="text-gray-600">Approved</h2>
+                  <h1 className="font-bold text-2xl">{countApproved}</h1>
+                </div>
+                <div className="flex items-center ">
+                  <AiOutlineLike className="w-8 h-8 text-blue-600" />
+                </div>
+              </div>
+              <div className="w-full flex justify-between sm:w-1/4 sm:min-h-30 max-w-xl bg-white shadow-lg rounded-lg p-6">
+                <div className="flex flex-col items-start justify-between ">
+                  <h2 className="text-gray-600">Rejected</h2>
+                  <h1 className="font-bold text-2xl">{countRejected}</h1>
+                </div>
+                <div className="flex items-center ">
+                  <AiOutlineDislike className="w-8 h-8 text-red-600" />
                 </div>
               </div>
             </div>
@@ -161,6 +177,8 @@ function LoanOfficerDashboard() {
             <option value="pending_documents">Pending documents</option>
             <option value="pending">Pending</option>
             <option value="under_review">Under Review</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
           </select>
           <button
             onClick={handleApply}
