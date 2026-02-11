@@ -69,7 +69,7 @@ module Api
 
       def enforce_update_permissions!
         return if @application.nil?
-        unless @application.draft? || @application.pending? || @application.under_review?
+        unless @application.draft? || @application.submitted? || @application.pending? || @application.under_review? || @application.pending_documents?
           render json: { errors: [ "Only draft, pending, or under review applications can be updated" ] }, status: :forbidden
           return
         end
