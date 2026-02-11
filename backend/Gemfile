@@ -51,3 +51,8 @@ end
 
 gem "devise"
 gem "devise-jwt"
+
+# Active Storage + Cloudinary
+gem "cloudinary", "~> 2.4.4"
+# gem "activestorage-cloudinary-service"
+gem "carrierwave", "~> 3.1.2"

@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       resources :users
       resources :applications, only: [ :index, :show, :create, :update ] do
         resource :review, only: [ :update ], controller: "application_review"
+        resources :documents, only: [ :create, :destroy ]
       end
       get "/me", to: "users#me"
     end
