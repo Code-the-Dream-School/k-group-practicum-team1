@@ -48,4 +48,12 @@ h1 {
   button.bg-indigo-600:hover {
     @apply bg-indigo-700;
   }
+
+  .dropdown-item {
+    @apply bg-indigo-600 text-white rounded px-4 py-2 mt-0 cursor-pointer transition;
+  }
+
+  .dropdown-item:hover {
+    @apply bg-indigo-800;
+  }
 }
