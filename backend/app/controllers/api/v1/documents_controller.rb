@@ -13,9 +13,7 @@ module Api
           description: params[:document][:description]
         )
 
-        if params[:document][:file].present?
-          document.file_url = params[:document][:file_url]
-        end
+        document.file_url = params[:document][:file_url]
 
         if document.save
           render json: document_response(document), status: :created

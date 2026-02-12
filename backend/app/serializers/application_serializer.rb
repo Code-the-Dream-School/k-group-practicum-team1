@@ -67,7 +67,9 @@ class ApplicationSerializer
         id: doc.id,
         document_name: doc.document_name,
         description: doc.description,
-        url: doc.file_url.presence
+        file_url: doc.file_url.to_s.presence,
+        created_at: doc.created_at,
+        updated_at: doc.updated_at
       }
     end
   end
