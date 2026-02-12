@@ -1,7 +1,9 @@
+// frontend/src/components/LoanApplication/LoanDetails.test.jsx
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import LoanDetails from './LoanDetails';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
+import { toast } from 'react-toastify';
 
 jest.mock('../../stores/loanApplicationStore');
 jest.mock('../../services/api', () => ({
@@ -9,6 +11,13 @@ jest.mock('../../services/api', () => ({
   apiFetch: jest.fn(),
   getAuthToken: jest.fn(),
   setAuthToken: jest.fn(),
+}));
+jest.mock('react-toastify', () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+  },
 }));
 
 describe('LoanDetails Component', () => {
@@ -28,8 +37,6 @@ describe('LoanDetails Component', () => {
     mockNextStep = jest.fn();
     mockPreviousStep = jest.fn();
     mockSaveDraftToServer = jest.fn().mockResolvedValue();
-
-    window.alert = jest.fn();
 
     useLoanApplicationStore.mockReturnValue({
       draft: defaultDraft,
@@ -259,7 +266,7 @@ describe('LoanDetails Component', () => {
       await waitFor(() => {
         expect(mockUpdateLoanDetails).toHaveBeenCalled();
         expect(mockSaveDraftToServer).toHaveBeenCalled();
-        expect(window.alert).toHaveBeenCalledWith('Draft saved successfully!');
+        expect(toast.success).toHaveBeenCalledWith('Draft saved successfully!');
       });
     });
 

@@ -1,8 +1,10 @@
+// frontend/src/components/LoanApplication/ReviewAndSubmit.jsx
 /* eslint-disable react-hooks/incompatible-library */
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 import { formatCurrency } from '../../utils/currencyHelpers';
 
@@ -50,7 +52,7 @@ const ReviewAndSubmit = ({ viewOnly = false }) => {
 
     saveDraftToServer()
       .then(async () => {
-        alert('Application submitted successfully!');
+        toast.success('Application submitted successfully!');
         clearDraft();
         navigate('/dashboard');
       })

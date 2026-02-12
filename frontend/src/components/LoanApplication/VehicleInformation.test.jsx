@@ -46,7 +46,6 @@ describe('VehicleInformation Component', () => {
     mockPreviousStep = jest.fn();
     mockSaveDraftToServer = jest.fn().mockResolvedValue();
 
-    window.alert = jest.fn();
 
     useLoanApplicationStore.mockReturnValue({
       draft: defaultDraft,
