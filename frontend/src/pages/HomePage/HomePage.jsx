@@ -1,6 +1,26 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../context/AuthContext';
 
 function HomePage() {
+  const navigate = useNavigate();
+  const { user, isAuthenticated } = useAuth();
+
+  const handleApplyNow = () => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+
+    switch (user?.role) {
+      case 'loan_officer':
+      case 'underwriter':
+        navigate('/dashboard');
+        break;
+      default:
+        navigate('/application');
+    }
+  };
   const [loanAmount, setLoanAmount] = useState(20000);
   const [month, setMonth] = useState(12);
   const aprOptions = [5, 5.5, 6, 6.5, 7, 7.5, 8];
@@ -27,14 +47,14 @@ function HomePage() {
           </p>
 
           <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center">
-            <a
-              href="#"
-              className="rounded-md bg-white px-8 py-3 text-sm font-bold text-blue-600 shadow-lg hover:bg-gray-100 transition"
+            <button
+              onClick={handleApplyNow}
+              className="rounded-md bg-white px-8 py-3 text-sm font-bold text-blue-600 shadow-lg hover:bg-gray-100 transition cursor-pointer"
             >
               Apply Now
-            </a>
+            </button>
             <a
-              href="#"
+              href="#calculator"
               className="border border-white text-white px-8 py-2 rounded-md hover:bg-white/10 transition cursor-pointer"
             >
               Calculate Loan
@@ -63,7 +83,7 @@ function HomePage() {
           </div>
         </div>
       </section>
-      <section className="bg-gray-50 py-16 px-4 md:py-24">
+      <section id="calculator" className="bg-gray-50 py-16 px-4 md:py-24">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
             <h1 className="text-4xl md:text-6xl font-black tracking-tight text-blue-500"> Calculate your loan</h1>
@@ -133,7 +153,10 @@ function HomePage() {
                 </div>
               </div>
 
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-blue-200">
+              <button
+                onClick={handleApplyNow}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition shadow-lg shadow-blue-200 cursor-pointer"
+              >
                 Apply Now
               </button>
             </div>
