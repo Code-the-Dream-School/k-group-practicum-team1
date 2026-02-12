@@ -6,6 +6,10 @@ class DocumentUploader < CarrierWave::Uploader::Base
     %w[jpg jpeg png pdf doc docx xls xlsx odt ods rtf txt csv]
   end
 
+  def content_type_allowlist
+     %w[image/jpeg image/jpg image/png]
+  end
+
   private
 
   def default_url(*args)

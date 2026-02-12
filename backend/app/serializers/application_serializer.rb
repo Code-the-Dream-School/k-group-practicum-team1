@@ -62,7 +62,7 @@ class ApplicationSerializer
 
   def documents_json
     return [] unless @app.documents.any?
-    object.documents.map do |doc|
+    @app.documents.map do |doc|
       {
         id: doc.id,
         document_name: doc.document_name,

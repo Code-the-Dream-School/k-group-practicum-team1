@@ -8,27 +8,28 @@ module Api
 
       # POST /api/v1/applications/:application_id/documents
       def create
-        unless params[:file].present?
-          return render json: { error: "File is required" }, status: :unprocessable_entity
-        end
-
         document = @application.documents.build(
-          document_name: params[:document_name],
-          description: params[:description]
+          document_name: params[:document][:document_name],
+          description: params[:document][:description]
         )
 
-        document.file.attach(params[:file])
+        if params[:document][:file].present?
+          document.file_url = params[:document][:file_url]
+        end
 
         if document.save
           render json: document_response(document), status: :created
         else
-          render json: { errors: document.errors.full_messages }, status: :unprocessable_entity
+          render json: { error: "Document upload failed", errors: document.errors.full_messages }, status: :unprocessable_entity
         end
       end
 
       # DELETE /api/v1/applications/:application_id/documents/:id
       def destroy
-        @document.file.purge # deletes from Cloudinary
+        if @document.file_url.present?
+          @document.remove_file_url!
+          @document.save!
+        end
         @document.destroy
 
         render json: { message: "Document deleted successfully" }, status: :ok
@@ -58,8 +59,9 @@ module Api
           application_id: doc.application_id,
           document_name: doc.document_name,
           description: doc.description,
-          file_url: doc.file.attached? ? url_for(doc.file) : nil,
-          created_at: doc.created_at
+          file_url: doc.file_url.presence,
+          created_at: doc.created_at,
+          updated_at: doc.updated_at
         }
       end
     end
