@@ -20,6 +20,10 @@ export const apiFetch = async (endpoint, options = {}) => {
     ...options.headers,
   };
 
+  if (options.body instanceof FormData) {
+    delete headers['Content-Type'];
+  }
+
   if (authToken) {
     headers['Authorization'] = 'Bearer ' + authToken;
   }
@@ -30,7 +34,6 @@ export const apiFetch = async (endpoint, options = {}) => {
     headers,
   });
 
-  // const data = await response.json();
   const contentType = response.headers.get('content-type');
   let data;
   if (contentType && contentType.includes('application/json')) {

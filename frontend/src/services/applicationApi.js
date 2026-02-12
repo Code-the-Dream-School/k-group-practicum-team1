@@ -24,3 +24,23 @@ export const updateApplication = async (applicationId, applicationData) => {
   });
   return response.data;
 };
+
+export async function uploadDocument(applicationId, file, documentName, description) {
+  const formData = new FormData();
+  formData.append('document[file_url]', file);
+  formData.append('document[document_name]', documentName);
+  formData.append('document[description]', description);
+
+  try {
+    const { data } = await apiFetch(`/api/v1/applications/${applicationId}/documents`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    return data;
+  } catch (error) {
+    console.error('Error uploading document:', error);
+    const errorMessage = typeof error === 'string' ? error : error.message || 'Failed to upload document.';
+    throw errorMessage;
+  }
+}
