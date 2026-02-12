@@ -153,7 +153,7 @@ RSpec.describe 'PATCH api/v1/application_reviews', type: :request do
               headers: auth_headers(loan_officer),
               params: invalid_params
 
-        expect(response).to have_http_status(:bad_request)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
 end

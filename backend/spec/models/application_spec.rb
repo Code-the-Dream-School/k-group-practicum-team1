@@ -30,6 +30,7 @@ RSpec.describe Application, type: :model do
           vehicle: 'vehicle',
           financial: 'financial',
           terms: 'terms',
+          documents: 'documents',
           review: 'review'
         )
         .backed_by_column_of_type(:string)
