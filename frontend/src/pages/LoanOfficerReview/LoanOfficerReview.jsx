@@ -36,8 +36,6 @@ const LoanOfficerReview = () => {
   const isAllComplete = Object.values(completenessValues).every(Boolean);
   const reviewComplete = applicationData?.status === 'approved' || applicationData?.status === 'rejected';
 
-  console.log('Application review notes:', applicationData?.applicationReview?.reviewNotes);
-
   const {
     register,
     handleSubmit,

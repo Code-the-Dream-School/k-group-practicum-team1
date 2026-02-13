@@ -29,16 +29,6 @@ const VehicleInfoModal = ({ isOpen, onClose, onReview, applicationData, isComple
       reviewComplete={reviewComplete}
     >
       <div className="space-y-6">
-        {/* <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-5 border border-blue-100">
-          <div className="flex items-center gap-3 mb-1">
-            <HiOutlineTruck className="w-6 h-6 text-blue-600" />
-            <h3 className="text-lg font-bold text-gray-800">
-              {vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim || ''}` : 'No Vehicle Data'}
-            </h3>
-          </div>
-          {vehicle && <p className="text-sm text-gray-500 ml-9">{formatVehicleType(vehicle.vehicleType)} Vehicle</p>}
-        </div> */}
-
         <div>
           <h3 className="text-sm font-bold text-gray-600 uppercase tracking-wide mb-3">Vehicle Specifications</h3>
           <div className="grid grid-cols-2 gap-x-6 gap-y-1 bg-gray-50 rounded-lg p-4">
