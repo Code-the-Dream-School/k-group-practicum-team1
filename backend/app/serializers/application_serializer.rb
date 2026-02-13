@@ -105,7 +105,7 @@ class ApplicationSerializer
 
     @app.application_review.slice(
       :id, :personal_info_complete, :vehicle_info_complete,
-      :financial_info_complete, :documents_complete, :credit_check_authorized
+      :financial_info_complete, :documents_complete, :credit_check_authorized, :review_notes
     )
   end
 end
