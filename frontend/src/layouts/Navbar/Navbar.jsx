@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { RiArrowDropDownLine, RiArrowDropUpLine } from 'react-icons/ri';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -40,8 +41,12 @@ const Navbar = () => {
             >
               Dashboard
             </div>
-            <div className="mx-2 text-lg  font-semibold" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-              {user.first_name || 'User'} ▼
+            <div
+              className="mx-2 text-lg  font-semibold flex items-center"
+              onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            >
+              {`${user?.first_name} ${user?.last_name}${user?.role === 'loan_officer' ? ' (Loan Officer)' : ''} ${user?.role === 'underwriter' ? ' (Underwriter)' : ''}`}{' '}
+              {!isDropdownOpen ? <RiArrowDropDownLine className="" /> : <RiArrowDropUpLine className="" />}
             </div>
             {isDropdownOpen && (
               <div className="absolute w-24 mr-5 right-0 top-full z-10 bg-white rounded text-md mt-1 shadow-md text-gray-900">

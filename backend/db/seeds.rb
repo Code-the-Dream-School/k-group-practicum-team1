@@ -12,8 +12,8 @@ puts 'Seeding users...'
 
 loan_officer = User.find_or_initialize_by(email: 'loan.officer@example.com')
 loan_officer.assign_attributes(
-  first_name: 'Loan',
-  last_name: 'Officer',
+  first_name: 'Ben',
+  last_name: 'Morgan',
   phone_number: '1112223333',
   password: 'Password123!',
   password_confirmation: 'Password123!',
@@ -23,8 +23,8 @@ loan_officer.save!
 
 underwriter = User.find_or_initialize_by(email: 'underwriter@example.com')
 underwriter.assign_attributes(
-  first_name: 'Under',
-  last_name: 'Writer',
+  first_name: 'Jane',
+  last_name: 'Smith',
   phone_number: '4445556666',
   password: 'Password123!',
   password_confirmation: 'Password123!',

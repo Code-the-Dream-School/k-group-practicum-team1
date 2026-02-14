@@ -6,6 +6,12 @@ import { apiFetch } from '../../services/api';
 import { formatDateToUS } from '../../utils/dateHelpers';
 import { formatCurrency } from '../../utils/currencyHelpers';
 import { getStatusBadgeClass, formatStatus } from '../../utils/statusHelpers';
+import CompletionBlock from './components/CompletionBlock';
+import PersonalInfoModal from './components/PersonalInfoModal';
+import VehicleInfoModal from './components/VehicleInfoModal';
+import FinancialInfoModal from './components/FinancialInfoModal';
+import DocumentsModal from './components/DocumentsModal';
+import CreditCheckModal from './components/CreditCheckModal';
 
 const LoanOfficerReview = () => {
   const { appId } = useParams();
@@ -25,13 +31,19 @@ const LoanOfficerReview = () => {
     creditCheck: false,
   });
 
+  const [activeModal, setActiveModal] = useState(null);
+
+  const isAllComplete = Object.values(completenessValues).every(Boolean);
+  const reviewComplete = applicationData?.status === 'approved' || applicationData?.status === 'rejected';
+
   const {
     register,
     handleSubmit,
-    formState: { data, errors },
+    formState: { errors },
+    setValue,
   } = useForm({
     defaultValues: {
-      reviewNote: '',
+      reviewNote: applicationData?.application_review?.reviewNotes || '',
     },
     mode: 'onChange',
   });
@@ -58,14 +70,22 @@ const LoanOfficerReview = () => {
     fetchApplicationData();
   }, [appId]);
 
-  const handleCompletenessUpdate = async (e) => {
-    const { name, checked } = e.target;
+  useEffect(() => {
+    if (applicationData && reviewComplete) {
+      setValue('reviewNote', applicationData.applicationReview?.reviewNotes || '');
+    } else {
+      setValue('reviewNote', '');
+    }
+  }, [applicationData, setValue, reviewComplete]);
+
+  const handleCompletenessReview = async (fieldName) => {
     const updatedValues = {
       ...completenessValues,
-      [name]: checked,
+      [fieldName]: true,
     };
 
     setCompletenessValues(updatedValues);
+    setActiveModal(null);
 
     try {
       const response = await apiFetch(`/api/v1/applications/${appId}/review`, {
@@ -91,13 +111,53 @@ const LoanOfficerReview = () => {
               financialInfoComplete: response.data.financial_info_complete,
               documentsComplete: response.data.documents_complete,
               creditCheckAuthorized: response.data.credit_check_authorized,
-              reviewNotes: data.reviewNote,
             },
           },
         }));
+
+        if (fieldName === 'documents' && applicationData?.status?.includes('pending_documents')) {
+          await apiFetch(`/api/v1/applications/${appId}`, {
+            method: 'PATCH',
+            body: JSON.stringify(
+              humps.decamelizeKeys({
+                ...applicationData,
+                status: 'pending',
+              })
+            ),
+          });
+
+          setApplicationData((prevData) => ({
+            ...prevData,
+            status: 'pending',
+          }));
+        }
       }
     } catch (error) {
       console.error('Failed to update completeness values:', error);
+    }
+  };
+
+  const handleRequestDocuments = async () => {
+    try {
+      const response = await apiFetch(`/api/v1/applications/${appId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(
+          humps.decamelizeKeys({
+            ...applicationData,
+            status: 'pending_documents',
+          })
+        ),
+      });
+
+      if (response.data) {
+        setApplicationData((prevData) => ({
+          ...prevData,
+          status: 'pending_documents',
+        }));
+        setActiveModal(null);
+      }
+    } catch (error) {
+      console.error('Failed to request documents:', error);
     }
   };
 
@@ -112,10 +172,10 @@ const LoanOfficerReview = () => {
       method: 'PATCH',
       body: JSON.stringify(
         humps.decamelizeKeys({
-          ...applicationData,
-          applicationReview: {
-            ...applicationData.applicationReview,
-            reviewNotes: formData.reviewNote,
+          id: applicationData.id,
+          applicationReviewAttributes: {
+            ...(applicationData?.applicationReview?.id ? { id: applicationData.applicationReview.id } : {}),
+            reviewNotes: formData?.reviewNote,
           },
           status: criteria === 'yes' ? 'approved' : criteria === 'no' ? 'rejected' : 'under_review',
         })
@@ -177,7 +237,7 @@ const LoanOfficerReview = () => {
                   <label className="text-gray-500 text-md font-normal">Vehicle</label>
                   <h2 className="text-gray-600 text-md font-bold">
                     {applicationData?.vehicle
-                      ? `${applicationData.vehicle.year} ${applicationData.vehicle.make} ${applicationData.vehicle.model} ${applicationData.vehicle.trim}`
+                      ? `${applicationData.vehicle.year} ${applicationData.vehicle.make} ${applicationData.vehicle.model} ${applicationData.vehicle.trim ?? ''}`
                       : ''}
                   </h2>
                 </div>
@@ -219,78 +279,64 @@ const LoanOfficerReview = () => {
               </div>
             </div>
             <div>
-              <h2 className="text-gray-600 text-xl font-bold mb-2">Loan Details</h2>
+              <h2 className="text-gray-600 text-xl font-bold mb-2">Completeness Review</h2>
               <div className="flex flex-col gap-3">
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="personal"
-                    className="mr-2 cursor-pointer"
-                    checked={completenessValues.personal}
-                    onChange={handleCompletenessUpdate}
-                  />
-                  Personal Information
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="vehicle"
-                    className="mr-2 cursor-pointer"
-                    checked={completenessValues.vehicle}
-                    onChange={handleCompletenessUpdate}
-                  />
-                  Vehicle Information
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="financial"
-                    className="mr-2 cursor-pointer"
-                    checked={completenessValues.financial}
-                    onChange={handleCompletenessUpdate}
-                  />
-                  Financial Information
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="documents"
-                    className="mr-2 cursor-pointer"
-                    checked={completenessValues.documents}
-                    onChange={handleCompletenessUpdate}
-                  />
-                  Documents Uploaded
-                </label>
-                <label className="flex items-center">
-                  <input
-                    type="checkbox"
-                    name="creditCheck"
-                    className="mr-2 cursor-pointer"
-                    checked={completenessValues.creditCheck}
-                    onChange={handleCompletenessUpdate}
-                  />
-                  Credit Check Authorized
-                </label>
+                <CompletionBlock
+                  label="Personal Information"
+                  checked={completenessValues.personal}
+                  onClick={() => setActiveModal('personal')}
+                  reviewComplete={reviewComplete}
+                />
+                <CompletionBlock
+                  label="Vehicle Information"
+                  checked={completenessValues.vehicle}
+                  onClick={() => setActiveModal('vehicle')}
+                  reviewComplete={reviewComplete}
+                />
+                <CompletionBlock
+                  label="Financial Information"
+                  checked={completenessValues.financial}
+                  onClick={() => setActiveModal('financial')}
+                  reviewComplete={reviewComplete}
+                />
+                <CompletionBlock
+                  label="Documents Uploaded"
+                  checked={completenessValues.documents}
+                  onClick={() => setActiveModal('documents')}
+                  reviewComplete={reviewComplete}
+                />
+                <CompletionBlock
+                  label="Credit Check Authorized"
+                  checked={completenessValues.creditCheck}
+                  onClick={() => setActiveModal('creditCheck')}
+                  reviewComplete={reviewComplete}
+                />
               </div>
               <hr className="my-6 border-t border-0 w-full border-gray-300 " />
             </div>
+
             <div>
               <h2 className="text-gray-600 text-xl font-bold mb-2">Eligibility Assessment</h2>
               <div className="flex gap-4 flex-col">
-                <h2>Meets Lending Criteria?</h2>
-                <select
-                  value={criteria}
-                  onChange={(e) => setCriteria(e.target.value)}
-                  className="w-full bg-white border border-gray-300 text-gray-600  rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
-                >
-                  <option value="yes">Yes - Eligible</option>
-                  <option value="no">No - Denied</option>
-                  <option value="underwriting">Send to Underwriting</option>
-                </select>
+                {!reviewComplete && (
+                  <>
+                    <h2>Meets Lending Criteria?</h2>
+                    <select
+                      value={criteria}
+                      onChange={(e) => setCriteria(e.target.value)}
+                      className="w-full bg-white border border-gray-300 text-gray-600  rounded-lg px-3 py-2 focus:outline-none cursor-pointer"
+                    >
+                      <option value="yes">Yes - Eligible</option>
+                      <option value="no">No - Denied</option>
+                      <option value="underwriting">Send to Underwriting</option>
+                    </select>
+                  </>
+                )}
                 <h2>Officer Notes</h2>
                 <textarea
                   {...register('reviewNote', { required: 'Review note is required' })}
                   rows={4}
+                  disabled={reviewComplete}
                   placeholder="Add any observations or concerns..."
                   className="w-full bg-white border border-gray-300 text-gray-800  rounded-lg px-3 py-2 focus:outline-none cursor-auto"
                 />
@@ -298,21 +344,27 @@ const LoanOfficerReview = () => {
               </div>
             </div>
             <div className="flex flex-wrap justify-between ">
-              <button className="  bg-gray-400 hover:bg-gray-500 text-white  py-2 px-4 rounded-lg transition shadow-lg cursor-pointer">
-                Cancel
-              </button>
               <button
-                className={`py-2 px-4 rounded-lg transition shadow-lg cursor-pointer text-white ${
-                  criteria === 'yes'
-                    ? 'bg-green-600 hover:bg-green-700'
-                    : criteria === 'no'
-                      ? 'bg-red-600 hover:bg-red-700'
-                      : 'bg-blue-600 hover:bg-blue-700'
-                }`}
-                onClick={handleSubmit(onSubmit)}
+                className="  bg-gray-700 text-white  py-2 px-4 rounded-lg transition shadow-lg cursor-pointer"
+                onClick={() => navigate('/dashboard')}
               >
-                {criteria === 'yes' ? 'Approve Loan' : criteria === 'no' ? 'Reject Loan' : 'Send to Underwriting'}
+                Back To Dashboard
               </button>
+              {!reviewComplete && (
+                <button
+                  disabled={criteria === 'yes' && !isAllComplete}
+                  className={`py-2 px-4 rounded-lg transition shadow-lg text-white ${
+                    criteria === 'yes' && !isAllComplete
+                      ? 'bg-gray-400 cursor-not-allowed opacity-60'
+                      : `cursor-pointer ${
+                          criteria === 'yes' ? 'bg-green-700' : criteria === 'no' ? 'bg-red-700' : 'bg-blue-700'
+                        }`
+                  }`}
+                  onClick={handleSubmit(onSubmit)}
+                >
+                  {criteria === 'yes' ? 'Approve Loan' : criteria === 'no' ? 'Reject Loan' : 'Send to Underwriting'}
+                </button>
+              )}
             </div>
           </div>
           <div className="sm:w-1/4 flex flex-col bg-white shadow-lg rounded-lg p-5 gap-1">
@@ -339,6 +391,48 @@ const LoanOfficerReview = () => {
             </div>
           </div>
         </section>
+
+        <PersonalInfoModal
+          isOpen={activeModal === 'personal'}
+          onClose={() => setActiveModal(null)}
+          onReview={() => handleCompletenessReview('personal')}
+          applicationData={applicationData}
+          isComplete={completenessValues.personal}
+          reviewComplete={reviewComplete}
+        />
+        <VehicleInfoModal
+          isOpen={activeModal === 'vehicle'}
+          onClose={() => setActiveModal(null)}
+          onReview={() => handleCompletenessReview('vehicle')}
+          applicationData={applicationData}
+          isComplete={completenessValues.vehicle}
+          reviewComplete={reviewComplete}
+        />
+        <FinancialInfoModal
+          isOpen={activeModal === 'financial'}
+          onClose={() => setActiveModal(null)}
+          onReview={() => handleCompletenessReview('financial')}
+          applicationData={applicationData}
+          isComplete={completenessValues.financial}
+          reviewComplete={reviewComplete}
+        />
+        <DocumentsModal
+          isOpen={activeModal === 'documents'}
+          onClose={() => setActiveModal(null)}
+          onReview={() => handleCompletenessReview('documents')}
+          onRequestDocuments={handleRequestDocuments}
+          applicationData={applicationData}
+          isComplete={completenessValues.documents}
+          reviewComplete={reviewComplete}
+        />
+        <CreditCheckModal
+          isOpen={activeModal === 'creditCheck'}
+          onClose={() => setActiveModal(null)}
+          onReview={() => handleCompletenessReview('creditCheck')}
+          applicationData={applicationData}
+          isComplete={completenessValues.creditCheck}
+          reviewComplete={reviewComplete}
+        />
       </div>
     </div>
   );
