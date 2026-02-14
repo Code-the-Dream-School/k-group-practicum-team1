@@ -1,5 +1,7 @@
+// frontend/src/components/LoanApplication/PersonalInformation.jsx
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 import US_STATES from '../../utils/UsStates';
 import { formatDateToUS, formatDateToISO } from '../../utils/dateHelpers';
@@ -71,10 +73,10 @@ const PersonalInformation = () => {
     ]);
     try {
       await saveDraftToServer();
-      alert('Draft saved successfully!');
+      toast.success('Draft saved successfully!');
     } catch (error) {
       console.error('Error saving draft:', error);
-      alert('Failed to save draft. Please try again.');
+      toast.error('Failed to save draft. Please try again.');
     }
   };
 

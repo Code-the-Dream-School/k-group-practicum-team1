@@ -1,3 +1,5 @@
+// frontend/src/components/LoanApplication/FinancialInformation.jsx
+import { toast } from 'react-toastify';
 import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
@@ -61,10 +63,10 @@ const FinancialInformation = () => {
     updateFinancialInfoAttributes(formData);
     try {
       await saveDraftToServer();
-      alert('Draft saved successfully!');
+      toast.success('Draft saved successfully!');
     } catch (error) {
       console.error('Error saving draft:', error);
-      alert('Failed to save draft. Please try again.');
+      toast.error('Failed to save draft. Please try again.');
     }
   };
 

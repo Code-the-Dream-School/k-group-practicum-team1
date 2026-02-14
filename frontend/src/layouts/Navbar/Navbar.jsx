@@ -26,7 +26,7 @@ const Navbar = () => {
           setIsDropdownOpen(false);
         }}
       >
-        Turbo Loan
+        <img src="/turbo-loan-logo.png" alt="Turbo Loan" className="h-10" />
       </div>
       <div className="flex align-center">
         {isLoggedIn ? (

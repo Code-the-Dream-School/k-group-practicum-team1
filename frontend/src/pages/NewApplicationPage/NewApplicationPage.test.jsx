@@ -77,7 +77,7 @@ describe('NewApplicationPage', () => {
       </MemoryRouter>
     );
 
-    expect(screen.getByText('Auto Loan Application')).toBeInTheDocument();
+    expect(screen.getByText('Turbo Loan Application')).toBeInTheDocument();
     expect(screen.getByText('Complete the form below to apply for an auto loan')).toBeInTheDocument();
   });
 
