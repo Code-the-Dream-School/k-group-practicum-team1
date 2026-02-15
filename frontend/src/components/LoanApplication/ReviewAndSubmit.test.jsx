@@ -147,8 +147,8 @@ describe('ReviewAndSubmit', () => {
 
     const documentsContainer = screen.getByText('Documents').parentElement;
     const normalizedText = documentsContainer.textContent
-      .split('\n')        // split by newlines
-      .map(line => line.trim().replace(/\s+/g, ' '))
+      .split('\n') // split by newlines
+      .map((line) => line.trim().replace(/\s+/g, ' '))
       .join(' ');
     expect(normalizedText).toContain('Driver License');
     expect(normalizedText).toContain('Pay Stub');

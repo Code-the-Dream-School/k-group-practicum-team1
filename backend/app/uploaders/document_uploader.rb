@@ -14,7 +14,7 @@ class DocumentUploader < CarrierWave::Uploader::Base
 
   def default_url(*args)
     if file.present?
-      file.url
+      file&.url
     else
       nil
     end
