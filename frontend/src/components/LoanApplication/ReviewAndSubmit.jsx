@@ -87,7 +87,7 @@ const ReviewAndSubmit = ({ viewOnly = false }) => {
   };
 
   const getDocumentCount = () => {
-    return draft.documents?.length || 0;
+    return draft.documentsAttributes?.length || 0;
   };
 
   return (
@@ -295,7 +295,9 @@ const ReviewAndSubmit = ({ viewOnly = false }) => {
                           clipRule="evenodd"
                         />
                       </svg>
-                      <span className="font-medium">{doc.document_name || doc.file_name}</span>
+                      <span className="font-medium">
+                        {doc.document_name} {': '} {doc.file_name}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -305,7 +307,6 @@ const ReviewAndSubmit = ({ viewOnly = false }) => {
             )}
           </div>
         </div>
-
         <div className="border border-gray-200 rounded-lg p-6 bg-gray-50">
           <div className="flex items-start gap-3">
             <input

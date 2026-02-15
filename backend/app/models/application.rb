@@ -23,6 +23,7 @@ class Application < ApplicationRecord
     personal: "personal",
     vehicle: "vehicle",
     financial: "financial",
+    documents: "documents",
     terms: "terms",
     review: "review"
   }

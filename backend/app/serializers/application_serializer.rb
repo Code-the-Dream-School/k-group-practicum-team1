@@ -55,8 +55,23 @@ class ApplicationSerializer
       financial_info: financial_info_json,
       personal_info: personal_info_json,
       application_review: application_review_json,
+      documents: documents_json,
       last_updated_at: @app.updated_at
     }
+  end
+
+  def documents_json
+    return [] unless @app.documents.any?
+    @app.documents.map do |doc|
+      {
+        id: doc.id,
+        document_name: doc.document_name,
+        description: doc.description,
+        file_url: doc.file_url.to_s.presence,
+        created_at: doc.created_at,
+        updated_at: doc.updated_at
+      }
+    end
   end
 
   private

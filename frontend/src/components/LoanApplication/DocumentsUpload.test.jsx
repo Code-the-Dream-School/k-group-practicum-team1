@@ -12,6 +12,13 @@ jest.mock('../../services/api', () => ({
   setAuthToken: jest.fn(),
 }));
 
+jest.mock('../../services/applicationApi', () => ({
+  uploadDocument: jest.fn(async (id, file) => ({
+    name: file.name,
+    file_url: `http://example.com/${file.name}`,
+  })),
+}));
+
 describe('DocumentsUpload', () => {
   const mockUpdateDocuments = jest.fn();
   const mockNextStep = jest.fn();

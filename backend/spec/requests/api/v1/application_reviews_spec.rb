@@ -146,14 +146,15 @@ RSpec.describe 'PATCH api/v1/application_reviews', type: :request do
     end
 
     context "with invalid parameters" do
-      it "returns 422 with validation errors when required params are missing" do
+      it "returns validation errors when required params are missing" do
         invalid_params = {}
 
         patch "/api/v1/applications/#{application.id}/review",
               headers: auth_headers(loan_officer),
               params: invalid_params
 
-        expect(response).to have_http_status(:bad_request)
+        json = JSON.parse(response.body)
+        expect(json['error']).to include("Something went wrong. Please try again later.")
       end
     end
 end

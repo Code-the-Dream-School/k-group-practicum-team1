@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
+import { useParams } from 'react-router-dom';
 import {
   REQUIRED_DOCUMENTS,
   OPTIONAL_DOCUMENTS,
   MAX_FILE_SIZE_BYTES,
   MAX_FILE_SIZE_MB,
 } from '../../constants/documentConstant';
+import { uploadDocument } from '../../services/applicationApi';
 
 const DocumentsUpload = () => {
+  const { id } = useParams();
   const { draft, updateDocuments, nextStep, previousStep, saveDraftToServer } = useLoanApplicationStore();
-
   const {
     handleSubmit,
     formState: { isSubmitting },
@@ -22,9 +24,34 @@ const DocumentsUpload = () => {
   const [uploading, setUploading] = useState({});
 
   useEffect(() => {
+    if (draft?.documentsAttributes?.length) {
+      const mappedDocs = draft.documentsAttributes.map((doc) => {
+        const requiredDoc = REQUIRED_DOCUMENTS.find((rd) => rd.name === doc.document_name);
+
+        return {
+          id: doc.id,
+          document_name: doc.document_name,
+          description: doc.description,
+          file_url: doc.file_url || '',
+          file_name: doc.file_name || doc.document_name,
+          file_size: doc.file_size || 0,
+          file_type: doc.file_type || 'unknown',
+          uploaded_at: doc.uploaded_at || new Date().toISOString() || null,
+          required: !!requiredDoc,
+          accept: requiredDoc?.accept || '.pdf,.jpg,.jpeg,.png',
+        };
+      });
+      console.log('! Syncing documents from store (mapped for UI):', mappedDocs);
+      setUploadedDocuments(mappedDocs);
+    } else {
+      setUploadedDocuments([]);
+    }
+  }, [draft.documentsAttributes]);
+
+  useEffect(() => {
     return () => {
       uploadedDocuments.forEach((doc) => {
-        if (doc.file_url && doc.file_url.startsWith('blob:')) {
+        if (doc.file_url && typeof doc.file_url === 'string' && doc.file_url.startsWith('blob:')) {
           URL.revokeObjectURL(doc.file_url);
         }
       });
@@ -46,38 +73,45 @@ const DocumentsUpload = () => {
 
     setUploading((prev) => ({ ...prev, [documentId]: true }));
 
-    // TODO: Replace with actual file upload to backend
-    // Expected API endpoint: POST /api/v1/applications/:application_id/documents
-    // Request body (multipart/form-data):
-    // - file: File object
-    // - document_name: Document type name
-    // - description: Document description
-    // Response should include: id, document_name, description, file_url, created_at, updated_at
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    const docType = [...REQUIRED_DOCUMENTS, ...OPTIONAL_DOCUMENTS].find((doc) => doc.id === documentId);
-
-    const existingDoc = uploadedDocuments.find((doc) => doc.id === documentId);
-    if (existingDoc?.file_url && existingDoc.file_url.startsWith('blob:')) {
-      URL.revokeObjectURL(existingDoc.file_url);
+    let docType = [...REQUIRED_DOCUMENTS, ...OPTIONAL_DOCUMENTS].find((doc) => doc.id === documentId);
+    if (!docType) {
+      alert('Unknown document type');
+      setUploading((prev) => ({ ...prev, [documentId]: false }));
+      return;
     }
 
-    const newDocument = {
-      id: documentId,
-      document_name: docType?.name || file.name,
-      description: docType?.description || '',
-      file_url: URL.createObjectURL(file), // Temporary local URL for preview, will be replaced with backend URL after upload
-      file: file, // Store the actual File object for uploading to backend
-      file_name: file.name,
-      file_size: file.size,
-      file_type: file.type,
-      uploaded_at: new Date().toISOString(),
-    };
+    try {
+      // Call API to upload this one document
+      const uploadedFile = await uploadDocument(id, file, docType?.name, docType?.description);
+      const existingDoc = uploadedDocuments.find((doc) => doc.id === documentId);
 
-    const updatedDocuments = [...uploadedDocuments.filter((doc) => doc.id !== documentId), newDocument];
+      if (existingDoc?.file_url && existingDoc.file_url.startsWith('blob:')) {
+        URL.revokeObjectURL(existingDoc.file_url);
+      }
 
-    setUploadedDocuments(updatedDocuments);
-    setUploading((prev) => ({ ...prev, [documentId]: false }));
+      const newDocument = {
+        id: documentId,
+        document_name: docType?.name || uploadedFile?.name || file.name,
+        description: uploadedFile?.description || '',
+        file_url: uploadedFile?.file_url,
+        file: file,
+        file_name: uploadedFile?.name || file.name,
+        file_size: file.size,
+        file_type: file.type,
+        uploaded_at: new Date().toISOString(),
+      };
+
+      const updatedDocuments = [...uploadedDocuments.filter((doc) => doc.id !== documentId), newDocument];
+      setUploadedDocuments(updatedDocuments);
+      updateDocuments(updatedDocuments);
+
+      setUploading((prev) => ({ ...prev, [documentId]: false }));
+    } catch (err) {
+      alert('Failed to upload document: ' + err);
+    } finally {
+      setUploading((prev) => ({ ...prev, [documentId]: false }));
+      event.target.value = '';
+    }
   };
 
   const handleRemoveDocument = (documentId) => {
@@ -215,7 +249,7 @@ const DocumentsUpload = () => {
                 id={doc.id}
                 type="file"
                 className="hidden"
-                accept={doc.accept}
+                accept={doc.accept || '*/*'}
                 onChange={(e) => handleFileChange(doc.id, e)}
                 disabled={isUploading}
               />
@@ -235,6 +269,27 @@ const DocumentsUpload = () => {
       </p>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <div>
+          {draft?.documentsAttributes?.length > 0 && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <h3 className="text-lg font-semibold text-green-800 mb-2">Previously Uploaded Documents</h3>
+              <div className="flex flex-wrap justify-center gap-2">
+                {draft.documentsAttributes.map((doc) => (
+                  <a
+                    key={doc.id}
+                    href={doc.file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-block px-3 py-1 border border-green-400 rounded-md bg-green-100 hover:bg-green-200 text-green-800 font-medium truncate max-w-xs"
+                    title={doc.document_name}
+                  >
+                    {doc.document_name}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
         <div>
           <h3 className="text-xl font-semibold text-gray-800 mb-4">Required Documents</h3>
           <div className="space-y-4">{requiredDocuments.map((doc) => renderDocumentCard(doc))}</div>
@@ -257,8 +312,8 @@ const DocumentsUpload = () => {
             <p className="text-sm text-blue-800">
               <strong>
                 {uploadedDocuments.filter((doc) => requiredDocuments.find((rd) => rd.id === doc.id)).length} of{' '}
-                {requiredDocuments.length}
-              </strong>{' '}
+                {requiredDocuments.length}{' '}
+              </strong>
               required documents uploaded
             </p>
           </div>

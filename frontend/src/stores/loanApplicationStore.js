@@ -15,7 +15,7 @@ export const useLoanApplicationStore = create(
         vehicleAttributes: null,
         financialInfoAttributes: null,
         applicationProgress: 'personal',
-        // documentsAttributes: null,
+        documentsAttributes: [],
       },
 
       updatePersonalInfoAttributes: (data) =>
@@ -120,7 +120,7 @@ export const useLoanApplicationStore = create(
             vehicleAttributes: null,
             financialInfoAttributes: null,
             applicationProgress: 'personal',
-            // documents: [],
+            documents: [],
           },
           applicationId: null,
         }),
@@ -130,6 +130,17 @@ export const useLoanApplicationStore = create(
         if (data) {
           console.log('load draft before camelize:', data);
           const camelizedData = humps.camelizeKeys(data);
+
+          const documentsFromAPI = (camelizedData.documents || []).map((doc) => ({
+            id: doc.id,
+            document_name: doc.documentName || doc.document_name || 'Unknown',
+            description: doc.description || '',
+            file_url: doc.url?.url || null,
+            file_name: doc.fileName || 'file',
+            file_type: doc.fileType || 'unknown',
+            file_size: doc.size || 0,
+            uploaded_at: doc.uploadedAt || new Date().toISOString(),
+          }));
 
           if (isEditing && camelizedData.status !== 'draft') {
             console.warn('Attempting to edit an application that is not in draft status. Redirecting to dashboard.');
@@ -150,6 +161,7 @@ export const useLoanApplicationStore = create(
               addressesAttributes: camelizedData.addresses || null,
               vehicleAttributes: camelizedData.vehicle || null,
               financialInfoAttributes: camelizedData.financialInfo || null,
+              documentsAttributes: documentsFromAPI || [],
             },
             applicationId: camelizedData.id,
             currentStep: STEPS.findIndex((step) => step.key === camelizedData.applicationProgress) + 1 || 1,
