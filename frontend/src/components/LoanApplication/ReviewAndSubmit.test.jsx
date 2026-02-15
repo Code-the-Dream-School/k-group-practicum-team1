@@ -64,13 +64,9 @@ describe('ReviewAndSubmit', () => {
     termMonths: 60,
     apr: 4.5,
     monthlyPayment: 500,
-    documents: [
-      { document_name: 'Driver License', file_name: 'license.pdf' },
-      { document_name: 'Pay Stub', file_name: 'paystub.pdf' },
-    ],
     documentsAttributes: [
-      { document_name: 'Driver License', file_name: 'license.pdf' },
-      { document_name: 'Pay Stub', file_name: 'paystub.pdf' },
+      { id: 10, document_name: 'Driver License', file_name: 'license.pdf', file_url: '/uploads/license.pdf' },
+      { id: 11, document_name: 'Pay Stub', file_name: 'paystub.pdf', file_url: '/uploads/paystub.pdf' },
     ],
   };
 
@@ -148,13 +144,19 @@ describe('ReviewAndSubmit', () => {
     renderComponent();
 
     expect(screen.getByText('2 document(s) uploaded')).toBeInTheDocument();
-    expect(screen.getByText('Driver License')).toBeInTheDocument();
-    expect(screen.getByText('Pay Stub')).toBeInTheDocument();
+
+    const documentsContainer = screen.getByText('Documents').parentElement;
+    const normalizedText = documentsContainer.textContent
+      .split('\n')        // split by newlines
+      .map(line => line.trim().replace(/\s+/g, ' '))
+      .join(' ');
+    expect(normalizedText).toContain('Driver License');
+    expect(normalizedText).toContain('Pay Stub');
   });
 
   test('shows message when no documents uploaded', () => {
     useLoanApplicationStore.mockReturnValue({
-      draft: { ...mockDraft, documents: [] },
+      draft: { ...mockDraft, documentsAttributes: [] },
       previousStep: mockPreviousStep,
       clearDraft: mockClearDraft,
       saveDraftToServer: mockSaveDraftToServer,
@@ -239,7 +241,7 @@ describe('ReviewAndSubmit', () => {
         personalInfoAttributes: {},
         vehicleAttributes: {},
         financialInfoAttributes: {},
-        documents: [],
+        documentsAttributes: [],
       },
       previousStep: mockPreviousStep,
       clearDraft: mockClearDraft,

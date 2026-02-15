@@ -73,8 +73,6 @@ const DocumentsUpload = () => {
 
     setUploading((prev) => ({ ...prev, [documentId]: true }));
 
-    // await new Promise((resolve) => setTimeout(resolve, 1000));
-
     let docType = [...REQUIRED_DOCUMENTS, ...OPTIONAL_DOCUMENTS].find((doc) => doc.id === documentId);
     if (!docType) {
       alert('Unknown document type');
