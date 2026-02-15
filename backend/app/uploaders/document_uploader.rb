@@ -7,7 +7,7 @@ class DocumentUploader < CarrierWave::Uploader::Base
   end
 
   def content_type_allowlist
-     %w[image/jpeg image/jpg image/png]
+     %w[image/jpeg image/jpg image/png application/pdf]
   end
 
   private

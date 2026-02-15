@@ -25,18 +25,26 @@ const DocumentsUpload = () => {
 
   useEffect(() => {
     if (draft?.documentsAttributes?.length) {
-      const mappedDocs = draft.documentsAttributes.map((doc) => ({
-        id: doc.id,
-        document_name: doc.document_name,
-        description: doc.description,
-        file_url: doc.file_url,
-        file_name: doc.file_name || doc.document_name,
-        file_size: doc.file_size || 0,
-        file_type: doc.file_type || 'unknown',
-        uploaded_at: doc.uploaded_at || new Date().toISOString(),
-      }));
+      const mappedDocs = draft.documentsAttributes.map((doc) => {
+        const requiredDoc = REQUIRED_DOCUMENTS.find((rd) => rd.name === doc.document_name);
+
+        return {
+          id: doc.id,
+          document_name: doc.document_name,
+          description: doc.description,
+          file_url: doc.file_url || '',
+          file_name: doc.file_name || doc.document_name,
+          file_size: doc.file_size || 0,
+          file_type: doc.file_type || 'unknown',
+          uploaded_at: doc.uploaded_at || new Date().toISOString() || null,
+          required: !!requiredDoc,
+          accept: requiredDoc?.accept || '.pdf,.jpg,.jpeg,.png',
+        };
+      });
       console.log('! Syncing documents from store (mapped for UI):', mappedDocs);
       setUploadedDocuments(mappedDocs);
+    } else {
+      setUploadedDocuments([]);
     }
   }, [draft.documentsAttributes]);
 
@@ -65,7 +73,7 @@ const DocumentsUpload = () => {
 
     setUploading((prev) => ({ ...prev, [documentId]: true }));
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // await new Promise((resolve) => setTimeout(resolve, 1000));
 
     let docType = [...REQUIRED_DOCUMENTS, ...OPTIONAL_DOCUMENTS].find((doc) => doc.id === documentId);
     if (!docType) {
@@ -77,19 +85,19 @@ const DocumentsUpload = () => {
     try {
       // Call API to upload this one document
       const uploadedFile = await uploadDocument(id, file, docType?.name, docType?.description);
-
       const existingDoc = uploadedDocuments.find((doc) => doc.id === documentId);
+
       if (existingDoc?.file_url && existingDoc.file_url.startsWith('blob:')) {
         URL.revokeObjectURL(existingDoc.file_url);
       }
 
       const newDocument = {
         id: documentId,
-        document_name: uploadedFile?.name || file.name,
+        document_name: docType?.name || uploadedFile?.name || file.name,
         description: uploadedFile?.description || '',
         file_url: uploadedFile?.file_url,
         file: file,
-        file_name: file.name,
+        file_name: uploadedFile?.name || file.name,
         file_size: file.size,
         file_type: file.type,
         uploaded_at: new Date().toISOString(),
@@ -306,8 +314,8 @@ const DocumentsUpload = () => {
             <p className="text-sm text-blue-800">
               <strong>
                 {uploadedDocuments.filter((doc) => requiredDocuments.find((rd) => rd.id === doc.id)).length} of{' '}
-                {requiredDocuments.length}
-              </strong>{' '}
+                {requiredDocuments.length}{' '}
+              </strong>
               required documents uploaded
             </p>
           </div>
