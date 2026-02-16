@@ -68,6 +68,7 @@ describe('NewApplicationPage', () => {
       goToStep: mockGoToStep,
       clearDraft: mockClearDraft,
       loadDraftFromServer: mockLoadDraftFromServer,
+      updatePersonalInfoAttributes: jest.fn(),
     });
   });
 
@@ -136,6 +137,7 @@ describe('NewApplicationPage', () => {
       goToStep: mockGoToStep,
       clearDraft: mockClearDraft,
       loadDraftFromServer: mockLoadDraftFromServer,
+      updatePersonalInfoAttributes: jest.fn(),
     });
 
     render(
@@ -166,6 +168,7 @@ describe('NewApplicationPage', () => {
       goToStep: mockGoToStep,
       clearDraft: mockClearDraft,
       loadDraftFromServer: mockLoadDraftFromServer,
+      updatePersonalInfoAttributes: jest.fn(),
     });
 
     render(
