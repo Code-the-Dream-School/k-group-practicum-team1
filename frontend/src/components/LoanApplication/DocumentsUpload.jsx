@@ -95,7 +95,7 @@ const DocumentsUpload = () => {
         id: documentId,
         document_name: docType?.name || uploadedFile?.name || file.name,
         description: uploadedFile?.description || '',
-        file_url: uploadedFile?.file_url,
+        file_url: uploadedFile?.file_url?.url || '',
         file: file,
         file_name: uploadedFile?.name || file.name,
         file_size: file.size,
@@ -118,7 +118,7 @@ const DocumentsUpload = () => {
 
   const handleRemoveDocument = (documentId) => {
     const docToRemove = uploadedDocuments.find((doc) => doc.id === documentId);
-    if (docToRemove?.file_url && docToRemove.file_url.startsWith('blob:')) {
+    if (docToRemove?.file_url && typeof docToRemove.file_url === 'string' && docToRemove.file_url.startsWith('blob:')) {
       URL.revokeObjectURL(docToRemove.file_url);
     }
     const updatedDocuments = uploadedDocuments.filter((doc) => doc.id !== documentId);
@@ -276,18 +276,21 @@ const DocumentsUpload = () => {
             <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
               <h3 className="text-lg font-semibold text-green-800 mb-2">Previously Uploaded Documents</h3>
               <div className="flex flex-wrap justify-center gap-2">
-                {draft.documentsAttributes.map((doc) => (
-                  <a
-                    key={doc.id}
-                    href={doc.file_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block px-3 py-1 border border-green-400 rounded-md bg-green-100 hover:bg-green-200 text-green-800 font-medium truncate max-w-xs"
-                    title={doc.document_name}
-                  >
-                    {doc.document_name}
-                  </a>
-                ))}
+                {draft.documentsAttributes
+                  .filter((doc) => doc.file_url)
+                  .map((doc) => (
+                    <a
+                      key={doc.id}
+                      href={doc.file_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-block px-3 py-1 border border-green-400 rounded-md bg-green-100 hover:bg-green-200 text-green-800 font-medium truncate max-w-xs"
+                      title={doc.document_name}
+                    >
+                      {doc.document_name}
+                    </a>
+                  ))}
               </div>
             </div>
           )}

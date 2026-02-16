@@ -25,6 +25,13 @@ export const updateApplication = async (applicationId, applicationData) => {
   return response.data;
 };
 
+export const fetchAllApplications = async () => {
+  const response = await apiFetch(`/api/v1/applications`, {
+    method: 'GET',
+  });
+  return response.data;
+};
+
 export async function uploadDocument(applicationId, file, documentName, description) {
   const formData = new FormData();
   formData.append('document[file_url]', file);

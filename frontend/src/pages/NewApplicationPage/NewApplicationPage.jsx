@@ -8,6 +8,7 @@ import LoanDetails from '../../components/LoanApplication/LoanDetails';
 import DocumentsUpload from '../../components/LoanApplication/DocumentsUpload';
 import ReviewAndSubmit from '../../components/LoanApplication/ReviewAndSubmit';
 import { STEPS } from '../../constants/stepperConstant';
+import { getLatestAddress, getPersonalInfo } from '../../utils/personalInfo';
 import { useNavigate, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
@@ -18,14 +19,30 @@ const NewApplicationPage = ({ isEditing }) => {
 
   // Reset state on first load
   useEffect(() => {
-    if (!id) {
-      clearDraft();
-    } else {
-      clearDraft();
-      loadDraftFromServer(id, isEditing).catch(() => {
-        navigate('/dashboard');
-      });
-    }
+    const prefillPersonalInfo = async () => {
+      if (!id) {
+        try {
+          clearDraft();
+          const personalInfo = await getPersonalInfo();
+          const address = await getLatestAddress();
+          if (personalInfo) {
+            // Prefill Zustand store
+            useLoanApplicationStore.getState().updatePersonalInfoAttributes(personalInfo);
+            useLoanApplicationStore.getState().updateAddressesAttributes(address ? address : []);
+          } else {
+            clearDraft();
+          }
+        } catch (err) {
+          console.error('Failed to prefill personal info:', err);
+        }
+      } else {
+        clearDraft();
+        loadDraftFromServer(id, isEditing).catch(() => {
+          navigate('/dashboard');
+        });
+      }
+    };
+    prefillPersonalInfo();
   }, [clearDraft, id, isEditing, loadDraftFromServer, navigate]);
 
   const steps = STEPS;

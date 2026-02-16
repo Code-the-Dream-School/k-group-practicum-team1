@@ -46,12 +46,16 @@ describe('NewApplicationPage', () => {
   let mockClearDraft;
   let mockGoToStep;
   let mockLoadDraftFromServer;
+  let mockUpdatePersonalInfoAttributes;
+  let mockUpdateAddressesAttributes;
   let mockNavigate;
 
   beforeEach(() => {
     mockClearDraft = jest.fn();
     mockGoToStep = jest.fn();
     mockLoadDraftFromServer = jest.fn();
+    mockUpdatePersonalInfoAttributes = jest.fn();
+    mockUpdateAddressesAttributes = jest.fn();
     mockNavigate = jest.fn();
 
     const { useNavigate, useParams } = require('react-router-dom');
@@ -63,6 +67,13 @@ describe('NewApplicationPage', () => {
       goToStep: mockGoToStep,
       clearDraft: mockClearDraft,
       loadDraftFromServer: mockLoadDraftFromServer,
+      updatePersonalInfoAttributes: mockUpdatePersonalInfoAttributes,
+      updateAddressesAttributes: mockUpdateAddressesAttributes,
+      getState: () => ({
+        clearDraft: mockClearDraft,
+        updatePersonalInfoAttributes: mockUpdatePersonalInfoAttributes,
+        updateAddressesAttributes: mockUpdateAddressesAttributes,
+      }),
     });
   });
 
@@ -84,11 +95,20 @@ describe('NewApplicationPage', () => {
   it('should call clearDraft on component mount', () => {
     render(
       <MemoryRouter>
-        <NewApplicationPage />
+        <NewApplicationPage isEditing={false} />
       </MemoryRouter>
     );
 
     expect(mockClearDraft).toHaveBeenCalledTimes(1);
+  });
+
+  it('renders PersonalInformation component', () => {
+    render(
+      <MemoryRouter>
+        <NewApplicationPage isEditing={true} />
+      </MemoryRouter>
+    );
+    expect(screen.getByTestId('personal-information')).toBeInTheDocument();
   });
 
   it('should render Stepper with correct props', () => {
@@ -131,6 +151,8 @@ describe('NewApplicationPage', () => {
       goToStep: mockGoToStep,
       clearDraft: mockClearDraft,
       loadDraftFromServer: mockLoadDraftFromServer,
+      updatePersonalInfoAttributes: mockUpdatePersonalInfoAttributes,
+      updateAddressesAttributes: mockUpdateAddressesAttributes,
     });
 
     render(
@@ -161,6 +183,8 @@ describe('NewApplicationPage', () => {
       goToStep: mockGoToStep,
       clearDraft: mockClearDraft,
       loadDraftFromServer: mockLoadDraftFromServer,
+      updatePersonalInfoAttributes: mockUpdatePersonalInfoAttributes,
+      updateAddressesAttributes: mockUpdateAddressesAttributes,
     });
 
     render(
