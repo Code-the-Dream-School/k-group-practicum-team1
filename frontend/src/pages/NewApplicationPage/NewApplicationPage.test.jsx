@@ -4,6 +4,11 @@ import { MemoryRouter } from 'react-router-dom';
 import NewApplicationPage from './NewApplicationPage';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 
+jest.mock('../../utils/personalInfo', () => ({
+  getPersonalInfo: jest.fn().mockResolvedValue({ firstName: 'John', lastName: 'Doe' }),
+  getLatestAddress: jest.fn().mockResolvedValue([{ addr1: '123 Main St', city: 'City', state: 'CA', zip: '12345' }]),
+}));
+
 jest.mock('../../stores/loanApplicationStore');
 jest.mock('../../services/api', () => ({
   API_BASE: 'http://localhost:3000',

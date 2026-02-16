@@ -28,7 +28,6 @@ const NewApplicationPage = ({ isEditing }) => {
             // Prefill Zustand store
             useLoanApplicationStore.getState().updatePersonalInfoAttributes(personalInfo);
             useLoanApplicationStore.getState().updateAddressesAttributes(address ? address : []);
-            console.log('Prefilled personal info from previous application:', personalInfo, address);
           } else {
             clearDraft();
           }

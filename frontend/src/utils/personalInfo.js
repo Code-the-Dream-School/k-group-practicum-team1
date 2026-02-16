@@ -15,7 +15,6 @@ export const getPersonalInfo = async () => {
     }
     // Pick the latest application
     const latestApp = response.applications[0];
-    console.log('*latestApplication', latestApp);
 
     const appDetails = await fetchApplicationById(latestApp.id);
 
@@ -24,7 +23,6 @@ export const getPersonalInfo = async () => {
 
     // Return personal info
     const personalInfo = camelized.personalInfo || null;
-    console.log('*personalInfo', camelized.personalInfo);
 
     return personalInfo || null;
   } catch (err) {
