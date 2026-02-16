@@ -122,12 +122,15 @@ RSpec.describe "API::V1::Applications", type: :request do
         expect(json["applications"].size).to be >= 2
       end
 
-      it "includes applicant_name in each application" do
+      it "includes applicant_name from personal_info in each application" do
+        create(:personal_info, application: submitted_application, first_name: "John", last_name: "Doe")
+        create(:personal_info, application: other_submitted_application, first_name: "Jane", last_name: "Smith")
         get "/api/v1/applications", headers: auth_headers(loan_officer)
         json = JSON.parse(response.body)
         expect(json["applications"]).not_to be_empty
-        expect(json["applications"].first).to have_key("applicant_name")
-        expect(json["applications"].first["applicant_name"]).to match(/\S+/)
+        names = json["applications"].map { |a| a["applicant_name"] }
+        expect(names).to include("John Doe")
+        expect(names).to include("Jane Smith")
       end
 
       it "includes meta with total, count, current_page, total_pages" do

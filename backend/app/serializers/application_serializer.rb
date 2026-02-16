@@ -1,8 +1,6 @@
 class ApplicationSerializer
   def self.list_item(application, logged_in_user: nil)
-    print "ApplicationSerializer.list_item called with application id: #{application.id}, logged_in_user id: #{logged_in_user&.id}\n"
-    user = application.user
-    applicant_name = user ? "#{user.first_name} #{user.last_name}".strip : ""
+    applicant_name = application.personal_info ? "#{application.personal_info.first_name} #{application.personal_info.last_name}".strip : ""
     application_completeness = (!logged_in_user.customer? && !application.application_review.nil?) ? {
                                   personal_info_complete: application.application_review.personal_info_complete,
                                   vehicle_info_complete: application.application_review.vehicle_info_complete,
