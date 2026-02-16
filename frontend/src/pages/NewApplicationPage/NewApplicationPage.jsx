@@ -22,7 +22,8 @@ const NewApplicationPage = ({ isEditing }) => {
     const prefillPersonalInfo = async () => {
       if (!id) {
         try {
-          const personalInfo = await getPersonalInfo(); // async call inside async function
+          clearDraft();
+          const personalInfo = await getPersonalInfo();
           const address = await getLatestAddress();
           if (personalInfo) {
             // Prefill Zustand store
