@@ -8,9 +8,8 @@ import { fetchAllApplications, fetchApplicationById } from '../services/applicat
 export const getPersonalInfo = async () => {
   try {
     const response = await fetchAllApplications();
-    console.log('*all applications JSON', response);
     if (!response?.applications || response.applications.length === 0) {
-      console.warn('No previous applications found.');
+      // console.warn('No previous applications found.');
       return null;
     }
     // Pick the latest application
@@ -23,8 +22,11 @@ export const getPersonalInfo = async () => {
 
     // Return personal info
     const personalInfo = camelized.personalInfo || null;
+    if (!personalInfo) return null;
 
-    return personalInfo || null;
+    // eslint-disable-next-line no-unused-vars
+    const { id: _, ...cleanPersonalInfo } = personalInfo;
+    return cleanPersonalInfo;
   } catch (err) {
     console.error('Error fetching latest personal info:', err);
     return null;
@@ -40,7 +42,7 @@ export const getLatestAddress = async () => {
     const response = await fetchAllApplications();
 
     if (!response?.applications || response.applications.length === 0) {
-      console.warn('No previous applications found.');
+      // console.warn('No previous applications found.');
       return [];
     }
 
