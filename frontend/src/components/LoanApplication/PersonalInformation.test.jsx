@@ -47,7 +47,6 @@ describe('PersonalInformation Component', () => {
   };
 
   beforeEach(() => {
-    window.alert = jest.fn();
     jest.spyOn(console, 'error').mockImplementation(() => {});
     mockUpdatePersonalInfo = jest.fn();
     mockUpdateAddresses = jest.fn();

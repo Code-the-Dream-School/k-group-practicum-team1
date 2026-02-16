@@ -1,5 +1,7 @@
+// frontend/src/components/LoanApplication/DocumentsUpload.jsx
 import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 import { useParams } from 'react-router-dom';
 import {
@@ -66,7 +68,7 @@ const DocumentsUpload = () => {
     if (!file) return;
 
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      alert(`File size must be less than ${MAX_FILE_SIZE_MB}MB`);
+      toast.warn(`File size must be less than ${MAX_FILE_SIZE_MB}MB`);
       event.target.value = '';
       return;
     }
@@ -142,7 +144,7 @@ const DocumentsUpload = () => {
 
   const onSubmit = async () => {
     if (!allRequiredUploaded()) {
-      alert('Please upload all required documents before continuing.');
+      toast.warn('Please upload all required documents before continuing.');
       return;
     }
 
@@ -153,7 +155,7 @@ const DocumentsUpload = () => {
   const handleSaveDraft = async () => {
     updateDocuments(uploadedDocuments);
     await saveDraftToServer();
-    alert('Draft saved successfully!');
+    toast.success('Draft saved successfully!');
   };
 
   const handlePrevious = () => {

@@ -1,6 +1,8 @@
+// frontend/src/components/LoanApplication/LoanDetails.jsx
 /* eslint-disable react-hooks/incompatible-library */
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 import { formatCurrency } from '../../utils/currencyHelpers';
 
@@ -117,10 +119,10 @@ const LoanDetails = () => {
     });
     try {
       await saveDraftToServer();
-      alert('Draft saved successfully!');
+      toast.success('Draft saved successfully!');
     } catch (error) {
       console.error('Error saving draft:', error);
-      alert('Failed to save draft. Please try again.');
+      toast.error('Failed to save draft. Please try again.');
     }
   };
 

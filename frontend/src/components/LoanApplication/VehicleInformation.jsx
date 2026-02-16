@@ -1,5 +1,7 @@
+// frontend/src/components/LoanApplication/VehicleInformation.jsx
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'react-toastify';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
 import { carMakes, carModels, commonTrims } from '../../utils/vehicleData';
 
@@ -90,9 +92,9 @@ const VehicleInformation = () => {
 
     try {
       await saveDraftToServer();
-      alert('Draft saved successfully!');
+      toast.success('Draft saved successfully!');
     } catch {
-      alert('Failed to save draft. Please try again.');
+      toast.error('Failed to save draft. Please try again.');
     }
   };
 

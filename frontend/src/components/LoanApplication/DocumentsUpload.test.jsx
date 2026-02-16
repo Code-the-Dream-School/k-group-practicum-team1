@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import DocumentsUpload from './DocumentsUpload';
 import { useLoanApplicationStore } from '../../stores/loanApplicationStore';
-
+import { toast } from 'react-toastify';
 jest.mock('../../stores/loanApplicationStore');
 jest.mock('../../services/api', () => ({
   API_BASE: 'http://localhost:3000',
@@ -19,12 +19,18 @@ jest.mock('../../services/applicationApi', () => ({
   })),
 }));
 
+jest.mock('react-toastify', () => ({
+  toast: {
+    success: jest.fn(),
+    error: jest.fn(),
+    warn: jest.fn(),
+  },
+}));
 describe('DocumentsUpload', () => {
   const mockUpdateDocuments = jest.fn();
   const mockNextStep = jest.fn();
   const mockPreviousStep = jest.fn();
   const mockSaveDraftToServer = jest.fn();
-
   beforeEach(() => {
     jest.clearAllMocks();
     useLoanApplicationStore.mockReturnValue({
@@ -36,13 +42,7 @@ describe('DocumentsUpload', () => {
     });
     global.URL.createObjectURL = jest.fn(() => 'blob:mock-url');
     global.URL.revokeObjectURL = jest.fn();
-    jest.spyOn(window, 'alert').mockImplementation(() => {});
   });
-
-  afterEach(() => {
-    window.alert.mockRestore();
-  });
-
   test('renders document upload form with required documents', () => {
     render(<DocumentsUpload />);
     expect(screen.getByText('Documents Upload')).toBeInTheDocument();
@@ -51,14 +51,11 @@ describe('DocumentsUpload', () => {
     expect(screen.getByText('Recent Pay Stubs')).toBeInTheDocument();
     expect(screen.getByText('Bank Statements')).toBeInTheDocument();
   });
-
   test('handles file upload successfully', async () => {
     const { container } = render(<DocumentsUpload />);
     const file = new File(['content'], 'test.pdf', { type: 'application/pdf' });
     const input = container.querySelector('#idProof');
-
     fireEvent.change(input, { target: { files: [file] } });
-
     // Wait for the 1-second upload delay in the component
     await waitFor(
       () => {
@@ -67,46 +64,35 @@ describe('DocumentsUpload', () => {
       { timeout: 2000 }
     );
   });
-
   test('prevents submission when required documents are missing', () => {
     render(<DocumentsUpload />);
     const nextButton = screen.getByRole('button', { name: /next/i });
-
     // Button should be disabled when required documents are missing
     expect(nextButton).toBeDisabled();
     expect(mockNextStep).not.toHaveBeenCalled();
   });
-
   test('calls previousStep when Previous button is clicked', () => {
     render(<DocumentsUpload />);
     const previousButton = screen.getByRole('button', { name: /previous/i });
-
     fireEvent.click(previousButton);
-
     expect(mockPreviousStep).toHaveBeenCalled();
   });
-
   test('saves draft successfully', async () => {
     render(<DocumentsUpload />);
     const saveDraftButton = screen.getByRole('button', { name: /save draft/i });
-
     fireEvent.click(saveDraftButton);
-
     await waitFor(() => {
       expect(mockSaveDraftToServer).toHaveBeenCalled();
-      expect(window.alert).toHaveBeenCalledWith('Draft saved successfully!');
+      expect(toast.success).toHaveBeenCalledWith('Draft saved successfully!');
     });
   });
-
   test('rejects files larger than 5MB', async () => {
     const { container } = render(<DocumentsUpload />);
     const largeFile = new File(['x'.repeat(6 * 1024 * 1024)], 'large.pdf', { type: 'application/pdf' });
     const input = container.querySelector('#idProof');
-
     fireEvent.change(input, { target: { files: [largeFile] } });
-
     await waitFor(() => {
-      expect(window.alert).toHaveBeenCalledWith('File size must be less than 5MB');
+      expect(toast.warn).toHaveBeenCalledWith('File size must be less than 5MB');
     });
   });
 });
